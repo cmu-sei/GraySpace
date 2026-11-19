@@ -1,4 +1,4 @@
-FROM python:3.14.7-slim
+FROM python:3.14.10-slim
 
 # Install System Dependencies with BuildKit cache mount
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
