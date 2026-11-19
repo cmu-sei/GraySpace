@@ -1,0 +1,63 @@
+# Ignore
+.*
+*.log
+*.tfstate*
+environment
+packer/http/auto-install.conf
+hosts.yml
+ansible/inventory/*.ini
+# Release archives the controller downloads for the hosts (ansible/versions.yml)
+ansible/.cache/
+# Slices: per-instance inventories, Terraform inputs, and the API's data directory
+ansible/slice-inventory/
+terraform/slice/instances/
+terraform/images/images.tfvars.json
+terraform/grayspace-data/
+# Saved scenarios and the API's data directory, written next to whichever tfvars the API reads:
+# terraform/ in a deployment, tests/golden/ when the API runs against the golden tfvars
+terraform/scenarios/
+tests/golden/scenarios/
+tests/golden/grayspace-data/
+# The control plane's deployments (docs/deployments.md): records, environment files, work trees
+deployments/
+# Aspire AppHost build output
+aspire/GraySpace.AppHost/bin/
+aspire/GraySpace.AppHost/obj/
+# Frontend dependencies and build output
+grayspace-web/frontend/node_modules/
+grayspace-web/frontend/build/
+*.tfvars.json
+# ...except the slice test fixtures, which tests/test_terraform.py and test_slice_render.py compare against
+!tests/golden/slices/*.tfvars.json
+.devcontainer/certs/*.crt
+*.env
+packer/variables.pkrvars.hcl
+packer/windows/*.auto.pkrvars.hcl
+packer/alpine-lxc/output/
+packer/desktop-lxc/output/
+packer/ubuntu-lxc/output/
+packer/ubuntu-vm/output/
+packer/ubuntu-vm/packer_cache/
+__pycache__/
+.devcontainer/ssh/*
+# Separate clone of cmu-sei/GHOSTS for integration work; never commit it here
+GHOSTS/
+docs/thought_tracker.md
+
+#Allow
+!.devcontainer/
+!.dockerignore
+!ansible/inventory/proxy.ini
+!ansible/.ansible-lint
+!grayspace-web/frontend/.env.development
+!.vscode/
+.vscode/*
+!.vscode/launch.json
+!*template*.env
+!.prettierrc
+!.github
+# The desktop image's home directory skeleton (dotfiles throughout)
+!packer/desktop-lxc/files/etc/skel/**
+
+# MkDocs output (mkdocs build)
+site/

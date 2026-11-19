@@ -1,0 +1,53 @@
+---
+# The internal zone in Samba's DNS, on a domain controller (the ad-dc role includes this once the
+# domain is up). Samba forwards every other name to the DC's resolver (its dns forwarder). The zone
+# may be the realm itself: then the hosts' records go into the realm's zone.
+- name: Collect DNS settings
+  ansible.builtin.include_tasks: settings.yml
+
+- name: Wait for Samba's DNS server
+  ansible.builtin.command:
+    argv: [samba-tool, dns, zonelist, 127.0.0.1, -U, Administrator]
+  environment:
+    PASSWD: "{{ ad.admin_password }}"
+  register: dns_samba_zones
+  retries: 12
+  delay: 5
+  until: dns_samba_zones.rc == 0
+  changed_when: false
+
+- name: Create the internal zone
+  ansible.builtin.command:
+    argv: [samba-tool, dns, zonecreate, 127.0.0.1, "{{ dns_zone }}", -U, Administrator]
+  environment:
+    PASSWD: "{{ ad.admin_password }}"
+  changed_when: true
+  when: >-
+    dns_samba_zones.stdout | lower
+    is not search('pszzonename\s*:\s*' ~ (dns_zone | lower | regex_escape) ~ '\s*$', multiline=True)
+
+# One A record per host of the site, as BIND's zone file has them; a name pointing elsewhere is
+# corrected, so a re-run changes nothing
+- name: Record the site's hosts  # noqa: risky-shell-pipe (dash has no pipefail; grep's status is the test)
+  ansible.builtin.shell: |
+    out=$(samba-tool dns query 127.0.0.1 "$ZONE" "$NAME" A -U Administrator 2>&1) || true
+    if printf '%s\n' "$out" | grep -qF "A: $IP ("; then
+      exit 0
+    fi
+    for old in $(printf '%s\n' "$out" | sed -n 's/^ *A: \([0-9.]*\) (.*/\1/p'); do
+      samba-tool dns delete 127.0.0.1 "$ZONE" "$NAME" A "$old" -U Administrator
+    done
+    samba-tool dns add 127.0.0.1 "$ZONE" "$NAME" A "$IP" -U Administrator
+    echo CHANGED
+  args:
+    executable: /bin/sh
+  environment:
+    PASSWD: "{{ ad.admin_password }}"
+    ZONE: "{{ dns_zone }}"
+    NAME: "{{ item.name }}"
+    IP: "{{ item.ip }}"
+  loop: "{{ slice_site_hosts[dns_site] | default([]) }}"
+  loop_control:
+    label: "{{ item.name }} {{ item.ip }}"
+  register: dns_samba_records
+  changed_when: "'CHANGED' in dns_samba_records.stdout"

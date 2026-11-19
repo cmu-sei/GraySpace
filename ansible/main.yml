@@ -1,0 +1,714 @@
+---
+# Release archives (versions.yml) are downloaded once, here, and copied to the hosts that need them,
+# rather than by each host: every router fetching the same two archives from GitHub, and only while
+# they still have a route to the internet.
+- name: Download release archives on the controller
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - versions.yml
+  tasks:
+    - name: Create the download cache
+      ansible.builtin.file:
+        path: "{{ release_cache }}"
+        state: directory
+        mode: "0755"
+    - name: Download the archives the inventory's hosts need
+      ansible.builtin.get_url:
+        url: "{{ item.url }}"
+        dest: "{{ release_cache }}/{{ item.file }}"
+        mode: "0644"
+      loop: "{{ release_archives }}"
+      loop_control:
+        label: "{{ item.file }}"
+      when: groups[item.group] | default([]) | length > 0
+
+# The last play removes the management default route from the simulated hosts, so their traffic
+# goes through the simulated internet. Package installs earlier in a re-run need that route, so
+# this play puts it back for the run, from the gateway the last play recorded. The first run on
+# hosts deployed before the gateway was recorded needs it once: -e mgmt_gateway=<gateway>.
+# The same hosts as the last play.
+- name: Restore management default route for this run
+  hosts: routers:core_dns:core_ca
+  gather_facts: false
+  vars:
+    ansible_ssh_private_key_file: ../.ssh/terraform_key
+  tasks:
+    - name: Restore the management default route removed by the previous run
+      # Plain sh, no pipes: this runs before packages (bash among them) are installed on a new host.
+      ansible.builtin.shell: |
+        set -- $(ip -o -4 addr show to "{{ ansible_host }}")
+        iface=$2
+        [ -n "$iface" ] || exit 0
+        [ -n "$(ip route show default dev "$iface")" ] && exit 0
+        gw=$(cat /etc/grayspace/mgmt_gateway 2>/dev/null)
+        [ -n "$gw" ] || gw="{{ mgmt_gateway | default('') }}"
+        if [ -z "$gw" ]; then echo "no recorded management gateway"; exit 0; fi
+        ip route replace default via "$gw" dev "$iface"
+        echo restored
+      register: restore
+      changed_when: "'restored' in restore.stdout"
+
+    - name: Warn when the management gateway is unknown
+      ansible.builtin.debug:
+        msg: >-
+          {{ inventory_hostname }} has no management default route and no recorded gateway, so package
+          installs will fail. Run once with -e mgmt_gateway=<the management network's gateway>.
+      when: "'no recorded management gateway' in restore.stdout"
+
+- name: Configure Routers
+  hosts: routers
+  gather_facts: false
+  # Each router runs through its tasks at its own pace: none reads another's results
+  strategy: free
+  vars_files:
+    - versions.yml
+  vars:
+    ansible_ssh_private_key_file: ../.ssh/terraform_key
+    router_packages: [frr, iproute2, tar, dnsmasq]
+  environment:
+    http_proxy: "{{ http_proxy | default(omit) }}"
+    https_proxy: "{{ https_proxy | default(omit) }}"
+    no_proxy: "{{ no_proxy | default(omit) }}"
+  tasks:
+    # Before anything that runs tc or ip: the stock Alpine image has neither (BusyBox's ip
+    # words its errors differently from iproute2's); the GraySpace image has them all, so the
+    # install (and its index download) is skipped there
+    - name: Check for the router packages
+      ansible.builtin.command: apk info -e {{ router_packages | join(' ') }}
+      register: router_packages_check
+      changed_when: false
+      failed_when: false
+    - name: Install dependencies
+      community.general.apk:
+        name: "{{ router_packages }}"
+        state: present
+        update_cache: true
+      when: router_packages_check.rc != 0
+    - name: Enable IP Forwarding in the Kernel
+      ansible.posix.sysctl:
+        name: net.ipv4.ip_forward
+        value: "1"
+        sysctl_file: /etc/sysctl.conf
+        reload: true
+        state: present
+    - name: Apply latency to interfaces using tc-netem
+      ansible.builtin.shell: |
+        # Remove any existing qdisc first
+        tc qdisc del dev eth{{ ansible_loop.index0 }} root 2>/dev/null || true
+        # Add netem delay based on calculated latency
+        tc qdisc add dev eth{{ ansible_loop.index0 }} root netem delay {{ item.latency_ms }}ms
+      loop: "{{ interfaces }}"
+      loop_control:
+        extended: true
+        extended_allitems: false
+      when: item.latency_ms is defined and item.latency_ms > 0
+      changed_when: true
+    - name: Add loopback address via ip command
+      ansible.builtin.command:
+        cmd: "ip addr add {{ loopback_ip }} dev lo"
+      register: ip_add_result
+      changed_when: ip_add_result.rc == 0
+      failed_when: ip_add_result.rc != 0 and 'already assigned' not in ip_add_result.stderr
+    - name: Add loopback address to /etc/network/interfaces for persistence
+      ansible.builtin.lineinfile:
+        path: /etc/network/interfaces
+        line: "    address {{ loopback_ip }}"
+        insertafter: iface lo inet loopback
+    - name: Enable BGP and OSPF daemons in /etc/frr/daemons
+      ansible.builtin.lineinfile:
+        path: /etc/frr/daemons
+        regexp: "^{{ item }}=no"
+        line: "{{ item }}=yes"
+        backrefs: true
+      loop:
+        - bgpd
+        - ospfd
+      notify: Enable/Restart FRR
+    - name: Deploy the FRR configuration from template
+      ansible.builtin.template:
+        src: ./templates/frr.conf.j2
+        dest: /etc/frr/frr.conf
+        owner: frr
+        group: frr
+        mode: "0644"
+      notify: Enable/Restart FRR
+    - name: Write dnsmasq configuration from template
+      ansible.builtin.template:
+        src: ./templates/dnsmasq.conf.j2
+        dest: /etc/dnsmasq.d/dnsmasq.conf
+        mode: "0644"
+      when: customer_net is not none
+      notify: Restart dnsmasq
+    # FRR runs its new configuration before the exporters start
+    - name: Restart FRR and dnsmasq when their configuration changed
+      ansible.builtin.meta: flush_handlers
+
+    # The archives come from the controller (the first play); the GraySpace image has the
+    # binaries already
+    - name: Check for an installed frr_exporter
+      ansible.builtin.stat:
+        path: /usr/local/bin/frr_exporter
+      register: frr_exporter_bin
+    - name: Install frr_exporter
+      ansible.builtin.unarchive:
+        src: "{{ release_cache }}/frr_exporter-{{ frr_exporter_version }}.linux-amd64.tar.gz"
+        dest: /usr/local/bin/
+        extra_opts:
+          - --strip-components=1
+      when: not frr_exporter_bin.stat.exists
+    - name: Create frr_exporter service
+      ansible.builtin.copy:
+        src: ./templates/frr_exporter.service
+        dest: /etc/init.d/frr_exporter
+        mode: "0755"
+    - name: Start frr_exporter service
+      ansible.builtin.service:
+        name: frr_exporter
+        state: started
+        enabled: true
+
+    - name: Check for an installed node_exporter
+      ansible.builtin.stat:
+        path: /usr/local/bin/node_exporter
+      register: node_exporter_bin
+    - name: Install node_exporter
+      ansible.builtin.unarchive:
+        src: "{{ release_cache }}/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
+        dest: /usr/local/bin/
+        extra_opts:
+          - --strip-components=1
+      when: not node_exporter_bin.stat.exists
+    - name: Create node_exporter service
+      ansible.builtin.copy:
+        src: ./templates/node_exporter.service
+        dest: /etc/init.d/node_exporter
+        mode: "0755"
+      notify: Restart node_exporter
+    - name: Start node_exporter service
+      ansible.builtin.service:
+        name: node_exporter
+        state: started
+        enabled: true
+  handlers:
+    - name: Enable/Restart FRR
+      ansible.builtin.service:
+        name: frr
+        state: restarted
+        enabled: true
+    - name: Restart dnsmasq
+      ansible.builtin.service:
+        name: dnsmasq
+        state: restarted
+        enabled: true
+    - name: Restart node_exporter
+      ansible.builtin.service:
+        name: node_exporter
+        state: restarted
+
+- name: Configure DNS Servers (BIND)
+  hosts: core_dns
+  gather_facts: false
+  vars:
+    ansible_ssh_private_key_file: ../.ssh/terraform_key
+  environment:
+    http_proxy: "{{ http_proxy | default(omit) }}"
+    https_proxy: "{{ https_proxy | default(omit) }}"
+    no_proxy: "{{ no_proxy | default(omit) }}"
+  tasks:
+    - name: Compute effective zones and service IP
+      vars:
+        flat_zones: "{{ zones | join(',') | split(',') }}"
+      ansible.builtin.set_fact:
+        service_ip: "{{ interfaces[0].ip | ansible.utils.ipaddr('address') }}"
+        effective_zones: "{{ flat_zones }}"
+
+    - name: Build cross-host DNS facts
+      vars:
+        _dns_root_json: >-
+          [{% for h in groups['dns_root'] | default([]) %}
+          {"hostname": "{{ hostvars[h].inventory_hostname }}",
+          "ip": "{{ hostvars[h].service_ip }}"}
+          {{ "," if not loop.last else "" }}
+          {% endfor %}]
+        _dns_tld_json: >-
+          [{% for h in groups['dns_tld'] | default([]) %}
+          {"hostname": "{{ hostvars[h].inventory_hostname }}",
+          "ip": "{{ hostvars[h].service_ip }}",
+          "zones": {{ hostvars[h].effective_zones | to_json }}}
+          {{ "," if not loop.last else "" }}
+          {% endfor %}]
+        _dns_hosting_json: >-
+          [{% for h in groups['dns_hosting'] | default([]) %}
+          {"hostname": "{{ hostvars[h].inventory_hostname }}",
+          "ip": "{{ hostvars[h].service_ip }}"}
+          {{ "," if not loop.last else "" }}
+          {% endfor %}]
+      ansible.builtin.set_fact:
+        dns_root_hosts: "{{ _dns_root_json | from_yaml }}"
+        dns_tld_hosts: "{{ _dns_tld_json | from_yaml }}"
+        dns_hosting_hosts: "{{ _dns_hosting_json | from_yaml }}"
+
+    # The GraySpace image has BIND already, so the install (and its index download) is skipped there
+    - name: Check for BIND
+      ansible.builtin.command: apk info -e bind bind-tools
+      register: bind_packages_check
+      changed_when: false
+      failed_when: false
+    - name: Install BIND
+      community.general.apk:
+        name:
+          - bind
+          - bind-tools
+        state: present
+        update_cache: true
+      when: bind_packages_check.rc != 0
+    # rndc's key is per server: the GraySpace image leaves it out (the bind package makes one when
+    # it is installed, which a built image would share)
+    - name: Generate the rndc key
+      ansible.builtin.command: rndc-confgen -a -c /etc/bind/rndc.key
+      args:
+        creates: /etc/bind/rndc.key
+    - name: Let named read the rndc key
+      ansible.builtin.file:
+        path: /etc/bind/rndc.key
+        owner: named
+        group: named
+
+    - name: Create BIND directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: named
+        group: named
+        mode: "0755"
+      loop:
+        - /var/bind
+        - /var/log/named
+        - /etc/bind/zones.d
+
+    - name: Deploy named.conf
+      ansible.builtin.template:
+        src: ./templates/named.conf.j2
+        dest: /etc/bind/named.conf
+        owner: named
+        group: named
+        mode: "0644"
+      notify: Restart named
+    - name: Initialize dynamic zone config for hosting servers
+      ansible.builtin.file:
+        path: /etc/bind/zones.d/dynamic.conf
+        state: touch
+        owner: named
+        group: named
+        mode: "0644"
+      when: role == 'hosting'
+
+    - name: Deploy root zone file
+      ansible.builtin.template:
+        src: ./templates/db.root.j2
+        dest: /var/bind/db.root
+        owner: named
+        group: named
+        mode: "0644"
+      when: role == 'root-dns'
+      notify: Restart named
+
+    - name: Create runtime delegation files for TLD zones
+      ansible.builtin.copy:
+        content: "; Delegations for domains created at runtime. Kept across task configure.\n"
+        dest: "/var/bind/delegations.{{ item }}"
+        force: false
+        owner: named
+        group: named
+        mode: "0644"
+      loop: "{{ effective_zones }}"
+      when: role == 'tld'
+
+    - name: Deploy TLD zone files
+      ansible.builtin.template:
+        src: ./templates/db.tld.j2
+        dest: "/var/bind/db.{{ item }}"
+        owner: named
+        group: named
+        mode: "0644"
+      loop: "{{ effective_zones }}"
+      when: role == 'tld'
+      notify: Restart named
+
+    - name: Deploy root hints for resolvers
+      ansible.builtin.template:
+        src: ./templates/root.hints.j2
+        dest: /var/bind/root.hints
+        owner: named
+        group: named
+        mode: "0644"
+      when: role == 'resolver'
+      notify: Restart named
+
+    - name: Enable and start named service
+      ansible.builtin.service:
+        name: named
+        state: started
+        enabled: true
+
+    - name: Verify root server responds to NS query
+      ansible.builtin.command:
+        cmd: "dig @{{ service_ip }} . NS +short"
+      register: dig_root_ns
+      changed_when: false
+      failed_when: false
+      when: role == 'root-dns'
+
+    - name: Verify TLD server responds to SOA query
+      ansible.builtin.command:
+        cmd: "dig @{{ service_ip }} {{ effective_zones[0] }}. SOA +short"
+      register: dig_tld_soa
+      changed_when: false
+      failed_when: false
+      when: role == 'tld'
+
+    - name: Verify resolver accepts recursive queries
+      ansible.builtin.command:
+        cmd: "dig @{{ service_ip }} . NS +short"
+      register: dig_resolver
+      changed_when: false
+      failed_when: false
+      when: role == 'resolver'
+
+    - name: Verify hosting provider BIND is running
+      ansible.builtin.command:
+        cmd: "rndc status"
+      register: rndc_hosting
+      changed_when: false
+      failed_when: false
+      when: role == 'hosting'
+
+    - name: Display DNS verification status
+      ansible.builtin.debug:
+        msg: >-
+          {{ inventory_hostname }} ({{ role }}):
+          {% if role == 'root-dns' %}root NS query {{ 'OK' if dig_root_ns.rc == 0 else 'FAILED' }}
+          {% elif role == 'tld' %}TLD SOA query {{ 'OK' if dig_tld_soa.rc == 0 else 'FAILED' }}
+          {% elif role == 'hosting' %}hosting rndc {{ 'OK' if rndc_hosting.rc == 0 else 'FAILED' }}
+          {% elif role == 'resolver' %}resolver query {{ 'OK' if dig_resolver.rc == 0 else 'FAILED' }}
+          {% endif %}
+  handlers:
+    - name: Restart named
+      ansible.builtin.service:
+        name: named
+        state: restarted
+
+- name: Configure Certificate Authorities (step-ca)
+  hosts: core_ca
+  gather_facts: false
+  # Each CA runs through its tasks at its own pace: none reads another's results
+  strategy: free
+  vars_files:
+    - versions.yml
+  vars:
+    ansible_ssh_private_key_file: ../.ssh/terraform_key
+    ca_packages: [openssl, python3, py3-pip, py3-flask, bash, curl]
+  environment:
+    http_proxy: "{{ http_proxy | default(omit) }}"
+    https_proxy: "{{ https_proxy | default(omit) }}"
+    no_proxy: "{{ no_proxy | default(omit) }}"
+  tasks:
+    - name: Compute service IP
+      ansible.builtin.set_fact:
+        service_ip: "{{ interfaces[0].ip | ansible.utils.ipaddr('address') }}"
+
+    # The GraySpace image has them all, so the install (and its index download) is skipped there
+    - name: Check for the CA packages
+      ansible.builtin.command: apk info -e {{ ca_packages | join(' ') }}
+      register: ca_packages_check
+      changed_when: false
+      failed_when: false
+    - name: Install dependencies
+      community.general.apk:
+        name: "{{ ca_packages }}"
+        state: present
+        update_cache: true
+      when: ca_packages_check.rc != 0
+
+    - name: Create step-ca directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0700"
+      loop:
+        - /etc/step-ca
+        - /etc/step-ca/certs
+        - /etc/step-ca/secrets
+        - /etc/step-ca/db
+        - /var/log/step-ca
+
+    # The archives come from the controller (the first play). BusyBox tar extracts them: the
+    # unarchive module needs GNU tar, which CAs don't have
+    - name: Check for an installed step-ca
+      ansible.builtin.stat:
+        path: /usr/local/bin/step-ca
+      register: step_ca_bin
+    - name: Copy the step-ca archive
+      ansible.builtin.copy:
+        src: "{{ release_cache }}/step-ca_linux_{{ step_version }}_amd64.tar.gz"
+        dest: /tmp/step-ca.tar.gz
+        mode: "0644"
+      when: not step_ca_bin.stat.exists
+
+    - name: Extract step-ca binary
+      ansible.builtin.shell: |
+        tar -xzf /tmp/step-ca.tar.gz -C /tmp/
+        cp /tmp/step-ca /usr/local/bin/step-ca
+        chmod 755 /usr/local/bin/step-ca
+      args:
+        creates: /usr/local/bin/step-ca
+
+    - name: Check for an installed step CLI
+      ansible.builtin.stat:
+        path: /usr/local/bin/step
+      register: step_cli_bin
+    - name: Copy the step CLI archive
+      ansible.builtin.copy:
+        src: "{{ release_cache }}/step_linux_{{ step_version }}_amd64.tar.gz"
+        dest: /tmp/step-cli.tar.gz
+        mode: "0644"
+      when: not step_cli_bin.stat.exists
+
+    - name: Extract step CLI
+      ansible.builtin.shell: |
+        tar -xzf /tmp/step-cli.tar.gz -C /tmp/
+        cp /tmp/step_{{ step_version }}/bin/step /usr/local/bin/step
+        chmod 755 /usr/local/bin/step
+      args:
+        creates: /usr/local/bin/step
+
+    - name: Generate CA password file
+      ansible.builtin.copy:
+        content: "grayspace-ca"
+        dest: /etc/step-ca/secrets/password.txt
+        mode: "0600"
+
+    - name: Initialize step-ca PKI
+      ansible.builtin.shell: |
+        step ca init \
+          --name="{{ ca_name }}" \
+          --dns="{{ service_ip }},localhost,127.0.0.1" \
+          --address=":443" \
+          --provisioner="admin" \
+          --password-file=/etc/step-ca/secrets/password.txt \
+          --deployment-type=standalone
+      environment:
+        STEPPATH: /etc/step-ca
+      args:
+        creates: /etc/step-ca/certs/root_ca.crt
+
+    - name: Allow certificates of up to 90 days, for slices that run longer than a day
+      ansible.builtin.shell: |
+        set -euo pipefail
+        python3 - <<'PY'
+        import json
+        path = "/etc/step-ca/config/ca.json"
+        with open(path) as f:
+            config = json.load(f)
+        claims = config.setdefault("authority", {}).setdefault("claims", {})
+        wanted = {"maxTLSCertDuration": "2160h", "defaultTLSCertDuration": "24h"}
+        if all(claims.get(k) == v for k, v in wanted.items()):
+            print("unchanged")
+        else:
+            claims.update(wanted)
+            with open(path, "w") as f:
+                json.dump(config, f, indent=4)
+            print("changed")
+        PY
+      args:
+        executable: /bin/bash
+      register: ca_claims
+      changed_when: "'changed' in ca_claims.stdout"
+      notify: Restart step-ca
+
+    - name: Deploy step-ca init script
+      ansible.builtin.template:
+        src: ./templates/step-ca.initd.j2
+        dest: /etc/init.d/step-ca
+        mode: "0755"
+
+    - name: Enable and start step-ca
+      ansible.builtin.service:
+        name: step-ca
+        state: started
+        enabled: true
+
+    - name: Wait for step-ca to be ready
+      ansible.builtin.command:
+        cmd: curl -sk https://localhost/health
+      register: health_check
+      retries: 10
+      delay: 3
+      until: health_check.rc == 0
+      changed_when: false
+
+    - name: Add X5C provisioner for cert issuance without validation
+      ansible.builtin.shell: |
+        step ca provisioner add x5c --type X5C \
+          --x5c-roots /etc/step-ca/certs/root_ca.crt \
+          --admin-provisioner admin \
+          --admin-password-file /etc/step-ca/secrets/password.txt \
+          --ca-url https://localhost \
+          --root /etc/step-ca/certs/root_ca.crt
+      environment:
+        STEPPATH: /etc/step-ca
+      register: add_provisioner
+      failed_when: add_provisioner.rc != 0 and 'already exists' not in add_provisioner.stderr
+      changed_when: add_provisioner.rc == 0
+
+    - name: Deploy CA web UI application
+      ansible.builtin.template:
+        src: ./templates/ca-web-ui.py.j2
+        dest: /usr/local/bin/ca-web-ui.py
+        mode: "0755"
+      notify: Restart ca-web-ui
+
+    - name: Deploy CA web UI init script
+      ansible.builtin.template:
+        src: ./templates/ca-web-ui.initd.j2
+        dest: /etc/init.d/ca-web-ui
+        mode: "0755"
+      notify: Restart ca-web-ui
+
+    - name: Enable and start CA web UI
+      ansible.builtin.service:
+        name: ca-web-ui
+        state: started
+        enabled: true
+
+  handlers:
+    - name: Restart step-ca
+      ansible.builtin.service:
+        name: step-ca
+        state: restarted
+
+    - name: Restart ca-web-ui
+      ansible.builtin.service:
+        name: ca-web-ui
+        state: restarted
+
+- name: Configure Prometheus
+  hosts: prometheus
+  gather_facts: false
+  vars:
+    ansible_ssh_private_key_file: ../.ssh/terraform_key
+  environment:
+    http_proxy: "{{ http_proxy | default(omit) }}"
+    https_proxy: "{{ https_proxy | default(omit) }}"
+    no_proxy: "{{ no_proxy | default(omit) }}"
+  tasks:
+    - name: Download Prometheus
+      ansible.builtin.get_url:
+        url: https://github.com/prometheus/prometheus/releases/download/v3.6.0/prometheus-3.6.0.linux-amd64.tar.gz
+        dest: /tmp/prometheus-3.6.0.linux-amd64.tar.gz
+        mode: "0644"
+    - name: Create Prometheus directory
+      ansible.builtin.file:
+        path: /opt/prometheus/
+        state: directory
+        mode: "0755"
+    - name: Extract Prometheus
+      ansible.builtin.unarchive:
+        src: /tmp/prometheus-3.6.0.linux-amd64.tar.gz
+        dest: /opt/prometheus/
+        extra_opts:
+          - --strip-components=1
+        remote_src: true
+    # Names only: the template reads hostvars[router].ansible_host. Copying the routers' hostvars
+    # resolves every variable, and proxy.ini's are undefined when no proxy is set
+    - name: Get router data for configuration
+      ansible.builtin.set_fact:
+        routers: "{{ groups['routers'] }}"
+    - name: Configure Prometheus
+      ansible.builtin.template:
+        src: ./templates/prometheus.yml.j2
+        dest: /opt/prometheus/prometheus.yml
+        mode: "0644"
+      notify: Restart Prometheus
+    - name: Create Prometheus service
+      ansible.builtin.copy:
+        src: ./templates/prometheus.service
+        dest: /etc/systemd/system/prometheus.service
+        mode: "0644"
+      notify: Restart Prometheus
+    - name: Start Prometheus service
+      ansible.builtin.systemd:
+        name: prometheus
+        state: started
+        enabled: true
+  handlers:
+    - name: Restart Prometheus
+      ansible.builtin.systemd:
+        name: prometheus
+        state: restarted
+        daemon_reload: true
+
+- name: Remove management default route from simulated resources
+  hosts: routers:core_dns:core_ca
+  gather_facts: false
+  vars:
+    ansible_ssh_private_key_file: ../.ssh/terraform_key
+  tasks:
+    # No shell: the Alpine DNS servers and CAs have no bash
+    - name: List interface addresses
+      ansible.builtin.command:
+        cmd: ip -o addr show
+      register: addresses
+      changed_when: false
+
+    - name: Find management interface name
+      ansible.builtin.set_fact:
+        mgmt_iface:
+          stdout: "{{ (addresses.stdout_lines | select('search', ' ' ~ ansible_host ~ '/') | first | default('')).split()[1] | default('') }}"
+
+    - name: Prevent DHCP from re-adding default route on management interface
+      ansible.builtin.shell: |
+        if [ -d /etc/udhcpc ]; then
+          echo 'NO_GATEWAY="{{ mgmt_iface.stdout | trim }}"' > /etc/udhcpc/udhcpc.conf
+        fi
+      when: mgmt_iface.stdout | trim | length > 0
+      changed_when: true
+
+    - name: Record the management gateway so the next run can restore it
+      ansible.builtin.shell: |
+        set -o pipefail
+        gw=$(ip route show default dev {{ mgmt_iface.stdout | trim }} | awk '/via/ {print $3; exit}')
+        [ -n "$gw" ] || exit 0
+        [ "$(cat /etc/grayspace/mgmt_gateway 2>/dev/null)" = "$gw" ] && exit 0
+        mkdir -p /etc/grayspace
+        echo "$gw" > /etc/grayspace/mgmt_gateway
+        echo recorded
+      args:
+        executable: /bin/bash
+      register: record
+      changed_when: "'recorded' in record.stdout"
+      when: mgmt_iface.stdout | trim | length > 0
+
+    - name: Remove default route via management interface
+      ansible.builtin.shell: |
+        ip route del default dev {{ mgmt_iface.stdout | trim }} 2>/dev/null || true
+      when: mgmt_iface.stdout | trim | length > 0
+      changed_when: true
+
+    - name: Add simulated default route via service subnet gateway
+      ansible.builtin.shell: |
+        ip route add default via {{ subnet | ansible.utils.next_nth_usable(1) }} 2>/dev/null || true
+      when:
+        - subnet is defined
+        - inventory_hostname not in groups.get('routers', [])
+      changed_when: true
+
+    # Lookups made before the routes moved (while servers were unreachable) are cached as
+    # failures; start the resolvers clean
+    - name: Flush the resolvers' caches
+      ansible.builtin.command:
+        cmd: rndc flush
+      when: inventory_hostname in groups.get('dns_resolvers', [])
+      changed_when: true

@@ -1,0 +1,13 @@
+# Only for testing the image inside the GraySpace devcontainer's Docker-in-Docker. Nested containers
+# there have no reachable DNS server (the devcontainer's resolver lives in its own network), so build
+# and run on the devcontainer's network instead. A real Docker host doesn't need this.
+#
+#   docker compose -f container/compose.yaml -f container/compose.dind.yaml up -d --build
+#
+# With host networking the UI is on port 80 of the devcontainer, not GRAYSPACE_PORT.
+services:
+  grayspace:
+    build:
+      network: host
+    network_mode: host
+    ports: !reset []

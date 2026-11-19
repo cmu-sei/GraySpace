@@ -1,0 +1,22 @@
+---
+# A host role's packages (gs_packages), installed unless all are already: the GraySpace Ubuntu VM
+# image (packer/ubuntu-vm) has the roles' packages, so the install and its package index download
+# are skipped there, as the base's plays skip what the GraySpace Alpine image has.
+- name: Check for {{ gs_packages | join(', ') }}
+  ansible.builtin.command:
+    argv: "{{ ['dpkg-query', '-W', '-f=${db:Status-Status} '] + gs_packages }}"
+  register: gs_packages_check
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Install {{ gs_packages | join(', ') }}
+  ansible.builtin.apt:
+    name: "{{ gs_packages }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 86400
+  when: >-
+    gs_packages_check.rc != 0
+    or gs_packages_check.stdout.split() | length != gs_packages | length
+    or gs_packages_check.stdout.split() | reject('equalto', 'installed') | list | length > 0

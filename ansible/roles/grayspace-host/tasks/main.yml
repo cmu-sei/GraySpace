@@ -1,0 +1,84 @@
+---
+# After the roles: the guest's networking as the simulated internet sees it, now and after reboots.
+- name: Load slice facts
+  ansible.builtin.include_tasks: facts.yml
+  when: gs is not defined
+
+- name: Finalize Windows
+  ansible.builtin.include_tasks: windows.yml
+  when: gs_family == 'windows'
+
+- name: Trust the GraySpace CAs
+  ansible.builtin.include_tasks: ca.yml
+  when: gs_family != 'windows' and slice_ca_bundle | default('', true) | length > 0
+
+- name: Create the management interface's networkd drop-in directory
+  ansible.builtin.file:
+    path: "/etc/systemd/network/{{ gs_mgmt_interface }}.network.d"
+    state: directory
+    mode: "0755"
+  when: gs_family in ['ubuntu', 'debian']
+
+- name: Keep DHCP on management from adding a default route or resolver (systemd-networkd)
+  ansible.builtin.copy:
+    dest: "/etc/systemd/network/{{ gs_mgmt_interface }}.network.d/50-grayspace.conf"
+    content: |
+      # Written by GraySpace: management carries Ansible and the GHOSTS API, not default traffic.
+      [DHCPv4]
+      UseGateway=false
+      UseDNS=false
+      UseDomains=false
+      {% for ip in gs_mgmt_route_ips %}
+
+      [Route]
+      Destination={{ ip }}/32
+      Gateway=_dhcp4
+      {% endfor %}
+    mode: "0644"
+  when: gs_family in ['ubuntu', 'debian']
+
+- name: Keep DHCP on management from adding a default route or resolver (udhcpc)
+  ansible.builtin.copy:
+    dest: /etc/udhcpc/udhcpc.conf
+    content: |
+      NO_GATEWAY="{{ gs_mgmt_interface }}"
+      RESOLV_CONF="no"
+    mode: "0644"
+  when: gs_family == 'alpine'
+
+- name: Use the simulated resolver
+  ansible.builtin.shell: |
+    rm -f /etc/resolv.conf
+    echo "nameserver {{ gs.resolver }}" > /etc/resolv.conf
+    {% if gs_family in ['ubuntu', 'debian'] %}
+    if [ -d /etc/systemd/resolved.conf.d ] || systemctl is-active -q systemd-resolved 2>/dev/null; then
+      mkdir -p /etc/systemd/resolved.conf.d
+      printf '[Resolve]\nDNS={{ gs.resolver }}\nDomains=~.\n' > /etc/systemd/resolved.conf.d/grayspace.conf
+      systemctl disable --now systemd-resolved 2>/dev/null || true
+    fi
+    {% endif %}
+  args:
+    executable: /bin/sh
+  changed_when: true
+  when: gs_family != 'windows'
+
+- name: Keep routes to addresses that stay on management
+  ansible.builtin.command:
+    cmd: ip route replace {{ item }}/32 via {{ gs_mgmt_gateway }} dev {{ gs_mgmt_interface }}
+  loop: "{{ gs_mgmt_route_ips }}"
+  changed_when: true
+  when: gs_family != 'windows'
+
+- name: Remove the default route over management
+  ansible.builtin.shell: |
+    while ip route del default dev {{ gs_mgmt_interface }} 2>/dev/null; do :; done
+  args:
+    executable: /bin/sh
+  changed_when: true
+  when: gs_family != 'windows'
+
+- name: Restore the simulated default route
+  ansible.builtin.command:
+    cmd: ip route replace default via {{ gs_default_gateway }} dev {{ gs_sim_interface }}
+  changed_when: true
+  when: gs_family != 'windows' and gs_default_gateway | trim | length > 0

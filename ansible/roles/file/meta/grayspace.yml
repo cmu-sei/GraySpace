@@ -1,0 +1,9 @@
+description: A Samba file share
+os_families: [ubuntu, debian]
+variables:
+  share_name:
+    description: Name of the share
+    default: shared
+  guest_ok:
+    description: Allow guest access
+    default: true

@@ -1,0 +1,43 @@
+---
+- name: Create the install directory
+  ansible.windows.win_file:
+    path: "{{ ghosts_install_dir_windows }}"
+    state: directory
+
+- name: Download the client
+  ansible.windows.win_get_url:
+    url: "{{ ghosts.client_url }}"
+    dest: "{{ ghosts_install_dir_windows }}\\client-release.zip"
+  register: ghosts_download
+
+- name: Unpack the client
+  ansible.windows.win_powershell:
+    script: |
+      $marker = '{{ ghosts_install_dir_windows }}\client-release.unpacked'
+      $zip = Get-Item '{{ ghosts_install_dir_windows }}\client-release.zip'
+      if ((Test-Path $marker) -and ((Get-Content $marker) -eq $zip.LastWriteTimeUtc.Ticks)) { $Ansible.Changed = $false; return }
+      Expand-Archive -Path $zip.FullName -DestinationPath '{{ ghosts_install_dir_windows }}' -Force
+      $zip.LastWriteTimeUtc.Ticks | Set-Content $marker
+
+- name: Configure, and run at startup under the hostname-based identity
+  ansible.windows.win_powershell:
+    script: |
+      $root = '{{ ghosts_install_dir_windows }}'
+      $program = Get-ChildItem -Path $root -Recurse -Filter '{{ ghosts.executable | default("Ghosts.Client.Windows.exe") }}' | Select-Object -First 1
+      if (-not $program) { throw "No client program in {{ ghosts.client_url }}" }
+      $configFile = Get-ChildItem -Path $root -Recurse -Filter application.json | Select-Object -First 1
+      if ($configFile) { $config = Get-Content $configFile.FullName -Raw | ConvertFrom-Json } else {
+        New-Item -ItemType Directory -Force -Path (Join-Path $program.DirectoryName 'config') | Out-Null
+        $configFile = Get-Item -Path (New-Item -ItemType File -Force -Path (Join-Path $program.DirectoryName 'config\application.json'))
+        $config = [pscustomobject]@{}
+      }
+      $config | Add-Member -Force -NotePropertyName ApiRootUrl -NotePropertyValue '{{ ghosts.api_url }}'
+      $config | Add-Member -Force -NotePropertyName Id -NotePropertyValue ([pscustomobject]@{ IsEnabled = $true; Format = 'hostname' })
+      $config | ConvertTo-Json -Depth 20 | Set-Content -Path $configFile.FullName -Encoding UTF8
+      {% if ghosts.timeline is defined %}
+      '{{ ghosts.timeline | to_json }}' | Set-Content -Path (Join-Path $configFile.DirectoryName 'timeline.json') -Encoding UTF8
+      {% endif %}
+      $action = New-ScheduledTaskAction -Execute $program.FullName -WorkingDirectory $program.DirectoryName
+      $trigger = New-ScheduledTaskTrigger -AtStartup
+      Register-ScheduledTask -TaskName 'GHOSTS client' -Action $action -Trigger $trigger -User 'SYSTEM' -RunLevel Highest -Force | Out-Null
+      Start-ScheduledTask -TaskName 'GHOSTS client'

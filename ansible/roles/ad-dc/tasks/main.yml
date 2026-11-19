@@ -1,0 +1,107 @@
+---
+# A Samba Active Directory domain controller. It needs a VM: unprivileged containers lack the
+# extended attributes and ACLs Samba's sysvol needs. The other hosts of its site use it as their
+# resolver (the plan), so Samba's DNS forwards to the base resolver, and it serves and registers
+# only the simulated address: the management one is no use to the site.
+- name: Collect role settings
+  ansible.builtin.set_fact:
+    ad: "{{ slice_role_vars['ad-dc'] }}"
+
+- name: Preseed Kerberos
+  ansible.builtin.debconf:
+    name: krb5-config
+    question: krb5-config/default_realm
+    value: "{{ ad.realm | upper }}"
+    vtype: string
+
+- name: Install Samba AD DC
+  ansible.builtin.include_role:
+    name: grayspace-host
+    tasks_from: packages
+  vars:
+    gs_packages: [samba, winbind, krb5-user, smbclient, acl, attr]
+
+# Samba's internal DNS needs port 53, where Ubuntu's systemd-resolved runs a stub listener (the
+# GraySpace Ubuntu VM image has it off already; hosts without resolved have nothing to turn off)
+- name: Check for systemd-resolved
+  ansible.builtin.stat:
+    path: /usr/lib/systemd/system/systemd-resolved.service
+  register: ad_resolved
+
+- name: Turn off systemd-resolved's stub listener
+  when: ad_resolved.stat.exists
+  block:
+    - name: Create systemd-resolved's drop-in directory
+      ansible.builtin.file:
+        path: /etc/systemd/resolved.conf.d
+        state: directory
+        mode: "0755"
+
+    - name: Configure systemd-resolved without it
+      ansible.builtin.copy:
+        dest: /etc/systemd/resolved.conf.d/10-grayspace-no-stub.conf
+        content: |
+          # GraySpace: a DC's DNS (Samba or BIND) needs port 53
+          [Resolve]
+          DNSStubListener=no
+        mode: "0644"
+      register: ad_resolved_stub
+
+    - name: Restart systemd-resolved without it  # noqa: no-handler (before Samba starts, not at the end of the play)
+      ansible.builtin.systemd:
+        name: systemd-resolved
+        state: restarted
+      when: ad_resolved_stub.changed
+
+- name: Check for a provisioned domain
+  ansible.builtin.stat:
+    path: /var/lib/samba/private/sam.ldb
+  register: ad_provisioned
+
+- name: Provision the domain
+  when: not ad_provisioned.stat.exists
+  block:
+    - name: Stop the standalone Samba services
+      ansible.builtin.service:
+        name: "{{ item }}"
+        state: stopped
+        enabled: false
+      loop: [smbd, nmbd, winbind]
+      failed_when: false
+
+    - name: Remove the default smb.conf
+      ansible.builtin.file:
+        path: /etc/samba/smb.conf
+        state: absent
+
+    - name: Provision
+      ansible.builtin.command:
+        cmd: >-
+          samba-tool domain provision --use-rfc2307 --server-role=dc --dns-backend=SAMBA_INTERNAL
+          --realm={{ ad.realm | upper }} --domain={{ ad.domain | upper }}
+          --adminpass={{ ad.admin_password }}
+          --option="dns forwarder = {{ slice_hosts[inventory_hostname].resolver }}"
+          --option="interfaces = lo {{ slice_hosts[inventory_hostname].ip }}"
+          --option="bind interfaces only = yes"
+        creates: /var/lib/samba/private/sam.ldb
+      no_log: true
+
+    - name: Use the domain's Kerberos configuration
+      ansible.builtin.copy:
+        src: /var/lib/samba/private/krb5.conf
+        dest: /etc/krb5.conf
+        remote_src: true
+        mode: "0644"
+
+- name: Run the domain controller
+  ansible.builtin.systemd:
+    name: samba-ad-dc
+    state: started
+    enabled: true
+    masked: false
+
+- name: Serve the site's internal zone (the dns role on this host)
+  ansible.builtin.include_role:
+    name: dns
+    tasks_from: samba
+  when: "'dns' in slice_hosts[inventory_hostname].roles"

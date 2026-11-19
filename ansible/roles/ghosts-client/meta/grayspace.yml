@@ -1,0 +1,18 @@
+description: >-
+  A GHOSTS client (Universal on Linux, the Windows client on Windows), installed from client_url
+  and configured to report to api_url under a hostname-based identity. GraySpace ships no GHOSTS
+  binaries.
+os_families: [ubuntu, debian, windows]
+variables:
+  client_url:
+    description: URL of the client release archive (.tar.gz or .zip) the host downloads over the management network
+    required: true
+  api_url:
+    description: The GHOSTS API root, e.g. http://ghosts-api:5000/api
+    required: true
+  api_host:
+    description: An address that must stay reachable over the management network (the GHOSTS API); a host route is added for it
+  executable:
+    description: The client program inside the archive (default Ghosts.Client.Universal, or Ghosts.Client.Windows.exe on Windows)
+  timeline:
+    description: A GHOSTS timeline (JSON object) to write as config/timeline.json

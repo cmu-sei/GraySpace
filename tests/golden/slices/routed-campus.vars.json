@@ -1,0 +1,156 @@
+{
+  "slice_ca_bundle": "/data/instances/rc/ca-bundle.pem",
+  "slice_domains": [
+    "chicago-tech.org"
+  ],
+  "slice_edges": {
+    "rc-campus-edge": {
+      "bgp": {
+        "asn": 64512,
+        "neighbors": [
+          {
+            "asn": 3356,
+            "ip": "209.151.130.1",
+            "router": "lum-chi"
+          },
+          {
+            "asn": 1299,
+            "ip": "199.7.83.1",
+            "router": "are-chi"
+          }
+        ],
+        "prefix": "6.0.2.0/24"
+      },
+      "mgmt_interface": "eth4",
+      "published": [],
+      "resolver": "8.8.8.8",
+      "routed": true,
+      "segments": [
+        {
+          "cidr": "6.0.2.0/25",
+          "gateway": "6.0.2.1",
+          "interface": "eth2",
+          "name": "servers"
+        },
+        {
+          "cidr": "6.0.2.128/25",
+          "gateway": "6.0.2.129",
+          "interface": "eth3",
+          "name": "labs"
+        }
+      ],
+      "site": "campus",
+      "wans": [
+        {
+          "gateway": "209.151.130.1",
+          "interface": "eth0",
+          "ip": "209.151.130.2",
+          "prefixlen": 24,
+          "router": "lum-chi"
+        },
+        {
+          "gateway": "199.7.83.1",
+          "interface": "eth1",
+          "ip": "199.7.83.2",
+          "prefixlen": 24,
+          "router": "are-chi"
+        }
+      ]
+    }
+  },
+  "slice_hosts": {
+    "rc-lab-01": {
+      "certificate": null,
+      "gateway": "6.0.2.129",
+      "ip": "6.0.2.138",
+      "labels": {},
+      "mgmt_interface": "eth1",
+      "name": "lab-01",
+      "os_family": "ubuntu",
+      "prefixlen": 25,
+      "public_ip": "6.0.2.138",
+      "resolver": "8.8.8.8",
+      "roles": [],
+      "segment": "labs",
+      "sim_interface": "eth0",
+      "site": "campus"
+    },
+    "rc-lab-02": {
+      "certificate": null,
+      "gateway": "6.0.2.129",
+      "ip": "6.0.2.139",
+      "labels": {},
+      "mgmt_interface": "eth1",
+      "name": "lab-02",
+      "os_family": "ubuntu",
+      "prefixlen": 25,
+      "public_ip": "6.0.2.139",
+      "resolver": "8.8.8.8",
+      "roles": [],
+      "segment": "labs",
+      "sim_interface": "eth0",
+      "site": "campus"
+    },
+    "rc-lab-03": {
+      "certificate": null,
+      "gateway": "6.0.2.129",
+      "ip": "6.0.2.140",
+      "labels": {},
+      "mgmt_interface": "eth1",
+      "name": "lab-03",
+      "os_family": "ubuntu",
+      "prefixlen": 25,
+      "public_ip": "6.0.2.140",
+      "resolver": "8.8.8.8",
+      "roles": [],
+      "segment": "labs",
+      "sim_interface": "eth0",
+      "site": "campus"
+    },
+    "rc-www": {
+      "certificate": null,
+      "gateway": "6.0.2.1",
+      "ip": "6.0.2.10",
+      "labels": {},
+      "mgmt_interface": "eth1",
+      "name": "www",
+      "os_family": "ubuntu",
+      "prefixlen": 25,
+      "public_ip": "6.0.2.10",
+      "resolver": "8.8.8.8",
+      "roles": [
+        "web"
+      ],
+      "segment": "servers",
+      "sim_interface": "eth0",
+      "site": "campus"
+    }
+  },
+  "slice_instance": "rc",
+  "slice_mgmt_routes": [],
+  "slice_role_vars": {},
+  "slice_site_hosts": {
+    "campus": [
+      {
+        "hostname": "rc-www",
+        "ip": "6.0.2.10",
+        "name": "www"
+      },
+      {
+        "hostname": "rc-lab-01",
+        "ip": "6.0.2.138",
+        "name": "lab-01"
+      },
+      {
+        "hostname": "rc-lab-02",
+        "ip": "6.0.2.139",
+        "name": "lab-02"
+      },
+      {
+        "hostname": "rc-lab-03",
+        "ip": "6.0.2.140",
+        "name": "lab-03"
+      }
+    ]
+  }
+}

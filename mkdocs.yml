@@ -1,0 +1,97 @@
+site_name: GraySpace Documentation
+site_description: GraySpace is a multi-provider simulation of the global internet suitable for modeling, simulation, and experimentation.
+site_author: GraySpace Team
+site_url: https://cmu-sei.github.io/grayspace/
+copyright: >
+  Copyright &copy; 2025-2026 Carnegie Mellon University. All rights reserved.
+extra_css:
+  - https://fonts.googleapis.com/icon?family=Material+Icons
+theme:
+  name: material
+  custom_dir: material/overrides
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.indexes
+    - toc.integrate
+    - content.code.copy
+    - content.code.annotate
+    - content.external_links
+  logo: assets/greybox-app-dark.svg
+  favicon: assets/greybox-app-dark.svg
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+      primary: indigo
+
+    # Palette toggle for dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+      primary: indigo
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.details
+  - pymdownx.superfences
+  - admonition
+  - attr_list
+extra:
+  features:
+    - content.icons
+  social:
+    - icon: material/message-question
+      link: https://github.com/cmu-sei/grayspace/issues/new?template=question.md
+      name: Ask a Question
+    - icon: fontawesome/solid/bug
+      link: https://github.com/cmu-sei/grayspace/issues/new?template=bug_report.md
+      name: Report a Problem
+    - icon: material/lightbulb-on
+      link: https://github.com/cmu-sei/grayspace/issues/new?template=feature_request.md
+      name: Request a Feature
+    - icon: fontawesome/regular/comments
+      link: https://github.com/cmu-sei/grayspace/discussions
+      name: Community Discussions
+    - icon: fontawesome/brands/github
+      link: https://github.com/cmu-sei/grayspace
+      name: cmu-sei/GraySpace on Github
+    - icon: fontawesome/regular/envelope
+      link: mailto:info@sei.cmu.edu?subject=GraySpace%20Feedback
+      name: Email GraySpace Team
+    - icon: fontawesome/solid/house
+      link: https://www.sei.cmu.edu/
+      name: Software Engineering Institute
+plugins:
+  - search
+  # docs/api.md renders openapi/grayspace-v1.json (docs/openapi links to it). There is no
+  # GraySpace behind the site, so Try it out sends nothing; a running GraySpace serves /api/docs.
+  - swagger-ui-tag:
+      supportedSubmitMethods: []
+      docExpansion: none
+
+nav:
+  - Home: index.md
+  - Getting Started: getting_started.md
+  - Installation: install.md
+  - Deployments: deployments.md
+  - GraySpace Appliance: appliance.md
+  - Web Application: web-app.md
+  - Enclaves: slices.md
+  - Terrain API: api.md
+  - Development: development.md
+  - Graph Model: graph_model.md
+  - ISPs: isps.md
+  - Core Services: services.md
+
+repo_url: https://github.com/cmu-sei/grayspace
+repo_name: cmu-sei/grayspace

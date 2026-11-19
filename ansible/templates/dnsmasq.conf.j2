@@ -1,0 +1,2 @@
+dhcp-range={{ customer_net | ansible.utils.next_nth_usable(customer_dhcp_start | default(20)) }},{{ customer_net | ansible.utils.ipaddr('last_usable') }},{{ customer_net | ansible.utils.ipaddr('netmask') }},6h
+dhcp-option=option:router,{{ customer_net | ansible.utils.next_nth_usable(1) }}

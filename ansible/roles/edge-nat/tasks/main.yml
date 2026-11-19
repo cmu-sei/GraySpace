@@ -1,0 +1,44 @@
+---
+# A NAT site's edge: forwards between the site's segments and its
+# WAN on a base customer network, masquerades the segments out of the WAN, and does 1:1 NAT for
+# published hosts, whose public addresses it holds as WAN secondaries. Everything is in one
+# idempotent boot script, so it holds across reboots.
+- name: Collect edge settings
+  ansible.builtin.set_fact:
+    edge: "{{ slice_edges[inventory_hostname] }}"
+
+# The GraySpace image has it, so the install (and its index download) is skipped there
+- name: Check for iptables
+  ansible.builtin.command: apk info -e iptables
+  register: edge_iptables_check
+  changed_when: false
+  failed_when: false
+
+- name: Install iptables
+  community.general.apk:
+    name: iptables
+    state: present
+    update_cache: true
+  when: edge_iptables_check.rc != 0
+
+- name: Write the NAT rules
+  ansible.builtin.template:
+    src: grayspace.rules.j2
+    dest: /etc/iptables/grayspace.rules
+    mode: "0644"
+  notify: Apply edge networking
+
+- name: Write the boot script
+  ansible.builtin.template:
+    src: grayspace-edge.start.j2
+    dest: /etc/local.d/grayspace-edge.start
+    mode: "0755"
+  notify: Apply edge networking
+
+- name: Run local.d scripts at boot
+  ansible.builtin.service:
+    name: local
+    enabled: true
+
+- name: Apply now
+  ansible.builtin.meta: flush_handlers

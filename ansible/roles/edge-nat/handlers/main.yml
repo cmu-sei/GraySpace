@@ -1,0 +1,5 @@
+---
+- name: Apply edge networking
+  ansible.builtin.command:
+    cmd: /etc/local.d/grayspace-edge.start
+  changed_when: true

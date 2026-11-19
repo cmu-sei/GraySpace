@@ -1,0 +1,5 @@
+description: nginx serving a placeholder site; HTTPS too when the enclave issues the host a certificate
+os_families: [ubuntu, debian]
+variables:
+  site_title:
+    description: Title of the placeholder page (default the host's name)

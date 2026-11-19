@@ -1,0 +1,13 @@
+[begin] (GraySpace)
+  [exec] (Web Browser) {firefox}
+  [exec] (Terminal) {lxterminal}
+  [exec] (Text Editor) {mousepad}
+  [exec] (Files) {pcmanfm}
+  [separator]
+  [submenu] (Desktop)
+    [workspaces] (Workspaces)
+    [config] (Settings)
+    [reconfig] (Reload settings)
+    [restart] (Restart)
+  [end]
+[end]

@@ -1,0 +1,7 @@
+#!/sbin/openrc-run
+name="FRR Exporter"
+description="Export FRR configs and stats to Prometheus"
+command="/usr/local/bin/frr_exporter"
+command_args="--no-collector.bfd"
+command_background=true
+pidfile="/run/frr_exporter.pid"

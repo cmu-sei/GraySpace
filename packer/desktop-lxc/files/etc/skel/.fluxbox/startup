@@ -1,0 +1,6 @@
+#!/bin/sh
+# The desktop session (fluxbox.service runs startfluxbox, which runs this): desktop icons from
+# ~/Desktop, the panel, then the window manager
+pcmanfm --desktop &
+tint2 &
+exec fluxbox

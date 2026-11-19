@@ -1,0 +1,6 @@
+name,type,os_family,source,cores,memory,disk,features,description,entrypoint
+grayspace-alpine,lxc,alpine,https://github.com/cmu-sei/grayspace/releases/download/images-2026.11/grayspace-alpine-3.24-1.tar.zst,1,256,4,,GraySpace Alpine 3.24: routers; core services and enclave edges,
+grayspace-desktop,lxc,ubuntu,https://github.com/cmu-sei/grayspace/releases/download/images-2026.11/grayspace-desktop-24.04-1.tar.zst,2,2048,16,desktop,GraySpace desktop: Ubuntu 24.04 with Fluxbox; Firefox and admin tools in the browser (noVNC),
+grayspace-ubuntu-lxc,lxc,ubuntu,https://github.com/cmu-sei/grayspace/releases/download/images-2026.11/grayspace-ubuntu-lxc-24.04-1.tar.zst,1,1024,8,,GraySpace Ubuntu 24.04 container: the host roles' packages (DNS; file; mail; web),
+grayspace-ubuntu-vm,vm,ubuntu,https://github.com/cmu-sei/grayspace/releases/download/images-2026.11/grayspace-ubuntu-vm-24.04-1.qcow2,2,2048,16,,GraySpace Ubuntu 24.04 VM: guest agent; the host roles' packages (AD DC; DNS; file; mail; web),
+ghosts-pandora,oci,oci,docker.io/dustinupdyke/ghosts-pandora:latest,1,512,8,tls-kestrel,GHOSTS Pandora web and social media server (configured with env),cd /app && exec dotnet Ghosts.Pandora.dll

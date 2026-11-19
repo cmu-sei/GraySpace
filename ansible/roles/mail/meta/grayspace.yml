@@ -1,0 +1,8 @@
+description: Postfix and Dovecot (SMTP and IMAP) for an enclave domain, with local mailboxes
+os_families: [ubuntu, debian]
+variables:
+  domain:
+    description: The mail domain (default the first DNS domain of the enclave)
+  users:
+    description: "Mailboxes to create: a list of {name, password}"
+    default: []

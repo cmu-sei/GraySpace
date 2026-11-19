@@ -1,0 +1,5 @@
+# Set the default behavior for all text files
+# This auto-detects text files and forces Unix-style (LF) line endings
+* text=auto eol=lf
+# Add custom container to git lfs so it doesn't have to be pulled and pushed to devcontainer every time
+vzdump-lxc-107-2025_10_23-14_38_04.tar.gz filter=lfs diff=lfs merge=lfs -text

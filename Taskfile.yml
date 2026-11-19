@@ -1,0 +1,337 @@
+version: "3"
+
+# Parallelism: APPLY_PARALLELISM= (PARALLELISM= is its old name) sets Terraform's -parallelism for
+# applies and destroys, PLAN_PARALLELISM= for plans. Unset: GRAYSPACE_APPLY_PARALLELISM and
+# GRAYSPACE_PLAN_PARALLELISM from the environment file (a deployment's come from its Proxmox
+# connection), else 10 and 30. The commands template them inline: global vars don't see variables
+# given on the command line.
+vars:
+  ENV_FILE: '{{.ROOT_DIR}}/.environment'
+  # The Python the backend runs with (slice tasks run backend code): $BACKEND_PYTHON, the venv
+  # task backend:venv makes, or python3 (the GraySpace container's).
+  BACKEND_PYTHON:
+    sh: |
+      for p in "${BACKEND_PYTHON:-}" "{{.ROOT_DIR}}/grayspace-web/backend/.venv/bin/python"; do
+        if [ -n "$p" ] && [ -x "$p" ]; then echo "$p"; exit 0; fi
+      done
+      echo python3
+
+tasks:
+  env:
+    desc: Create .environment from template if it doesn't exist
+    silent: true
+    interactive: true
+    cmds:
+      - |
+        if [ ! -f {{.ENV_FILE}} ]; then
+          {{.ROOT_DIR}}/scripts/setup-env.sh {{.ROOT_DIR}}/scripts/environment.template {{.ENV_FILE}}
+        fi
+      - |
+        env_lines=$(wc -l < {{.ENV_FILE}})
+        tmpl_lines=$(wc -l < {{.ROOT_DIR}}/scripts/environment.template)
+        if [ "$env_lines" -lt "$tmpl_lines" ]; then
+          echo "WARNING: {{.ENV_FILE}} has $env_lines lines but environment.template has $tmpl_lines lines."
+          echo "You may be missing new variables. Compare with: diff {{.ENV_FILE}} {{.ROOT_DIR}}/scripts/environment.template"
+          printf "Press Enter to continue or Ctrl+C to abort... "
+          # Without a terminal (docker compose exec -T, scripts), warn and carry on.
+          { read -r < /dev/tty; } 2>/dev/null || echo "(no terminal; continuing)"
+        fi
+
+  parse:
+    desc: Generate terraform.tfvars.json from the topology CSVs
+    silent: true
+    deps: [env]
+    sources:
+      - '{{.ROOT_DIR}}/bases/{{.BASE}}/*.csv'
+      - '{{.ROOT_DIR}}/scripts/generate_tfvars.py'
+      - '{{.ROOT_DIR}}/scripts/topology.py'
+    generates:
+      - '{{.ROOT_DIR}}/terraform/terraform.tfvars.json'
+    vars:
+      SCOPE: '{{.SCOPE | default "full"}}'
+      BASE: '{{.BASE | default "grayspace/2026.11"}}'
+    cmds:
+      - source {{.ENV_FILE}} && .venv/bin/python {{.ROOT_DIR}}/scripts/generate_tfvars.py --scope={{.SCOPE}} --base={{.BASE}}
+
+  init:
+    desc: Initialize Terraform providers (auto-runs when providers.tf changes)
+    silent: true
+    dir: terraform
+    sources:
+      - providers.tf
+    generates:
+      - .terraform.lock.hcl
+      - .terraform/providers/**/*
+    cmds:
+      - terraform init -upgrade
+
+  plan:
+    desc: Plan Terraform changes
+    dir: terraform
+    deps:
+      - init
+      - parse
+    cmds:
+      - source {{.ENV_FILE}} && {{with .APPLY_PARALLELISM | default .PARALLELISM}}export GRAYSPACE_APPLY_PARALLELISM={{.}} && {{end}}{{with .PLAN_PARALLELISM}}export GRAYSPACE_PLAN_PARALLELISM={{.}} && {{end}}terraform plan -parallelism=${GRAYSPACE_PLAN_PARALLELISM:-30}
+
+  apply:
+    desc: Apply Terraform changes until converged (up to MAX_RETRIES attempts), holding the node lock
+    dir: terraform
+    deps:
+      - init
+      - parse
+    vars:
+      MAX_RETRIES: '{{.MAX_RETRIES | default "6"}}'
+    cmds:
+      - source {{.ENV_FILE}} && {{with .APPLY_PARALLELISM | default .PARALLELISM}}export GRAYSPACE_APPLY_PARALLELISM={{.}} && {{end}}{{with .PLAN_PARALLELISM}}export GRAYSPACE_PLAN_PARALLELISM={{.}} && {{end}}{{.ROOT_DIR}}/scripts/with-node-lock.sh --guard apply {{.ROOT_DIR}}/scripts/converge.sh {{.MAX_RETRIES}}
+
+  deploy:
+    desc: Apply infrastructure and configure with Ansible
+    cmds:
+      - task: apply
+      - task: configure
+
+  configure:
+    desc: Run Ansible to configure all containers, holding the node lock
+    dir: ansible
+    cmds:
+      - source {{.ENV_FILE}} && {{.ROOT_DIR}}/scripts/with-node-lock.sh ansible-playbook main.yml
+
+  backend:venv:
+    desc: Create or update grayspace-web/backend/.venv (Python 3.10-3.13; PYTHON= to choose) for slice tasks, tests and Aspire
+    cmds:
+      - '{{.ROOT_DIR}}/scripts/backend-venv.sh'
+
+  image:build:
+    desc: Build the GraySpace Alpine LXC template with Packer and Docker (packer/alpine-lxc; publish it at images/images.csv's grayspace-alpine URL)
+    dir: packer/alpine-lxc
+    vars:
+      # Proxmox's Alpine template, the image's base
+      PVE_TEMPLATE: http://download.proxmox.com/images/system/alpine-3.24-default_20261105_amd64.tar.xz
+      BASE_IMAGE: grayspace/pve-alpine:3.24
+    cmds:
+      # Decompressed in a container: the Docker daemon may have no xz
+      - docker image inspect {{.BASE_IMAGE}} > /dev/null 2>&1 || curl -fsSL {{.PVE_TEMPLATE}} | docker run --rm -i alpine:3.24 unxz -c | docker import - {{.BASE_IMAGE}}
+      - packer init .
+      - packer build -force .
+
+  image:build:desktop:
+    desc: Build the GraySpace desktop LXC template with Packer and Docker (packer/desktop-lxc; publish it at images/images.csv's grayspace-desktop URL)
+    dir: packer/desktop-lxc
+    vars:
+      # Proxmox's Ubuntu template, the image's base
+      PVE_TEMPLATE: http://download.proxmox.com/images/system/ubuntu-24.04-standard_24.04-2_amd64.tar.zst
+      BASE_IMAGE: grayspace/pve-ubuntu:24.04
+    cmds:
+      # Decompressed in a container (the Docker host may have no zstd), which installs zstd through the proxy
+      - >-
+        docker image inspect {{.BASE_IMAGE}} > /dev/null 2>&1 || curl -fsSL {{.PVE_TEMPLATE}}
+        | docker run --rm -i --network=host -e http_proxy -e https_proxy -e no_proxy alpine:3.24 sh -c 'apk add -q zstd >/dev/null && zstd -dc'
+        | docker import - {{.BASE_IMAGE}}
+      - packer init .
+      - packer build -force .
+
+  image:build:ubuntu-lxc:
+    desc: Build the GraySpace Ubuntu LXC template with Packer and Docker (packer/ubuntu-lxc; publish it at images/images.csv's grayspace-ubuntu-lxc URL)
+    dir: packer/ubuntu-lxc
+    vars:
+      # Proxmox's Ubuntu template, the image's base (the desktop's too)
+      PVE_TEMPLATE: http://download.proxmox.com/images/system/ubuntu-24.04-standard_24.04-2_amd64.tar.zst
+      BASE_IMAGE: grayspace/pve-ubuntu:24.04
+    cmds:
+      - >-
+        docker image inspect {{.BASE_IMAGE}} > /dev/null 2>&1 || curl -fsSL {{.PVE_TEMPLATE}}
+        | docker run --rm -i --network=host -e http_proxy -e https_proxy -e no_proxy alpine:3.24 sh -c 'apk add -q zstd >/dev/null && zstd -dc'
+        | docker import - {{.BASE_IMAGE}}
+      - packer init .
+      - packer build -force .
+
+  image:build:ubuntu-vm:
+    desc: Build the GraySpace Ubuntu VM image with Packer and QEMU in a container (packer/ubuntu-vm; publish it at images/images.csv's grayspace-ubuntu-vm URL). KVM if the host has /dev/kvm, else software emulation (slow)
+    dir: packer/ubuntu-vm
+    vars:
+      BUILDER: grayspace/packer-qemu:1.14.2
+    cmds:
+      - docker build -q --network=host --build-arg http_proxy --build-arg https_proxy --build-arg no_proxy -t {{.BUILDER}} builder > /dev/null
+      - |
+        set -e
+        kvm=""; accel=tcg
+        if [ -c /dev/kvm ] && [ -r /dev/kvm ] && [ -w /dev/kvm ]; then
+          kvm="--device /dev/kvm --group-add $(stat -c %g /dev/kvm)"; accel=kvm
+        else
+          echo "No usable /dev/kvm: building with software emulation (expect 30-60 minutes)"
+        fi
+        mkdir -p "$HOME/.cache/grayspace-packer"
+        # The build VM's SSH port and Packer's plugins stay on the builder's network and cache
+        docker run --rm --network=host $kvm -u "$(id -u):$(id -g)" -e HOME=/tmp \
+          -e PACKER_PLUGIN_PATH=/plugins -e PACKER_CACHE_DIR=/plugins/cache -v "$HOME/.cache/grayspace-packer:/plugins" \
+          -e http_proxy -e https_proxy -e no_proxy -v "$PWD:/build" -w /build {{.BUILDER}} \
+          sh -c "packer init . && packer build -force -var accelerator=$accel ."
+
+  dev:
+    desc: Run the API, the UI and their infrastructure with Aspire (MODE=deployment for a real deployment); F5 in VS Code does the same
+    cmds:
+      - aspire run --apphost {{.ROOT_DIR}}/aspire/GraySpace.AppHost/GraySpace.AppHost.csproj --launch-profile {{.MODE | default "simulated"}}
+
+  user:create:
+    desc: Create a local account for the web UI and print its one-time password (NAME=<name> ROLE=admin|builder|user)
+    dir: grayspace-web/backend
+    requires:
+      vars: [NAME]
+    cmds:
+      - '{{.BACKEND_PYTHON}} -m control.users create "{{.NAME}}" --role {{.ROLE | default "user"}}'
+
+  user:reset-password:
+    desc: Give a local account a new one-time password (NAME=<name>)
+    dir: grayspace-web/backend
+    requires:
+      vars: [NAME]
+    cmds:
+      - '{{.BACKEND_PYTHON}} -m control.users reset-password "{{.NAME}}"'
+
+  demo:
+    desc: A narrated demo of slices; its live act uses task dev's simulated stack (task demo -- --auto | --offline | --clean)
+    interactive: true
+    cmds:
+      - '{{.BACKEND_PYTHON}} {{.ROOT_DIR}}/scripts/demo_slices.py {{.CLI_ARGS}}'
+
+  slice:validate:
+    aliases: [enclave:validate]
+    desc: Validate a slice spec against the deployed base, or a shipped one with BASE= (SLICE=examples/slices/<name>.yaml)
+    dir: grayspace-web/backend
+    requires:
+      vars: [SLICE]
+    cmds:
+      - '{{.BACKEND_PYTHON}} slicectl.py validate --cwd "{{.USER_WORKING_DIR}}" "{{.SLICE}}" {{if .BASE}}--base {{.BASE}} --scope {{.SCOPE | default "full"}}{{end}} {{if .PREFIX}}--prefix {{.PREFIX}}{{end}}'
+
+  slice:plan:
+    aliases: [enclave:plan]
+    desc: Allocation preview, terraform plan in a scratch workspace, and the capacity needed (SLICE=...)
+    dir: grayspace-web/backend
+    requires:
+      vars: [SLICE]
+    cmds:
+      - '{{.BACKEND_PYTHON}} slicectl.py plan --cwd "{{.USER_WORKING_DIR}}" "{{.SLICE}}" {{if .PREFIX}}--prefix {{.PREFIX}}{{end}}'
+
+  slice:up:
+    aliases: [enclave:up]
+    desc: Create a slice instance, or resume a failed one (SLICE=..., PREFIX= for a second copy)
+    dir: grayspace-web/backend
+    requires:
+      vars: [SLICE]
+    cmds:
+      - '{{.BACKEND_PYTHON}} slicectl.py up --cwd "{{.USER_WORKING_DIR}}" "{{.SLICE}}" {{if .PREFIX}}--prefix {{.PREFIX}}{{end}}'
+
+  slice:down:
+    aliases: [enclave:down]
+    desc: Destroy a slice instance (SLICE=..., PREFIX= for a second copy)
+    dir: grayspace-web/backend
+    requires:
+      vars: [SLICE]
+    cmds:
+      - '{{.BACKEND_PYTHON}} slicectl.py down --cwd "{{.USER_WORKING_DIR}}" "{{.SLICE}}" {{if .PREFIX}}--prefix {{.PREFIX}}{{end}}'
+
+  slice:status:
+    aliases: [enclave:status]
+    desc: Show a slice instance's state and manifest (SLICE=...)
+    dir: grayspace-web/backend
+    requires:
+      vars: [SLICE]
+    cmds:
+      - '{{.BACKEND_PYTHON}} slicectl.py status --cwd "{{.USER_WORKING_DIR}}" "{{.SLICE}}" {{if .PREFIX}}--prefix {{.PREFIX}}{{end}}'
+
+  lint:
+    desc: Lint Ansible, Python, Terraform, YAML, and shell scripts
+    cmds:
+      - task: lint:ansible
+      - task: lint:python
+      - task: lint:terraform
+      - task: lint:yaml
+      - task: lint:shell
+
+  lint:ansible:
+    desc: Lint Ansible playbooks and roles
+    dir: ansible
+    cmds:
+      - ansible-lint --fix main.yml slice.yml slice-attach.yml roles/
+
+  lint:python:
+    desc: Lint Python scripts with ruff
+    cmds:
+      - .venv/bin/ruff check --fix /workspaces/
+
+  lint:terraform:
+    desc: Check Terraform formatting and validation
+    deps: [env]
+    dir: terraform
+    cmds:
+      - terraform fmt -recursive
+      - source {{.ENV_FILE}} && terraform validate
+      - for m in slice images; do (cd $m && terraform init -input=false -backend=false > /dev/null && terraform validate); done
+
+  lint:yaml:
+    desc: Lint YAML files with yamllint
+    cmds:
+      - .venv/bin/yamllint -c Taskfile.yml mkdocs.yml .devcontainer/docker-compose.yml
+
+  lint:shell:
+    desc: Lint shell scripts with shellcheck
+    cmds:
+      - shellcheck -S warning scripts/*.sh .devcontainer/*.sh packer/scripts/*.sh packer/alpine-lxc/scripts/*.sh packer/ubuntu-lxc/scripts/*.sh packer/ubuntu-vm/scripts/*.sh
+
+  tunnel:
+    desc: Start sshuttle tunnel to Proxmox network
+    deps: [env]
+    vars:
+      SUBNET: '{{.SUBNET | default "10.0.0.0/16"}}'
+    cmds:
+      - source {{.ENV_FILE}} && sshuttle -v -r $bastion_username@$bastion_host {{.SUBNET}} --daemon --pidfile=/tmp/sshuttle.pid
+      - echo "sshuttle tunnel started (PID $(cat /tmp/sshuttle.pid))"
+
+  tunnel:stop:
+    desc: Stop sshuttle tunnel
+    status:
+      - '! test -f /tmp/sshuttle.pid'
+    cmds:
+      - sudo kill $(cat /tmp/sshuttle.pid) && rm -f /tmp/sshuttle.pid
+      - echo "sshuttle tunnel stopped"
+
+  tunnel:status:                                                                                                                             
+    desc: Show sshuttle tunnel status
+    silent: true                                                                                                                             
+    cmds:
+      - |                                                                                                                                    
+        if [ ! -f /tmp/sshuttle.pid ]; then
+          echo "Tunnel: NOT RUNNING"
+          exit 1                                                                                                                             
+        fi
+        PID=$(cat /tmp/sshuttle.pid)                                                                                                         
+        if ! ps -p "$PID" > /dev/null 2>&1; then
+          echo "Tunnel: DEAD (stale PID file)"                                                                                               
+          rm -f /tmp/sshuttle.pid
+          exit 1                                                                                                                             
+        fi        
+        echo "Tunnel: RUNNING (PID $PID)"                                                                                                    
+        echo "--- Recent log ---"
+        sudo grep "sshuttle" /var/log/syslog | tail -10 
+  
+  tunnel:restart:
+    desc: Restart sshuttle tunnel
+    cmds:
+      - task: tunnel:stop
+      - task: tunnel
+
+  destroy:
+    desc: Destroy all Terraform resources
+    silent: true
+    dir: terraform
+    deps:
+      - parse
+      - init
+    prompt: This will destroy all infrastructure. Are you sure?
+    cmds:
+      # No refresh: a destroy needs no fresh state, the refresh waits on every VM's guest agent for its
+      # IPs (agent.timeout), and the Crucible provider panics reading the Player view during it.
+      # Guests already deleted are fine; if something else deleted outside Terraform fails, run again
+      # with REFRESH=true (not with Crucible on)
+      - source {{.ENV_FILE}} && {{with .APPLY_PARALLELISM | default .PARALLELISM}}export GRAYSPACE_APPLY_PARALLELISM={{.}} && {{end}}{{with .PLAN_PARALLELISM}}export GRAYSPACE_PLAN_PARALLELISM={{.}} && {{end}}{{.ROOT_DIR}}/scripts/with-node-lock.sh --guard destroy terraform destroy -auto-approve {{if ne .REFRESH "true"}}-refresh=false {{end}}-parallelism=${GRAYSPACE_APPLY_PARALLELISM:-10}

@@ -1,0 +1,48 @@
+name: ${USER:-default}-grayspace-devcontainer
+services:
+  # devcontainer
+  dev:
+    build:
+      context: ..
+      dockerfile: .devcontainer/dev.Dockerfile
+      args: # Optional proxy vars. Create the file devcontainer/.env to populate these vars
+        - HTTP_PROXY=${HTTP_PROXY}
+        - HTTPS_PROXY=${HTTPS_PROXY}
+        - NO_PROXY=${NO_PROXY}
+        - FTP_PROXY=${FTP_PROXY}
+        - http_proxy=${http_proxy}
+        - https_proxy=${https_proxy}
+        - no_proxy=${no_proxy}
+
+    # Docker-in-Docker (devcontainer.json) needs a privileged container.
+    privileged: true
+
+    cap_add:
+      - NET_ADMIN
+
+    devices:
+      - /dev/net/tun
+
+    command: sleep infinity
+
+    env_file:
+      - path: proxy.env
+        required: false
+      - path: claude.env
+        required: false
+
+    image: ${USER:-default}-devcontainer-dev:latest
+    container_name: ${USER:-default}-devcontainer-dev
+
+    volumes:
+      - type: bind
+        source: ../
+        target: /workspaces
+      - terraform-plugins:/home/vscode/.terraform.d/plugin-cache
+      # Docker-in-Docker's images and volumes (including grayspace-data), kept across rebuilds
+      - docker-data:/var/lib/docker
+
+# Define the named volume for data persistence
+volumes:
+  terraform-plugins:
+  docker-data:

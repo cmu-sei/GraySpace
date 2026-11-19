@@ -1,0 +1,8 @@
+proxmox_url      = "https://pve.example.com:8006/api2/json"
+proxmox_username = "packer@pve!packer"
+proxmox_token    = "00000000-0000-0000-0000-000000000000"
+proxmox_node     = "pve1"
+iso_file         = "local:iso/windows-server-2022-eval.iso"
+virtio_iso_file  = "local:iso/virtio-win.iso"
+bridge           = "vmbr0"
+admin_password   = "Change-Me-2026!"

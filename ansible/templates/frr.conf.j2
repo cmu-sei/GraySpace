@@ -1,0 +1,168 @@
+!
+! FRR configuration for {{ inventory_hostname }}
+!
+frr version 8.4
+frr defaults traditional
+hostname {{ inventory_hostname }}
+log syslog informational
+no ipv6 forwarding
+!
+! =================================
+! OSPF Configuration
+! =================================
+router ospf
+ ! Set the OSPF Router ID to the stable loopback address
+ ospf router-id {{ loopback_ip | ansible.utils.ipaddr('address') }}
+ !
+ ! --- OSPF Areas and Networks ---
+ {% for area in (ospf_areas[0] | default('')) .split(',') %}
+  {% if area %}
+ !
+ ! Announce networks for Area {{ area }}
+   {% for iface in (interfaces | default([])) if iface.ospf_area is not none and iface.ospf_area | string == area | string %}
+ network {{ (iface.ip ~ '/' ~ iface.cidr) | ansible.utils.ipaddr('network/prefix') }} area {{ area }}
+   {% endfor %}
+ !
+  {% endif %}
+ {% endfor %}
+! Announce the loopback interface
+{% if '0' in (ospf_areas[0] | default('')) .split(',') %}
+  {# If this router is part of the backbone (an ABR or backbone router),
+     its loopback should be in Area 0 for stability. #}
+  network {{ loopback_ip }} area 0
+{% else %}
+  {# If this is an internal router in another area,
+     its loopback belongs in its own area. We'll use the first area listed. #}
+  network {{ loopback_ip }} area {{ (ospf_areas[0] | default('')).split(',') | first }}
+{% endif %}
+!
+{% set ebgp_neighbors = (bgp_neighbors | default([])) | selectattr('relationship', 'defined') | list %}
+{% set relationships = ebgp_neighbors | map(attribute='relationship') | unique | list %}
+{% set customer_asns = ebgp_neighbors | selectattr('relationship', 'equalto', 'customer') | map(attribute='asn') | unique | list %}
+! =================================
+! BGP Routing Policy
+! =================================
+! Communities ({{ asn }}:N):
+!   {{ asn }}:10  - originated by this ISP
+!   {{ asn }}:100 - learned from a customer
+!   {{ asn }}:200 - learned from a peer
+!   {{ asn }}:300 - learned from a provider
+! Customer routes are announced everywhere; peer and provider routes
+! only to customers.
+!
+{% if ebgp_neighbors %}
+! --- Bogons and overly specific prefixes ---
+ip prefix-list PL-BOGONS seq 5 permit 0.0.0.0/0
+ip prefix-list PL-BOGONS seq 10 permit 0.0.0.0/8 le 32
+ip prefix-list PL-BOGONS seq 15 permit 10.0.0.0/8 le 32
+ip prefix-list PL-BOGONS seq 20 permit 100.64.0.0/10 le 32
+ip prefix-list PL-BOGONS seq 25 permit 127.0.0.0/8 le 32
+ip prefix-list PL-BOGONS seq 30 permit 169.254.0.0/16 le 32
+ip prefix-list PL-BOGONS seq 35 permit 172.16.0.0/12 le 32
+ip prefix-list PL-BOGONS seq 40 permit 192.0.2.0/24 le 32
+ip prefix-list PL-BOGONS seq 45 permit 192.168.0.0/16 le 32
+ip prefix-list PL-BOGONS seq 50 permit 198.18.0.0/15 le 32
+ip prefix-list PL-BOGONS seq 55 permit 198.51.100.0/24 le 32
+ip prefix-list PL-BOGONS seq 60 permit 203.0.113.0/24 le 32
+ip prefix-list PL-BOGONS seq 65 permit 224.0.0.0/4 le 32
+ip prefix-list PL-BOGONS seq 70 permit 240.0.0.0/4 le 32
+ip prefix-list PL-BOGONS seq 75 permit 0.0.0.0/0 ge 25
+!
+bgp community-list standard CL-EXPORTABLE permit {{ asn }}:10
+bgp community-list standard CL-EXPORTABLE permit {{ asn }}:100
+!
+{% for casn in customer_asns %}
+! Customer AS{{ casn }} may only announce its own routes
+bgp as-path access-list AS-CUST-{{ casn }} seq 5 permit ^{{ casn }}(_{{ casn }})*$
+{% if loop.last %}
+!
+{% endif %}
+{% endfor %}
+{% endif %}
+route-map RM-ORIGINATE permit 10
+ set community {{ asn }}:10
+!
+{% if 'customer' in relationships %}
+route-map RM-FROM-CUSTOMER deny 5
+ match ip address prefix-list PL-BOGONS
+!
+route-map RM-FROM-CUSTOMER permit 10
+ set community {{ asn }}:100
+ set local-preference 200
+!
+route-map RM-TO-CUSTOMER permit 10
+!
+{% endif %}
+{% if 'peer' in relationships %}
+route-map RM-FROM-PEER deny 5
+ match ip address prefix-list PL-BOGONS
+!
+route-map RM-FROM-PEER permit 10
+ set community {{ asn }}:200
+ set local-preference 100
+!
+route-map RM-TO-PEER permit 10
+ match community CL-EXPORTABLE
+!
+{% endif %}
+{% if 'provider' in relationships %}
+route-map RM-FROM-PROVIDER deny 5
+ match ip address prefix-list PL-BOGONS
+!
+route-map RM-FROM-PROVIDER permit 10
+ set community {{ asn }}:300
+ set local-preference 50
+!
+route-map RM-TO-PROVIDER permit 10
+ match community CL-EXPORTABLE
+!
+{% endif %}
+! =================================
+! BGP Configuration
+! =================================
+router bgp {{ asn }}
+ ! Best practice: use the stable loopback for the BGP Router ID as well
+ bgp router-id {{ loopback_ip | ansible.utils.ipaddr('address') }}
+ !
+ ! --- BGP Neighbors ---
+ !
+{% for neighbor in (bgp_neighbors | default([])) %}
+ neighbor {{ neighbor.ip }} remote-as {{ neighbor.asn }}
+ neighbor {{ neighbor.ip }} description To_{{ neighbor.hostname }}
+{% if neighbor.type == 'INTERNAL_LINK' %}
+ neighbor {{ neighbor.ip }} update-source lo
+{% endif %}
+{% endfor %}
+ !
+ address-family ipv4 unicast
+{% if customer_net is not none %}
+  ! Advertise customer network
+  network {{ customer_net }} route-map RM-ORIGINATE
+{% endif %}
+{% for iface in (interfaces | default([])) if iface.ospf_area is none and (iface.cidr | int) <= 24 %}
+{% set net = (iface.ip ~ '/' ~ iface.cidr) | ansible.utils.ipaddr('network/prefix') %}
+{% if net != customer_net | default('') %}
+  network {{ net }} route-map RM-ORIGINATE
+{% endif %}
+{% endfor %}
+  !
+{% for neighbor in (bgp_neighbors | default([])) %}
+{% if neighbor.type == 'INTERNAL_LINK' %}
+  ! --- iBGP: {{ neighbor.hostname }} ---
+  neighbor {{ neighbor.ip }} next-hop-self
+  neighbor {{ neighbor.ip }} send-community both
+{% if 'RR' in (roles[0] | default('')) %}
+  neighbor {{ neighbor.ip }} route-reflector-client
+{% endif %}
+{% elif neighbor.relationship is defined %}
+{% set rel = neighbor.relationship | upper %}
+  ! --- eBGP {{ neighbor.relationship }}: {{ neighbor.hostname }} (AS{{ neighbor.asn }}) ---
+{% if neighbor.relationship == 'customer' %}
+  neighbor {{ neighbor.ip }} filter-list AS-CUST-{{ neighbor.asn }} in
+{% endif %}
+  neighbor {{ neighbor.ip }} route-map RM-FROM-{{ rel }} in
+  neighbor {{ neighbor.ip }} route-map RM-TO-{{ rel }} out
+{% endif %}
+{% endfor %}
+ exit-address-family
+!

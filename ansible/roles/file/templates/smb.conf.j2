@@ -1,0 +1,14 @@
+# Written by GraySpace (file role).
+[global]
+   workgroup = WORKGROUP
+   server string = {{ inventory_hostname }}
+   map to guest = Bad User
+   server role = standalone server
+
+[{{ file_share }}]
+   path = /srv/{{ file_share }}
+   read only = no
+   browseable = yes
+   guest ok = {{ 'yes' if file_guest else 'no' }}
+   create mask = 0666
+   directory mask = 0777

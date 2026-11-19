@@ -1,0 +1,5 @@
+hostname:ID(CoreService),image:string,role:string,ca_name:string,cores:int,memory:int,disk:int
+ca-graytrust,alpine-3.22,ca,GrayTrust,2,512,32
+ca-securesign,alpine-3.22,ca,SecureSign,2,512,32
+ca-netcert,alpine-3.22,ca,NetCert,2,512,32
+ca-cyberlock,alpine-3.22,ca,CyberLock,2,512,32

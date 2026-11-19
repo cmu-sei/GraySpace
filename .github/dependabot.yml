@@ -1,0 +1,36 @@
+version: 2
+
+updates:
+  # Terraform providers (bpg/proxmox, hashicorp/tls, cmu-sei/crucible, etc.)
+  - package-ecosystem: "terraform"
+    directory: "/terraform"
+    schedule:
+      interval: "weekly"
+    groups:
+      terraform-providers:
+        patterns: ["*"]
+
+  # Python dependencies (requirements.txt)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      python-packages:
+        patterns: ["*"]
+
+  # Docker base image (python:slim in dev.Dockerfile)
+  - package-ecosystem: "docker"
+    directory: "/.devcontainer"
+    schedule:
+      interval: "monthly"
+    ignore:
+      # Stay on the current Python minor (and skip pre-releases); bump by hand after GA
+      - dependency-name: "python"
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
+
+  # Devcontainer features (go-task)
+  - package-ecosystem: "devcontainers"
+    directory: "/"
+    schedule:
+      interval: "monthly"

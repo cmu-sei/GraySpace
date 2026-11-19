@@ -1,0 +1,168 @@
+{
+  "slice_ca_bundle": "/data/instances/wo/ca-bundle.pem",
+  "slice_domains": [
+    "contoso-office.com"
+  ],
+  "slice_edges": {
+    "wo-office-edge": {
+      "bgp": null,
+      "mgmt_interface": "eth2",
+      "published": [
+        {
+          "hostname": "wo-mail",
+          "private_ip": "192.168.0.10",
+          "public_ip": "209.151.130.3"
+        }
+      ],
+      "resolver": "8.8.8.8",
+      "routed": false,
+      "segments": [
+        {
+          "cidr": "192.168.0.0/24",
+          "gateway": "192.168.0.1",
+          "interface": "eth1",
+          "name": "of-lan"
+        }
+      ],
+      "site": "office",
+      "wans": [
+        {
+          "gateway": "209.151.130.1",
+          "interface": "eth0",
+          "ip": "209.151.130.2",
+          "prefixlen": 24,
+          "router": "lum-chi"
+        }
+      ]
+    }
+  },
+  "slice_hosts": {
+    "wo-dc": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.11",
+      "labels": {},
+      "mgmt_interface": "eth1",
+      "name": "dc",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ad-dc",
+        "dns"
+      ],
+      "segment": "of-lan",
+      "sim_interface": "eth0",
+      "site": "office"
+    },
+    "wo-files": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.12",
+      "labels": {},
+      "mgmt_interface": "eth1",
+      "name": "files",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "192.168.0.11",
+      "roles": [
+        "file"
+      ],
+      "segment": "of-lan",
+      "sim_interface": "eth0",
+      "site": "office"
+    },
+    "wo-mail": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.10",
+      "labels": {},
+      "mgmt_interface": "eth1",
+      "name": "mail",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": "209.151.130.3",
+      "resolver": "192.168.0.11",
+      "roles": [
+        "mail"
+      ],
+      "segment": "of-lan",
+      "sim_interface": "eth0",
+      "site": "office"
+    },
+    "wo-win": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.13",
+      "labels": {
+        "ghosts.pool": "office"
+      },
+      "mgmt_interface": "eth1",
+      "name": "win",
+      "os_family": "windows",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "192.168.0.11",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "of-lan",
+      "sim_interface": "eth0",
+      "site": "office"
+    }
+  },
+  "slice_instance": "wo",
+  "slice_mgmt_routes": [
+    "ghosts.mgmt.example"
+  ],
+  "slice_role_vars": {
+    "ad-dc": {
+      "admin_password": "GraySpace-2026!",
+      "domain": "CONTOSO",
+      "realm": "corp.contoso-office.com"
+    },
+    "ghosts-client": {
+      "api_host": "ghosts.mgmt.example",
+      "api_url": "http://ghosts.mgmt.example:5000/api",
+      "client_url": "http://ghosts.mgmt.example/clients/ghosts-client-windows.zip"
+    },
+    "mail": {
+      "users": [
+        {
+          "name": "alice",
+          "password": "grayspace"
+        },
+        {
+          "name": "bob",
+          "password": "grayspace"
+        }
+      ]
+    }
+  },
+  "slice_site_hosts": {
+    "office": [
+      {
+        "hostname": "wo-mail",
+        "ip": "192.168.0.10",
+        "name": "mail"
+      },
+      {
+        "hostname": "wo-dc",
+        "ip": "192.168.0.11",
+        "name": "dc"
+      },
+      {
+        "hostname": "wo-files",
+        "ip": "192.168.0.12",
+        "name": "files"
+      },
+      {
+        "hostname": "wo-win",
+        "ip": "192.168.0.13",
+        "name": "win"
+      }
+    ]
+  }
+}

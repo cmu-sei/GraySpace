@@ -1,0 +1,12 @@
+session.menuFile: ~/.fluxbox/menu
+session.keyFile: ~/.fluxbox/keys
+session.appsFile: ~/.fluxbox/apps
+session.styleFile: /usr/share/fluxbox/styles/Emerge
+session.screen0.rootCommand:
+session.screen0.toolbar.visible: false
+session.screen0.workspaces: 1
+session.screen0.workspaceNames: Desktop,
+session.screen0.focusModel: ClickFocus
+session.screen0.clickRaises: true
+session.screen0.windowPlacement: RowSmartPlacement
+session.screen0.slit.autoHide: true

@@ -1,0 +1,51 @@
+# The GraySpace image (container/Dockerfile) gets code only: no state, keys, credentials, site
+# settings, caches or large artifacts. Patterns with **/ apply at any depth.
+.git
+GHOSTS/
+**/.claude/
+**/node_modules/
+**/__pycache__/
+.ruff_cache/
+.task/
+.vscode/
+grayspace-web/frontend/build/
+site/
+.venv/
+
+# Site settings and credentials
+.environment
+environment
+**/*.env
+**/.env*
+.ssh/
+.devcontainer/ssh/
+.devcontainer/.aws/
+
+# Terraform state and generated files
+deployments/
+**/terraform.tfstate*
+**/.terraform/
+**/.terraform.lock.hcl
+terraform/terraform.tfvars.json*
+terraform/scenarios/
+/terraform/.grayspace.lock
+/terraform/grayspace-data/
+/terraform/slice/instances/
+/terraform/slice/terraform.tfstate.d/
+/terraform/images/images.tfvars.json
+/ansible/slice-inventory/
+/aspire/.data/
+terraform/bin/
+ansible/inventory/*_inventory.ini
+ansible/.cache/
+
+# Not used at runtime
+docs/
+material/
+packer/
+
+# Logs and large artifacts
+**/*.log
+packer/output_ovf/
+*.tar.gz
+*.ova

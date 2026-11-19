@@ -1,0 +1,110 @@
+{
+  "slice_ca_bundle": "/data/instances/ie/ca-bundle.pem",
+  "slice_domains": [
+    "dailychronicle.com",
+    "northwind-trading.com"
+  ],
+  "slice_edges": {
+    "ie-readers-edge": {
+      "bgp": null,
+      "mgmt_interface": "eth2",
+      "published": [],
+      "resolver": "8.8.8.8",
+      "routed": false,
+      "segments": [
+        {
+          "cidr": "192.168.0.0/24",
+          "gateway": "192.168.0.1",
+          "interface": "eth1",
+          "name": "rd-lan"
+        }
+      ],
+      "site": "readers",
+      "wans": [
+        {
+          "gateway": "50.232.0.1",
+          "interface": "eth0",
+          "ip": "50.232.0.2",
+          "prefixlen": 24,
+          "router": "com-chi"
+        }
+      ]
+    }
+  },
+  "slice_hosts": {
+    "ie-corp": {
+      "certificate": {
+        "cert": "/data/instances/ie/ie-corp.crt",
+        "key": "/data/instances/ie/ie-corp.key"
+      },
+      "gateway": "216.239.34.1",
+      "ip": "216.239.34.2",
+      "labels": {},
+      "mgmt_interface": "eth1",
+      "name": "corp",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": "216.239.34.2",
+      "resolver": "8.8.8.8",
+      "roles": [
+        "web"
+      ],
+      "segment": null,
+      "sim_interface": "eth0",
+      "site": null
+    },
+    "ie-reader-01": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.10",
+      "labels": {},
+      "mgmt_interface": "eth1",
+      "name": "reader-01",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [],
+      "segment": "rd-lan",
+      "sim_interface": "eth0",
+      "site": "readers"
+    },
+    "ie-reader-02": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.11",
+      "labels": {},
+      "mgmt_interface": "eth1",
+      "name": "reader-02",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [],
+      "segment": "rd-lan",
+      "sim_interface": "eth0",
+      "site": "readers"
+    }
+  },
+  "slice_instance": "ie",
+  "slice_mgmt_routes": [],
+  "slice_role_vars": {
+    "web": {
+      "site_title": "Northwind Trading"
+    }
+  },
+  "slice_site_hosts": {
+    "readers": [
+      {
+        "hostname": "ie-reader-01",
+        "ip": "192.168.0.10",
+        "name": "reader-01"
+      },
+      {
+        "hostname": "ie-reader-02",
+        "ip": "192.168.0.11",
+        "name": "reader-02"
+      }
+    ]
+  }
+}

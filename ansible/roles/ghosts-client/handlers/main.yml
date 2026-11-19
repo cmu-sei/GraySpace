@@ -1,0 +1,7 @@
+---
+- name: Restart ghosts-client
+  ansible.builtin.systemd:
+    name: ghosts-client
+    state: restarted
+    daemon_reload: true
+  when: slice_hosts[inventory_hostname].os_family != 'windows'

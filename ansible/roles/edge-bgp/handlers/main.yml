@@ -1,0 +1,10 @@
+---
+- name: Apply sysctl
+  ansible.builtin.command:
+    cmd: sysctl -q -p /etc/sysctl.d/grayspace.conf
+  changed_when: true
+
+- name: Restart FRR
+  ansible.builtin.service:
+    name: frr
+    state: restarted

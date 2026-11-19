@@ -1,0 +1,41 @@
+# GraySpace on a Docker host that can reach the Proxmox node(s) and the management network
+# (docs/install.md, "Run GraySpace in a container"). From the repository root:
+#
+#   docker compose -f container/compose.yaml up -d --build
+#   docker compose -f container/compose.yaml exec grayspace task parse    # then apply, configure
+#
+# GRAYSPACE_ENV_FILE is the site's environment file (scripts/environment.template), default
+# ../.environment.
+name: grayspace
+services:
+  grayspace:
+    build:
+      context: ..
+      dockerfile: container/Dockerfile
+      args:
+        - HTTP_PROXY=${HTTP_PROXY:-}
+        - HTTPS_PROXY=${HTTPS_PROXY:-}
+        - NO_PROXY=${NO_PROXY:-}
+    image: grayspace:local
+    restart: unless-stopped
+    ports:
+      - "${GRAYSPACE_PORT:-8080}:80"
+    volumes:
+      - grayspace-data:/data
+      - ${GRAYSPACE_ENV_FILE:-../.environment}:/config/environment:ro
+    environment:
+      # Optional overrides; by default the entrypoint derives these from the environment file and
+      # the generated inventory.
+      PROMETHEUS_URL: ${PROMETHEUS_URL:-}
+      # The host's proxy, for everything in the container, including `docker compose exec` (Terraform
+      # fetching providers, Ansible's downloads). Empty when the host has none.
+      HTTP_PROXY: ${HTTP_PROXY:-}
+      HTTPS_PROXY: ${HTTPS_PROXY:-}
+      NO_PROXY: ${NO_PROXY:-}
+      http_proxy: ${http_proxy:-}
+      https_proxy: ${https_proxy:-}
+      no_proxy: ${no_proxy:-}
+
+volumes:
+  # Terraform state, keys, generated files and the backend's own files. Back it up.
+  grayspace-data:

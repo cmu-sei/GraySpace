@@ -1,0 +1,119 @@
+---
+# Before roles install packages: the guest's default route goes over the management NIC for the
+# run, since only management reaches the real internet. main.yml restores the simulated route.
+- name: Load slice facts
+  ansible.builtin.include_tasks: facts.yml
+
+- name: Prepare Windows
+  ansible.builtin.include_tasks: windows_prepare.yml
+  when: gs_family == 'windows'
+
+- name: Prepare Linux
+  when: gs_family != 'windows'
+  block:
+    - name: Find the management interface and its gateway  # noqa: risky-shell-pipe (dash has no pipefail; empty output is handled)
+      ansible.builtin.shell: |
+        iface=$(ip -o -4 addr show | awk -v ip="{{ ansible_host }}" '{split($4, a, "/"); if (a[1] == ip) print $2}')
+        gw=$(ip -4 route show default dev "$iface" | awk '{print $3; exit}')
+        if [ -z "$gw" ]; then
+          gw=$(cat /run/systemd/netif/leases/* 2>/dev/null | sed -n 's/^ROUTER=//p' | head -1)
+        fi
+        if [ -z "$gw" ] && [ -f /var/lib/grayspace/mgmt_gateway ]; then
+          gw=$(cat /var/lib/grayspace/mgmt_gateway)
+        fi
+        dns=$(cat /run/systemd/netif/leases/* 2>/dev/null | sed -n 's/^DNS=//p' | head -1 | cut -d' ' -f1)
+        if [ -z "$dns" ] && [ -f /var/lib/grayspace/mgmt_resolver ]; then
+          dns=$(cat /var/lib/grayspace/mgmt_resolver)
+        fi
+        gw=${gw:-{{ slice_mgmt_gateway }}}
+        echo "$iface $gw ${dns:-{{ slice_mgmt_resolver or '' }}}"
+      args:
+        executable: /bin/sh
+      register: gs_mgmt
+      changed_when: false
+
+    - name: Record the management interface and gateway
+      ansible.builtin.set_fact:
+        gs_mgmt_interface: "{{ gs_mgmt.stdout.split()[0] }}"
+        gs_mgmt_gateway: "{{ gs_mgmt.stdout.split()[1] | default('') }}"
+        gs_mgmt_resolver: "{{ gs_mgmt.stdout.split()[2] | default(gs_mgmt.stdout.split()[1] | default('')) }}"
+
+    - name: Fail without a management gateway
+      ansible.builtin.fail:
+        msg: >-
+          {{ inventory_hostname }} has no default route on {{ gs_mgmt_interface }} to read the
+          management gateway from; set SLICE_MGMT_GATEWAY for the GraySpace backend.
+      when: gs_mgmt_gateway | length == 0
+
+    - name: Remember the management gateway and resolver for later runs
+      ansible.builtin.shell: |
+        mkdir -p /var/lib/grayspace
+        echo "{{ gs_mgmt_gateway }}" > /var/lib/grayspace/mgmt_gateway
+        echo "{{ gs_mgmt_resolver }}" > /var/lib/grayspace/mgmt_resolver
+      args:
+        creates: /var/lib/grayspace/mgmt_gateway
+
+    - name: Send default traffic over the management network while packages install
+      ansible.builtin.command:
+        cmd: ip route replace default via {{ gs_mgmt_gateway }} dev {{ gs_mgmt_interface }}
+      changed_when: true
+
+    - name: Resolve names over the management network while packages install
+      ansible.builtin.shell: |
+        if [ -f /etc/resolv.conf ] && ! [ -f /var/lib/grayspace/resolv.conf.sim ]; then
+          cp /etc/resolv.conf /var/lib/grayspace/resolv.conf.sim
+        fi
+        rm -f /etc/resolv.conf
+        echo "nameserver {{ gs_mgmt_resolver }}" > /etc/resolv.conf
+      args:
+        executable: /bin/sh
+      changed_when: true
+
+    - name: Resolve addresses that stay on management (the GHOSTS API)  # noqa: risky-shell-pipe (empty output is handled)
+      ansible.builtin.shell: |
+        getent ahostsv4 {{ item }} 2>/dev/null | awk '{print $1; exit}'
+      args:
+        executable: /bin/sh
+      loop: "{{ slice_mgmt_routes }}"
+      register: gs_mgmt_lookup
+      changed_when: false
+
+    - name: Record their addresses
+      ansible.builtin.set_fact:
+        gs_mgmt_route_ips: >-
+          {{ gs_mgmt_lookup.results | map(attribute='stdout') | select | list
+             + (slice_mgmt_routes | select('match', '^[0-9.]+$') | list) | unique }}
+
+    # The GraySpace image has them, so the install (and its index download) is skipped there
+    - name: Check for CA certificate tools on Alpine
+      ansible.builtin.command: apk info -e ca-certificates
+      register: gs_ca_check
+      changed_when: false
+      failed_when: false
+      when: gs_family == 'alpine'
+
+    - name: Install CA certificate tools on Alpine
+      community.general.apk:
+        name: ca-certificates
+        state: present
+        update_cache: true
+      when: gs_family == 'alpine' and gs_ca_check.rc != 0
+
+    - name: Install the slice certificate for roles to serve
+      when: gs.certificate | default(none) is not none
+      block:
+        - name: Create the certificate directory
+          ansible.builtin.file:
+            path: /etc/ssl/grayspace
+            state: directory
+            mode: "0755"
+        - name: Install the certificate
+          ansible.builtin.copy:
+            src: "{{ gs.certificate.cert }}"
+            dest: /etc/ssl/grayspace/host.crt
+            mode: "0644"
+        - name: Install the key
+          ansible.builtin.copy:
+            src: "{{ gs.certificate.key }}"
+            dest: /etc/ssl/grayspace/host.key
+            mode: "0600"

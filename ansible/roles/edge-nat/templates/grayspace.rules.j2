@@ -1,0 +1,24 @@
+# NAT for slice site {{ edge.site }} ({{ inventory_hostname }}). Written by GraySpace.
+{% set wan = edge.wans[0] %}
+*nat
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+{% for p in edge.published %}
+# {{ p.hostname }}: {{ p.public_ip }} <-> {{ p.private_ip }}, also from inside the site (hairpin)
+-A PREROUTING -d {{ p.public_ip }}/32 -j DNAT --to-destination {{ p.private_ip }}
+-A POSTROUTING -s {{ p.private_ip }}/32 -o {{ wan.interface }} -j SNAT --to-source {{ p.public_ip }}
+{% for s in edge.segments %}
+-A POSTROUTING -s {{ s.cidr }} -d {{ p.private_ip }}/32 -j MASQUERADE
+{% endfor %}
+{% endfor %}
+{% for s in edge.segments %}
+-A POSTROUTING -s {{ s.cidr }} -o {{ wan.interface }} -j SNAT --to-source {{ wan.ip }}
+{% endfor %}
+COMMIT
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+COMMIT

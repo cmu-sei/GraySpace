@@ -1,0 +1,31 @@
+# A routed, dual-homed site: the site gets a public /24 from Lumen's block, and its edge
+# peers over eBGP (private ASN) with a Lumen and an Arelion router in Chicago. Cutting either base
+# link fails traffic over to the other.
+apiVersion: grayspace/v1
+kind: Slice
+slug: routed-campus
+prefix: rc
+description: A university campus with public addresses, dual-homed to Lumen and Arelion
+sites:
+  - name: campus
+    routed: true
+    attach:
+      - { router: lum-chi }
+      - { isp: Arelion, location: Chicago }
+    segments:
+      - name: servers
+      - name: labs
+hosts:
+  - name: www
+    segment: servers
+    image: grayspace-ubuntu-lxc
+    roles: [web]
+  - name: lab
+    count: 3
+    segment: labs
+    image: grayspace-ubuntu-lxc
+dns:
+  domains:
+    - { domain: chicago-tech.org, hosting_server: dns-namecheap }
+  records:
+    - { name: www.chicago-tech.org, host: www }

@@ -1,0 +1,47 @@
+---
+# BIND, authoritative for the internal zone and forwarding everything else to the host's resolver
+- name: Install BIND
+  ansible.builtin.include_role:
+    name: grayspace-host
+    tasks_from: packages
+  vars:
+    gs_packages: [bind9, bind9-utils]
+
+- name: Configure options
+  ansible.builtin.copy:
+    dest: /etc/bind/named.conf.options
+    content: |
+      options {
+          directory "/var/cache/bind";
+          recursion yes;
+          allow-recursion { any; };
+          allow-query { any; };
+          forwarders { {{ slice_hosts[inventory_hostname].resolver }}; };
+          forward only;
+          dnssec-validation no;
+          listen-on { any; };
+          listen-on-v6 { none; };
+      };
+    mode: "0644"
+  notify: Restart BIND
+
+- name: Declare the internal zone
+  ansible.builtin.copy:
+    dest: /etc/bind/named.conf.local
+    content: |
+      zone "{{ dns_zone }}" { type master; file "/etc/bind/db.{{ dns_zone }}"; };
+    mode: "0644"
+  notify: Restart BIND
+
+- name: Write the internal zone
+  ansible.builtin.template:
+    src: zone.j2
+    dest: "/etc/bind/db.{{ dns_zone }}"
+    mode: "0644"
+  notify: Restart BIND
+
+- name: Start BIND
+  ansible.builtin.service:
+    name: named
+    state: started
+    enabled: true

@@ -1,0 +1,7 @@
+---
+# Slice roles are named as slice specs and /capabilities name them: grayspace-host, edge-nat, ghosts-client. Hyphens are valid Ansible role names.
+skip_list:
+  - role-name
+  # Warns on every play with strategy: free, which main.yml's router and CA plays use; none of
+  # them uses run_once (which free doesn't honour). Inline noqa doesn't reliably reach play-level rules.
+  - run-once[play]

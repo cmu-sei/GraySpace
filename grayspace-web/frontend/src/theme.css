@@ -1,0 +1,286 @@
+/*
+ * The application's theme and shell: the header, the deployment switcher, menus, sign-in, the
+ * deployments home, and the small pieces pages share (gs-*). Compact density and the palette of
+ * the agreed mockup (ui-mockup-settled.html). The operate views keep App.css until they are restyled.
+ */
+/* The global reset and font (once in App.css, which now loads with a deployment's views) */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:root {
+  --gs-bg: #0f1318;
+  --gs-panel: #151b22;
+  --gs-panel2: #1b222b;
+  --gs-header: #161c24;
+  --gs-line: #2a333f;
+  --gs-text: #d8dee6;
+  --gs-muted: #8a96a6;
+  --gs-accent: #4ea1ff;
+  --gs-ok: #3fb950;
+  --gs-warn: #d29922;
+  --gs-bad: #f85149;
+  --gs-purple: #a371f7;
+  --gs-selected: #22344a;
+  --gs-faint: #5b6675;
+  --gs-accent-soft: rgb(78 161 255 / 0.14);
+  --gs-shadow: 0 0 0;
+  --gs-radius: 8px;
+  --gs-fs-sm: 11px;
+  --gs-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* Compact */
+  --gs-pad: 9px;
+  --gs-fs: 12px;
+}
+
+.gs-app { display: flex; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden; background: var(--gs-bg); color: var(--gs-text); font-size: var(--gs-fs); }
+/* The routed page, between the bars: it scrolls inside itself, and is a column so a page can fill it with flex: 1 */
+.gs-routed { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; overflow: auto; }
+.gs-routed > .gs-login { flex: 1 0 auto; min-height: 0; }
+/* The footer, as in Scenario Builder and Chronicle: one notice at each end, truncated rather than wrapped */
+.gs-appfooter { display: flex; flex: none; height: 24px; padding: 0 16px; align-items: center; justify-content: space-between; gap: 16px; border-top: 1px solid var(--gs-line); background: var(--gs-header); font-size: 11px; font-weight: normal; color: var(--gs-faint); }
+.gs-appfooter .notice { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gs-appfooter a { display: inline-flex; vertical-align: -2px; margin-right: 4px; color: inherit; text-decoration: none; }
+.gs-appfooter a:hover { color: var(--gs-text); text-decoration: none; }
+.gs-appfooter svg { width: 12px; height: 12px; }
+.gs-page { flex: 1; overflow: auto; padding: calc(var(--gs-pad) * 1.6); }
+.gs-workspace { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; background: var(--gs-bg); color: var(--gs-text); }
+/* Compact: the views' rem sizes follow the root's */
+html { font-size: 13px; }
+body { background: var(--gs-bg); color: var(--gs-text); }
+
+/* Header */
+.gs-header { height: 48px; flex: none; display: flex; align-items: center; gap: 8px; padding: 0 16px; background: var(--gs-header); border-bottom: 1px solid var(--gs-line); z-index: 1100; }
+/* The header's brand, sized as in Scenario Builder and Chronicle: 13px and 1.5 are their body text's, which here
+   is 12px with the browser's line height. The square and the name are one link home */
+.gs-header .brand { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; line-height: 1.5; letter-spacing: normal; color: var(--gs-text); text-decoration: none; }
+.gs-header .brand:hover, .gs-header .brand:focus { color: var(--gs-text); text-decoration: none; }
+.gs-header .brand .mark { width: 14px; height: 14px; flex: none; border-radius: 4px; background: linear-gradient(135deg, #a3acb9 0%, #d9dfe7 50%, #a98ef7 50%, #4a3487 100%); }
+/* The sign-in pages' logo */
+.gs-logo { font-weight: 700; display: flex; align-items: center; gap: 7px; color: var(--gs-text); text-decoration: none; font-size: 13px; }
+.gs-logo i { width: 18px; height: 18px; border-radius: 4px; background: linear-gradient(135deg, #4ea1ff, #a371f7); display: inline-block; }
+.gs-tabs { display: flex; gap: 2px; height: 100%; align-items: stretch; }
+.gs-tabs a { display: flex; align-items: center; gap: 5px; padding: 0 10px; color: var(--gs-muted); text-decoration: none; border-bottom: 2px solid transparent; white-space: nowrap; }
+.gs-tabs a:hover { color: var(--gs-text); }
+.gs-tabs a.active { color: #fff; border-bottom-color: var(--gs-accent); }
+.gs-tabs .gs-sep { width: 1px; background: var(--gs-line); margin: 10px 6px; }
+.gs-spacer { flex: 1; }
+
+/* The app switcher, before the logo (as in Scenario Builder and Chronicle) */
+.gs-apps { position: relative; display: flex; align-items: center; }
+.gs-apps-trigger { width: 22px; height: 22px; margin-left: -4px; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--gs-faint); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.gs-apps-trigger:hover, .gs-apps-trigger[aria-expanded='true'] { color: var(--gs-accent); background: var(--gs-accent-soft); }
+.gs-apps-trigger:focus-visible { outline: 2px solid var(--gs-accent); outline-offset: 1px; }
+.gs-apps-menu { position: absolute; top: calc(100% + 6px); left: -4px; z-index: 50; min-width: 220px; padding: 6px; background: var(--gs-header); border: 1px solid var(--gs-line); border-radius: var(--gs-radius); box-shadow: 0 12px 32px -12px rgb(var(--gs-shadow) / 0.45); }
+/* Bridges the gap to the trigger, so the pointer can cross it without the menu closing */
+.gs-apps-menu::before { content: ''; position: absolute; left: 0; right: 0; top: -8px; height: 8px; }
+.gs-apps-head { padding: 4px 8px 6px; font-size: var(--gs-fs-sm); color: var(--gs-muted); }
+.gs-apps-menu a { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 6px; color: var(--gs-text); text-decoration: none; }
+.gs-apps-menu a:hover, .gs-apps-menu a:focus-visible { background: var(--gs-accent-soft); outline: none; }
+.gs-apps-badge { width: 22px; height: 22px; flex: none; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; border-radius: 6px; background: var(--gs-bg); border: 1px solid var(--gs-line); }
+.gs-apps-name { font-weight: 500; white-space: nowrap; }
+
+/* Switcher and menus */
+.gs-switcher { display: flex; align-items: center; gap: 6px; background: #0f141a; border: 1px solid var(--gs-line); border-radius: 6px; padding: 3px 8px; cursor: pointer; position: relative; color: var(--gs-text); font: inherit; }
+.gs-menu { position: absolute; top: calc(100% + 6px); left: 0; min-width: 260px; background: #18202a; border: 1px solid var(--gs-line); border-radius: 7px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); z-index: 1200; padding: 5px; text-align: left; }
+.gs-menu.right { left: auto; right: 0; }
+.gs-menu a, .gs-menu button { display: flex; width: 100%; gap: 8px; align-items: center; padding: 6px 8px; border-radius: 5px; cursor: pointer; color: var(--gs-text); text-decoration: none; background: none; border: 0; font: inherit; text-align: left; }
+.gs-menu a:hover, .gs-menu button:hover { background: var(--gs-selected); }
+.gs-menu .gs-menu-sep { border-top: 1px solid var(--gs-line); margin: 4px 0; }
+.gs-menu .gs-menu-meta { color: var(--gs-muted); font-size: 11px; margin-left: auto; }
+.gs-menu .gs-menu-head { padding: 6px 8px; }
+.gs-avatar { width: 26px; height: 26px; border-radius: 50%; background: #3a2d5c; color: #d6c6ff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11px; cursor: pointer; position: relative; border: 0; }
+
+/* Pieces */
+.gs-mono { font-family: var(--gs-mono); }
+.gs-muted { color: var(--gs-muted); }
+.gs-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex: none; background: #5b6675; }
+.gs-dot.ok { background: var(--gs-ok); } .gs-dot.warn { background: var(--gs-warn); } .gs-dot.bad { background: var(--gs-bad); } .gs-dot.info { background: var(--gs-accent); }
+.gs-pill { display: inline-flex; align-items: center; gap: 4px; padding: 0 7px; border-radius: 10px; font-size: 11px; border: 1px solid var(--gs-line); white-space: nowrap; color: var(--gs-muted); }
+.gs-pill.ok { color: var(--gs-ok); border-color: #23462c; background: #10221a; }
+.gs-pill.warn { color: var(--gs-warn); border-color: #4a3b16; background: #221b0c; }
+.gs-pill.bad { color: var(--gs-bad); border-color: #5a2422; background: #2a1110; }
+.gs-pill.info { color: var(--gs-accent); border-color: #1f3a55; background: #0f1d2c; }
+.gs-domain { border: 1px solid var(--gs-line); border-radius: 8px; padding: 8px 10px; margin-top: 8px; background: #141a21; }
+.gs-node { border: 1px solid transparent; cursor: pointer; }
+.gs-node.ok { border-color: #23462c; } .gs-node.warn { color: var(--gs-warn); border-color: #4a3b16; background: #221b0c; } .gs-node.bad { color: var(--gs-bad); border-color: #5a2422; background: #2a1110; }
+.gs-modal.gs-modal-wide { width: min(1400px, 94vw); }
+.gs-preview { display: grid; grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr); gap: 12px; height: 70vh; }
+.gs-preview-map { min-height: 0; border: 1px solid var(--gs-line); border-radius: 8px; overflow: hidden; }
+.gs-preview-side { min-height: 0; overflow: auto; }
+.gs-plain { background: none; border: none; padding: 0; color: inherit; font: inherit; cursor: pointer; }
+.gs-tip { position: relative; display: inline-block; margin-left: 4px; color: var(--gs-muted); font-size: 11px; font-weight: 400; cursor: help; outline: none; }
+.gs-tip:hover, .gs-tip:focus-visible { color: var(--gs-accent); }
+.gs-tip:hover::after, .gs-tip:focus-visible::after {
+  content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 6px); transform: translateX(-50%); z-index: 1000;
+  width: max-content; max-width: 280px; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--gs-line);
+  background: var(--gs-panel2); color: var(--gs-text); font-size: 11px; line-height: 1.4; white-space: normal; text-transform: none;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5); pointer-events: none;
+}
+.gs-tag { font-family: var(--gs-mono); font-size: 11px; background: #1d2630; padding: 1px 6px; border-radius: 4px; color: #b8c7d8; }
+.gs-btn { background: var(--gs-accent); color: #fff; border: 0; border-radius: 5px; padding: 5px 12px; cursor: pointer; font: inherit; font-weight: 600; }
+.gs-btn.ghost { background: transparent; border: 1px solid var(--gs-line); color: var(--gs-text); font-weight: 500; }
+.gs-btn.bad { background: var(--gs-bad); }
+.gs-btn.sm { padding: 3px 8px; font-size: 11.5px; }
+.gs-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.gs-box { background: var(--gs-panel); border: 1px solid var(--gs-line); border-radius: 8px; padding: var(--gs-pad) calc(var(--gs-pad) * 1.4); margin-bottom: var(--gs-pad); }
+.gs-box h3 { margin: 0 0 8px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+.gs-title { font-size: 17px; margin: 0 0 2px; font-weight: 650; }
+.gs-subtitle { color: var(--gs-muted); margin-bottom: 12px; }
+.gs-banner { padding: 7px 11px; border-radius: 6px; margin-bottom: 10px; display: flex; gap: 10px; align-items: center; }
+.gs-banner.info { background: #0f1d2c; border: 1px solid #1f3a55; color: #b9d8f7; }
+.gs-banner.warn { background: #221b0c; border: 1px solid #4a3b16; color: #f0d58a; }
+.gs-banner.bad { background: #2a1110; border: 1px solid #5a2422; color: #ffb3ad; }
+.gs-field { margin-bottom: 9px; }
+.gs-field label { display: block; color: var(--gs-muted); font-size: 11px; margin-bottom: 3px; }
+.gs-field input, .gs-field select, .gs-input { width: 100%; background: #0e1318; color: var(--gs-text); border: 1px solid var(--gs-line); border-radius: 5px; padding: 5px 7px; font: inherit; box-sizing: border-box; }
+.gs-field .gs-hint { color: var(--gs-muted); font-size: 11px; margin-top: 3px; }
+.gs-row { display: flex; gap: 8px; align-items: center; }
+.gs-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gs-pad); }
+.gs-grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(var(--gs-pad) * 1.3); }
+.gs-table { width: 100%; border-collapse: collapse; }
+.gs-table th { text-align: left; color: var(--gs-muted); font-weight: 500; font-size: 11px; padding: 5px 7px; border-bottom: 1px solid var(--gs-line); }
+.gs-table td { padding: 6px 7px; border-bottom: 1px solid #1d252f; }
+.gs-empty { text-align: center; padding: 40px 20px; color: var(--gs-muted); }
+.gs-seg { display: inline-flex; border: 1px solid var(--gs-line); border-radius: 6px; overflow: hidden; }
+.gs-seg button { background: var(--gs-panel2); color: var(--gs-muted); border: 0; border-right: 1px solid var(--gs-line); padding: 4px 12px; cursor: pointer; font: inherit; }
+.gs-seg button:last-child { border-right: 0; }
+.gs-seg button.on { background: var(--gs-selected); color: #fff; }
+.gs-bar { height: 6px; background: #222b36; border-radius: 4px; overflow: hidden; }
+.gs-bar > i { display: block; height: 100%; background: var(--gs-accent); }
+
+/* Deployments home */
+.gs-card { border: 1px solid var(--gs-line); border-radius: 10px; padding: 12px; background: var(--gs-panel); cursor: pointer; color: var(--gs-text); text-decoration: none; display: block; }
+.gs-card:hover { border-color: #3c5a7a; }
+.gs-card .gs-card-name { font-size: 14px; font-weight: 650; display: flex; align-items: center; gap: 8px; }
+.gs-card.new { border-style: dashed; display: flex; align-items: center; justify-content: center; color: var(--gs-muted); min-height: 120px; background: transparent; font: inherit; }
+
+/* Modal */
+.gs-modal-bg { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.55); z-index: 2000; display: flex; align-items: center; justify-content: center; }
+.gs-modal { width: 540px; max-height: 90vh; overflow: auto; background: var(--gs-panel); border: 1px solid var(--gs-line); border-radius: 10px; padding: 16px; color: var(--gs-text); }
+.gs-modal h3 { margin: 0 0 10px; font-size: 14px; }
+.gs-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; }
+.gs-kv { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 0 0 12px; padding: 8px 10px; background: #141a21; border: 1px solid var(--gs-line); border-radius: 6px; }
+.gs-kv dt { color: var(--gs-muted); }
+.gs-kv dd { margin: 0; }
+
+/* Sign-in */
+.gs-login { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 30% 20%, #18263a, #0b0e12 60%); color: var(--gs-text); font-size: var(--gs-fs); }
+.gs-login .gs-login-panel { width: 340px; background: var(--gs-panel); border: 1px solid var(--gs-line); border-radius: 12px; padding: 24px; }
+.gs-login .gs-logo { font-size: 18px; margin-bottom: 4px; }
+.gs-login .gs-btn { width: 100%; padding: 7px; margin-top: 4px; }
+.gs-or { display: flex; align-items: center; gap: 8px; color: var(--gs-muted); font-size: 11px; margin: 10px 0; }
+.gs-or::before, .gs-or::after { content: ''; flex: 1; border-top: 1px solid var(--gs-line); }
+
+/* Jobs */
+.gs-dark { background: var(--gs-bg); color: var(--gs-text); font-size: var(--gs-fs); }
+.gs-split { display: grid; grid-template-columns: minmax(380px, 1fr) minmax(0, 1.4fr); gap: calc(var(--gs-pad) * 1.3); align-items: start; }
+.gs-clickable tbody tr { cursor: pointer; }
+.gs-clickable tbody tr:hover td { background: #18212b; }
+.gs-clickable tbody tr.selected td { background: var(--gs-selected); }
+.gs-stages { list-style: none; margin: 0; padding: 0; }
+.gs-stages li { display: flex; gap: 8px; align-items: center; padding: 3px 0; }
+.gs-stage-mark { width: 14px; text-align: center; color: var(--gs-muted); }
+.gs-stage-name { width: 90px; color: var(--gs-muted); }
+.gs-stages li.done .gs-stage-mark { color: var(--gs-ok); }
+.gs-stages li.current { color: #fff; }
+.gs-stages li.current .gs-stage-mark { color: var(--gs-accent); }
+.gs-stages li.failed .gs-stage-mark, .gs-stages li.failed { color: var(--gs-bad); }
+.gs-stages li.skipped, .gs-stages li.pending { color: var(--gs-muted); }
+.gs-child { border: 1px solid var(--gs-line); border-radius: 7px; padding: 7px 10px; margin: 6px 0; background: #121820; }
+.gs-child.running { border-color: #1f3a55; background: #0f1d2c; }
+.gs-child.failed { border-color: #5a2422; background: #1d1010; }
+.gs-chips { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 5px; }
+.gs-chips span { font-size: 10.5px; padding: 0 5px; border-radius: 3px; background: #1d2630; color: var(--gs-muted); font-family: var(--gs-mono); }
+.gs-chips span.done { background: #1d3b27; color: var(--gs-ok); }
+.gs-chips span.current { background: var(--gs-selected); color: #fff; }
+.gs-chips span.failed { background: #3a1513; color: var(--gs-bad); }
+.gs-log { font-family: var(--gs-mono); font-size: 11px; background: #0b0f14; border-radius: 5px; padding: 8px; color: #9fb2c6; max-height: 420px; overflow: auto; white-space: pre-wrap; margin: 0; }
+.gs-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: calc(var(--gs-pad) * 1.3); margin-bottom: calc(var(--gs-pad) * 1.3); }
+.gs-stat { background: var(--gs-panel); border: 1px solid var(--gs-line); border-radius: 8px; padding: 9px 12px; }
+.gs-stat .gs-stat-k { color: var(--gs-muted); font-size: 11px; }
+.gs-stat .gs-stat-v { font-size: 19px; font-weight: 650; margin-top: 2px; }
+.gs-stat .gs-stat-v small { font-size: 12px; color: var(--gs-muted); font-weight: 400; }
+.gs-finding { border-left: 3px solid var(--gs-warn); padding: 4px 8px; background: #1c1a12; margin: 4px 0; border-radius: 0 4px 4px 0; }
+.gs-finding.bad { border-left-color: var(--gs-bad); background: #22110f; }
+.gs-finding.ok { border-left-color: var(--gs-ok); background: #10201a; }
+.gs-badge { font-size: 10px; background: var(--gs-selected); color: #9cc8f5; border-radius: 8px; padding: 0 5px; margin-left: 4px; }
+a.gs-btn { text-decoration: none; display: inline-block; }
+
+/* Builder */
+.gs-steps { display: flex; margin-bottom: 12px; }
+.gs-steps button { flex: 1; display: flex; align-items: center; gap: 8px; padding: 7px 10px; border: 0; border-bottom: 2px solid var(--gs-line); background: none; color: var(--gs-muted); cursor: pointer; font: inherit; text-align: left; }
+.gs-steps button .n { width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--gs-line); display: inline-flex; align-items: center; justify-content: center; font-size: 11px; flex: none; }
+.gs-steps button.done { color: var(--gs-text); border-bottom-color: #2a5a39; }
+.gs-steps button.done .n { background: #1d3b27; border-color: #2a5a39; color: var(--gs-ok); }
+.gs-steps button.on { color: #fff; border-bottom-color: var(--gs-accent); }
+.gs-steps button.on .n { background: var(--gs-accent); border-color: var(--gs-accent); color: #fff; }
+.gs-choice { display: block; border: 1px solid var(--gs-line); border-radius: 8px; padding: 9px 11px; margin-bottom: 6px; background: #141a21; cursor: pointer; }
+.gs-choice.on { border-color: var(--gs-accent); background: #12202e; }
+.gs-lib { display: flex; gap: 8px; align-items: flex-start; padding: 8px 4px; border-bottom: 1px solid #1d252f; }
+.gs-lib:last-child { border-bottom: 0; }
+.gs-lib.editing { background: var(--gs-selected); box-shadow: inset 3px 0 var(--gs-accent); }
+.gs-yaml { width: 100%; min-height: 420px; box-sizing: border-box; font-family: var(--gs-mono); font-size: 11.5px; background: #0b0f14; color: #b8c7d8; border: 1px solid var(--gs-line); border-radius: 6px; padding: 10px; line-height: 1.5; resize: vertical; }
+.gs-form-table input, .gs-form-table select { width: 100%; background: #0e1318; color: var(--gs-text); border: 1px solid var(--gs-line); border-radius: 4px; padding: 3px 5px; font: inherit; box-sizing: border-box; }
+.gs-form-table td { padding: 3px 4px; vertical-align: top; }
+.gs-x { background: none; border: 0; color: var(--gs-muted); cursor: pointer; font-size: 14px; }
+.gs-x:hover { color: var(--gs-bad); }
+.gs-footer { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+
+/* Admin */
+.gs-subtabs { height: 32px; border-bottom: 1px solid var(--gs-line); margin-bottom: 12px; }
+.gs-otp { font-size: 18px; letter-spacing: 0.05em; background: #0b0f14; border: 1px solid var(--gs-line); border-radius: 6px; padding: 12px; text-align: center; }
+
+/* Leaflet's popups, tooltips and controls on the dark theme. Scoped to .gs-app: leaflet.css is bundled after this file */
+.gs-app .leaflet-popup-content-wrapper, .gs-app .leaflet-popup-tip { background: var(--gs-panel2); color: var(--gs-text); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5); }
+.gs-app .leaflet-popup-content-wrapper { border: 1px solid var(--gs-line); border-radius: 8px; }
+.gs-app .leaflet-container a.leaflet-popup-close-button { color: var(--gs-muted); }
+.gs-app .leaflet-tooltip { background: var(--gs-panel2); color: var(--gs-text); border: 1px solid var(--gs-line); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5); }
+.gs-app .leaflet-tooltip-top::before { border-top-color: var(--gs-line); }
+.gs-app .leaflet-tooltip-bottom::before { border-bottom-color: var(--gs-line); }
+.gs-app .leaflet-tooltip-left::before { border-left-color: var(--gs-line); }
+.gs-app .leaflet-tooltip-right::before { border-right-color: var(--gs-line); }
+.gs-app .leaflet-bar a, .gs-app .leaflet-bar a:hover { background: var(--gs-panel2); color: var(--gs-text); border-bottom-color: var(--gs-line); }
+.gs-app .leaflet-control-attribution { background: rgba(21, 27, 34, 0.8) !important; color: var(--gs-muted); }
+.gs-app .leaflet-control-attribution a { color: var(--gs-accent); }
+
+/* Form controls in the views, which set no colours of their own */
+.gs-app input:not([type=checkbox]):not([type=radio]):not([type=range]), .gs-app select, .gs-app textarea {
+  background-color: #0e1318; color: var(--gs-text); border-color: var(--gs-line);
+}
+.gs-app input::placeholder, .gs-app textarea::placeholder { color: #5f6b7a; }
+
+/* Links in pages */
+.gs-page a:not(.gs-btn):not(.gs-card), .gs-workspace a:not(.gs-btn):not(.gs-card) { color: var(--gs-accent); }
+
+/* The router and link panels' tabs, like the header's */
+.gs-app .panel-tabs { background: var(--gs-panel); border-bottom: 1px solid var(--gs-line); }
+.gs-app .tab-button { background: transparent; color: var(--gs-muted); border: 0; border-bottom: 2px solid transparent; }
+.gs-app .tab-button:hover { color: var(--gs-text); background: transparent; }
+.gs-app .tab-button.active { background: transparent; color: #fff; border-bottom-color: var(--gs-accent); }
+/* Buttons in the views that set no text colour; :where() keeps it below any class's own */
+:where(.gs-app) button { color: var(--gs-text); }
+
+/* The map's tiles, dark: OpenStreetMap's own, inverted with the hues turned back and toned down.
+   Only the tile pane: routers, links and enclave sites keep their colours. */
+.gs-app .leaflet-container { background: #0d1117; }
+.gs-app .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.85) saturate(0.55); }
+.gs-app .leaflet-bar a.leaflet-disabled { background: var(--gs-panel2); color: #4a5563; }
+
+/* Enclave hosts: the DNS and CA cards, with a status border and an action row instead of a click */
+.dns-card.gs-host-card { cursor: default; display: flex; flex-direction: column; border-left: 4px solid var(--gs-line); }
+.dns-card.gs-host-card:hover { transform: none; box-shadow: none; }
+.dns-card.gs-host-card.ok { border-left-color: var(--gs-ok); }
+.dns-card.gs-host-card.warn { border-left-color: var(--gs-warn); }
+.gs-host-card .dns-card-body { flex: 1; }
+.gs-host-card-actions { display: flex; gap: 6px; align-items: center; padding: 0.5rem 0.75rem; border-top: 1px solid var(--gs-line); }

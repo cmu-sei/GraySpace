@@ -1,0 +1,639 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://grayspace/schemas/grayspace-deployments-events-v1.json",
+  "title": "DeploymentEvent",
+  "$defs": {
+    "BaseSummary": {
+      "properties": {
+        "status": {
+          "description": "The deployed base's status (GET /deployments/{id}/api/v1/base), or unknown when the worker doesn't answer",
+          "title": "Status",
+          "type": "string"
+        },
+        "version": {
+          "anyOf": [
+            {},
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        },
+        "scope": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "full or tier1, when deployed",
+          "title": "Scope"
+        },
+        "routers": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Routers in the deployed base",
+          "title": "Routers"
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "title": "BaseSummary",
+      "type": "object"
+    },
+    "Deployment": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "kind": {
+          "description": "managed: a work tree the control plane made; external: an existing GraySpace tree it adopted, which it never re-syncs or deletes",
+          "enum": [
+            "managed",
+            "external"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "default": {
+          "type": "boolean",
+          "title": "Default"
+        },
+        "created": {
+          "title": "Created",
+          "type": "string"
+        },
+        "url": {
+          "description": "The deployment's base URL: the Terrain API is at {url}/api/v1",
+          "title": "Url",
+          "type": "string"
+        },
+        "placement": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Placement"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The Proxmox connection and node; null for an adopted tree that matches none"
+        },
+        "proxmox": {
+          "$ref": "#/$defs/ProxmoxSettings",
+          "description": "Where it runs, resolved: the connection's host and the node's settings"
+        },
+        "options": {
+          "$ref": "#/$defs/DeploymentOptions"
+        },
+        "secrets": {
+          "description": "Which write-only settings are set",
+          "items": {
+            "type": "string"
+          },
+          "title": "Secrets",
+          "type": "array"
+        },
+        "worker": {
+          "$ref": "#/$defs/WorkerStatus"
+        },
+        "base": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BaseSummary"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "summary": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DeploymentSummary"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Null when the worker isn't running"
+        },
+        "owner": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The user who created it; null when the service token did, or it predates owners",
+          "title": "Owner"
+        },
+        "members": {
+          "items": {
+            "$ref": "#/$defs/Member"
+          },
+          "title": "Members",
+          "type": "array"
+        },
+        "my_access": {
+          "description": "What the caller may do here: read, operate, build, members:manage, delete",
+          "items": {
+            "type": "string"
+          },
+          "title": "My Access",
+          "type": "array"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "kind",
+        "default",
+        "created",
+        "url",
+        "proxmox",
+        "options",
+        "worker"
+      ],
+      "title": "Deployment",
+      "type": "object"
+    },
+    "DeploymentOptions": {
+      "properties": {
+        "deploy_ghosts": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "deprecated": true,
+          "description": "Deprecated (contract 1.25), ignored: the base has no GHOSTS VM. Enclave hosts run GHOSTS clients (the ghosts-client role)",
+          "title": "Deploy Ghosts"
+        },
+        "use_custom_image": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "deprecated": true,
+          "description": "Deprecated (contract 1.12), ignored: every deployment's Alpine guests use the GraySpace image",
+          "title": "Use Custom Image"
+        },
+        "player": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Give the deployment a Crucible Player view",
+          "title": "Player"
+        },
+        "player_connection": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The Crucible connection; the only one when unset",
+          "title": "Player Connection"
+        }
+      },
+      "title": "DeploymentOptions",
+      "type": "object"
+    },
+    "DeploymentSummary": {
+      "description": "What the deployments list shows of each: its enclave instances and jobs (GET /deployments/{id}/api/v1/summary).",
+      "properties": {
+        "instances_live": {
+          "default": 0,
+          "title": "Instances Live",
+          "type": "integer"
+        },
+        "instances_failed": {
+          "default": 0,
+          "title": "Instances Failed",
+          "type": "integer"
+        },
+        "active_job": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/JobBrief"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The newest queued or running job"
+        },
+        "last_base_job": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/JobBrief"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The newest base job (deploy, configure, destroy)"
+        },
+        "updated": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "When its newest job changed",
+          "title": "Updated"
+        },
+        "draft": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DraftState"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "DeploymentSummary",
+      "type": "object"
+    },
+    "DraftState": {
+      "properties": {
+        "saved": {
+          "description": "Whether anyone saved a draft (PUT /deployments/{id}/api/v1/draft)",
+          "title": "Saved",
+          "type": "boolean"
+        },
+        "changes": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Whether deploying the draft would change anything",
+          "title": "Changes"
+        }
+      },
+      "required": [
+        "saved"
+      ],
+      "title": "DraftState",
+      "type": "object"
+    },
+    "JobBrief": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "state": {
+          "title": "State",
+          "type": "string"
+        },
+        "stage": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stage"
+        },
+        "attempt": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Attempt"
+        },
+        "finished": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Finished"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "state"
+      ],
+      "title": "JobBrief",
+      "type": "object"
+    },
+    "Member": {
+      "properties": {
+        "user": {
+          "description": "A username",
+          "title": "User",
+          "type": "string"
+        },
+        "access": {
+          "description": "build: build and deploy (builders only); use: view and act at runtime",
+          "enum": [
+            "build",
+            "use"
+          ],
+          "title": "Access",
+          "type": "string"
+        }
+      },
+      "required": [
+        "user",
+        "access"
+      ],
+      "title": "Member",
+      "type": "object"
+    },
+    "Placement": {
+      "properties": {
+        "connection": {
+          "description": "A Proxmox connection (GET /api/v1/platform)",
+          "title": "Connection",
+          "type": "string"
+        },
+        "node": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "One of its nodes; its default when unset",
+          "title": "Node"
+        }
+      },
+      "required": [
+        "connection"
+      ],
+      "title": "Placement",
+      "type": "object"
+    },
+    "ProxmoxSettings": {
+      "description": "Where the deployment runs, resolved from its placement. Read-only: give a placement.",
+      "properties": {
+        "host_addr": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Proxmox API host (TF_VAR_proxmox_host_addr); another cluster than the site's",
+          "title": "Host Addr"
+        },
+        "node": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Proxmox node (TF_VAR_proxmox_node)",
+          "title": "Node"
+        },
+        "blockstore": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Block storage for disks (TF_VAR_proxmox_blockstore)",
+          "title": "Blockstore"
+        },
+        "filestore": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "File storage for templates and snippets (TF_VAR_proxmox_filestore)",
+          "title": "Filestore"
+        },
+        "mgmt_bridge": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Management bridge (TF_VAR_proxmox_mgmt_bridge)",
+          "title": "Mgmt Bridge"
+        },
+        "vm_bridge": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "VLAN bridge (TF_VAR_proxmox_vm_bridge)",
+          "title": "Vm Bridge"
+        }
+      },
+      "title": "ProxmoxSettings",
+      "type": "object"
+    },
+    "WorkerStatus": {
+      "properties": {
+        "state": {
+          "enum": [
+            "stopped",
+            "starting",
+            "running",
+            "crashed"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "pid": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pid"
+        },
+        "started": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Started"
+        },
+        "restarts": {
+          "default": 0,
+          "title": "Restarts",
+          "type": "integer"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        }
+      },
+      "required": [
+        "state"
+      ],
+      "title": "WorkerStatus",
+      "type": "object"
+    }
+  },
+  "description": "A message on the /api/v1/deployments/events websocket (after a {\"type\": \"hello\"} greeting).",
+  "properties": {
+    "type": {
+      "enum": [
+        "deployment.created",
+        "deployment.updated",
+        "deployment.deleted",
+        "deployment.worker"
+      ],
+      "title": "Type",
+      "type": "string"
+    },
+    "id": {
+      "description": "The deployment",
+      "title": "Id",
+      "type": "string"
+    },
+    "deployment": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Deployment"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Its state now; null once deleted"
+    }
+  },
+  "required": [
+    "type",
+    "id"
+  ],
+  "type": "object"
+}

@@ -1,0 +1,17 @@
+# A household on a Comcast connection: a home router (NAT) and a desktop in the browser. The
+# desktop (grayspace-desktop, packer/desktop-lxc) has Firefox, a terminal, a text editor and the
+# usual admin tools; open it with Desktop on the host in the Enclaves page.
+apiVersion: grayspace/v1
+kind: Slice
+slug: residential-customer
+prefix: res
+description: A household with a desktop, behind a home router on Comcast
+sites:
+  - name: home
+    attach: { isp: Comcast }
+    segments:
+      - name: home-lan
+hosts:
+  - name: desktop
+    segment: home-lan
+    image: grayspace-desktop

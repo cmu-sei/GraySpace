@@ -1,0 +1,22 @@
+---
+# Release binaries installed on the simulated hosts. The first play of main.yml downloads each
+# archive once, on the controller, into release_cache; the plays copy them to the hosts from there.
+# The GraySpace Alpine image (packer/alpine-lxc) bakes in the same exporter versions.
+frr_exporter_version: 1.8.1
+node_exporter_version: 1.9.0
+step_version: 0.28.3
+
+release_cache: "{{ playbook_dir }}/.cache/downloads"
+release_archives:
+  - file: frr_exporter-{{ frr_exporter_version }}.linux-amd64.tar.gz
+    url: https://github.com/tynany/frr_exporter/releases/download/v{{ frr_exporter_version }}/frr_exporter-{{ frr_exporter_version }}.linux-amd64.tar.gz
+    group: routers
+  - file: node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz
+    url: https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz
+    group: routers
+  - file: step-ca_linux_{{ step_version }}_amd64.tar.gz
+    url: https://dl.smallstep.com/gh-release/certificates/gh-release-header/v{{ step_version }}/step-ca_linux_{{ step_version }}_amd64.tar.gz
+    group: core_ca
+  - file: step_linux_{{ step_version }}_amd64.tar.gz
+    url: https://dl.smallstep.com/gh-release/cli/gh-release-header/v{{ step_version }}/step_linux_{{ step_version }}_amd64.tar.gz
+    group: core_ca

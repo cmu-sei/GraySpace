@@ -1,0 +1,32 @@
+!
+! FRR for routed slice site {{ edge.site }} ({{ inventory_hostname }}). Written by GraySpace.
+!
+frr defaults traditional
+hostname {{ inventory_hostname }}
+log syslog informational
+!
+! The site's /24, announced as one prefix: the segments are its subnets, and base routers drop
+! anything longer than /24 (PL-BOGONS).
+ip route {{ edge.bgp.prefix }} Null0 254
+ip prefix-list PL-SITE seq 5 permit {{ edge.bgp.prefix }}
+!
+route-map RM-TO-PROVIDER permit 10
+ match ip address prefix-list PL-SITE
+!
+route-map RM-FROM-PROVIDER permit 10
+!
+router bgp {{ edge.bgp.asn }}
+ bgp router-id {{ edge.wans[0].ip }}
+{% for n in edge.bgp.neighbors %}
+ neighbor {{ n.ip }} remote-as {{ n.asn }}
+ neighbor {{ n.ip }} description To_{{ n.router }}
+{% endfor %}
+ !
+ address-family ipv4 unicast
+  network {{ edge.bgp.prefix }}
+{% for n in edge.bgp.neighbors %}
+  neighbor {{ n.ip }} route-map RM-FROM-PROVIDER in
+  neighbor {{ n.ip }} route-map RM-TO-PROVIDER out
+{% endfor %}
+ exit-address-family
+!

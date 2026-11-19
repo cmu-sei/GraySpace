@@ -1,0 +1,52 @@
+# A regional bank: a NAT site in Chicago with a published web server, and a New York branch.
+# The internet host is in information-environment.yaml.
+#
+# Replace the role_vars URLs with where your GHOSTS API and client release are reachable from
+# the management network, then: task slice:up SLICE=examples/slices/meridian-bank.yaml
+apiVersion: grayspace/v1
+kind: Slice
+slug: meridian-bank
+prefix: mb
+description: Regional bank, HQ in Chicago and a New York branch
+sites:
+  - name: hq
+    attach: { isp: Lumen, location: Chicago }
+    segments:
+      - name: hq-lan
+      - name: hq-dmz
+        cidr: 192.168.20.0/24
+  - name: branch
+    attach: { isp: Comcast, location: New York }
+    segments:
+      - name: br-lan
+hosts:
+  - name: web01
+    segment: hq-dmz
+    image: grayspace-ubuntu-lxc
+    roles: [web]
+    publish: true
+  - name: ws
+    count: 40
+    segment: hq-lan
+    image: grayspace-ubuntu-lxc
+    roles: [ghosts-client]
+    size: { cores: 1, memory: 1024, disk: 8 }
+    labels: { ghosts.pool: tellers }
+  - name: br-ws
+    count: 5
+    segment: br-lan
+    image: grayspace-ubuntu-lxc
+    roles: [ghosts-client]
+    labels: { ghosts.pool: branch-staff }
+dns:
+  domains:
+    - { domain: meridian-bank.com, hosting_server: dns-cloudflare }
+  records:
+    - { name: www.meridian-bank.com, host: web01 }
+tls:
+  - { host: web01, names: [www.meridian-bank.com], ca: ca-graytrust }
+role_vars:
+  ghosts-client:
+    client_url: http://ghosts.mgmt.example/clients/ghosts-client-universal-linux-x64.tar.gz
+    api_url: http://ghosts.mgmt.example:5000/api
+    api_host: ghosts.mgmt.example

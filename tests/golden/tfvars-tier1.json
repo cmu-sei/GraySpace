@@ -1,0 +1,7766 @@
+{
+  "routers": {
+    "lum-seo": {
+      "hostname": "lum-seo",
+      "loopback_ip": "6.0.1.26/32",
+      "roles": null,
+      "ospf_areas": [
+        "90"
+      ],
+      "customer_net": "203.254.80.0/24",
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": 37.5665,
+      "longitude": 126.978,
+      "interfaces": [
+        {
+          "bridge": "v100",
+          "ip": "172.16.0.146",
+          "cidr": "30",
+          "ospf_area": "90",
+          "latency_ms": 2.875
+        },
+        {
+          "bridge": "v229",
+          "ip": "203.254.80.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Seoul",
+        "latitude": 37.5665,
+        "longitude": 126.978
+      }
+    },
+    "lum-tok": {
+      "hostname": "lum-tok",
+      "loopback_ip": "6.0.1.25/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,90"
+      ],
+      "customer_net": "210.138.175.0/24",
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": 35.6762,
+      "longitude": 139.6503,
+      "interfaces": [
+        {
+          "bridge": "v100",
+          "ip": "172.16.0.145",
+          "cidr": "30",
+          "ospf_area": "90",
+          "latency_ms": 2.875
+        },
+        {
+          "bridge": "v101",
+          "ip": "172.16.0.142",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 7.19
+        },
+        {
+          "bridge": "v142",
+          "ip": "172.16.0.149",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 19.49
+        },
+        {
+          "bridge": "v230",
+          "ip": "210.138.175.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Tokyo",
+        "latitude": 35.6762,
+        "longitude": 139.6503
+      }
+    },
+    "lum-sin": {
+      "hostname": "lum-sin",
+      "loopback_ip": "6.0.1.24/32",
+      "roles": null,
+      "ospf_areas": [
+        "80"
+      ],
+      "customer_net": "203.127.192.0/24",
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": 1.2953,
+      "longitude": 103.8363,
+      "interfaces": [
+        {
+          "bridge": "v102",
+          "ip": "172.16.0.134",
+          "cidr": "30",
+          "ospf_area": "80",
+          "latency_ms": 5.99
+        },
+        {
+          "bridge": "v103",
+          "ip": "172.16.0.130",
+          "cidr": "30",
+          "ospf_area": "80",
+          "latency_ms": 6.48
+        },
+        {
+          "bridge": "v231",
+          "ip": "203.127.192.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Singapore",
+        "latitude": 1.2953,
+        "longitude": 103.8363
+      }
+    },
+    "lum-man": {
+      "hostname": "lum-man",
+      "loopback_ip": "6.0.1.23/32",
+      "roles": null,
+      "ospf_areas": [
+        "80"
+      ],
+      "customer_net": "202.137.96.0/24",
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": 14.5995,
+      "longitude": 120.9842,
+      "interfaces": [
+        {
+          "bridge": "v102",
+          "ip": "172.16.0.133",
+          "cidr": "30",
+          "ospf_area": "80",
+          "latency_ms": 5.99
+        },
+        {
+          "bridge": "v104",
+          "ip": "172.16.0.126",
+          "cidr": "30",
+          "ospf_area": "80",
+          "latency_ms": 2.8
+        },
+        {
+          "bridge": "v232",
+          "ip": "202.137.96.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Manila",
+        "latitude": 14.5995,
+        "longitude": 120.9842
+      }
+    },
+    "lum-hkg": {
+      "hostname": "lum-hkg",
+      "loopback_ip": "6.0.1.22/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,80"
+      ],
+      "customer_net": null,
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": 22.3193,
+      "longitude": 114.1694,
+      "interfaces": [
+        {
+          "bridge": "v101",
+          "ip": "172.16.0.141",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 7.19
+        },
+        {
+          "bridge": "v103",
+          "ip": "172.16.0.129",
+          "cidr": "30",
+          "ospf_area": "80",
+          "latency_ms": 6.48
+        },
+        {
+          "bridge": "v104",
+          "ip": "172.16.0.125",
+          "cidr": "30",
+          "ospf_area": "80",
+          "latency_ms": 2.8
+        },
+        {
+          "bridge": "v105",
+          "ip": "26.0.0.10",
+          "cidr": "30",
+          "ospf_area": null,
+          "latency_ms": 0.0
+        },
+        {
+          "bridge": "v106",
+          "ip": "7.0.0.22",
+          "cidr": "30",
+          "ospf_area": null,
+          "latency_ms": 0.0
+        },
+        {
+          "bridge": "v107",
+          "ip": "172.16.0.122",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 10.745
+        },
+        {
+          "bridge": "v144",
+          "ip": "172.16.0.137",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 27.74
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-hkg",
+          "ip": "26.0.0.9",
+          "asn": 2914,
+          "type": "PEERS_WITH",
+          "relationship": "peer"
+        },
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.0.21",
+          "asn": 1299,
+          "type": "PEERS_WITH",
+          "relationship": "peer"
+        },
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Hong Kong",
+        "latitude": 22.3193,
+        "longitude": 114.1694
+      }
+    },
+    "lum-mum": {
+      "hostname": "lum-mum",
+      "loopback_ip": "6.0.1.21/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,50"
+      ],
+      "customer_net": null,
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": 19.076,
+      "longitude": 72.8777,
+      "interfaces": [
+        {
+          "bridge": "v107",
+          "ip": "172.16.0.121",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 10.745
+        },
+        {
+          "bridge": "v108",
+          "ip": "172.16.0.118",
+          "cidr": "30",
+          "ospf_area": "50",
+          "latency_ms": 4.84
+        },
+        {
+          "bridge": "v109",
+          "ip": "172.16.0.114",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 8.225
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Mumbai",
+        "latitude": 19.076,
+        "longitude": 72.8777
+      }
+    },
+    "lum-joh": {
+      "hostname": "lum-joh",
+      "loopback_ip": "6.0.1.20/32",
+      "roles": null,
+      "ospf_areas": [
+        "60"
+      ],
+      "customer_net": "41.150.128.0/24",
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": -26.2041,
+      "longitude": 28.0473,
+      "interfaces": [
+        {
+          "bridge": "v110",
+          "ip": "172.16.0.110",
+          "cidr": "30",
+          "ospf_area": "60",
+          "latency_ms": 11.27
+        },
+        {
+          "bridge": "v111",
+          "ip": "172.16.0.102",
+          "cidr": "30",
+          "ospf_area": "60",
+          "latency_ms": 11.29
+        },
+        {
+          "bridge": "v233",
+          "ip": "41.150.128.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Johannesburg",
+        "latitude": -26.2041,
+        "longitude": 28.0473
+      }
+    },
+    "lum-alg": {
+      "hostname": "lum-alg",
+      "loopback_ip": "6.0.1.19/32",
+      "roles": null,
+      "ospf_areas": [
+        "70"
+      ],
+      "customer_net": "41.222.192.0/24",
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": 36.7538,
+      "longitude": 3.0588,
+      "interfaces": [
+        {
+          "bridge": "v112",
+          "ip": "172.16.0.98",
+          "cidr": "30",
+          "ospf_area": "70",
+          "latency_ms": 8.385
+        },
+        {
+          "bridge": "v234",
+          "ip": "41.222.192.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Algiers",
+        "latitude": 36.7538,
+        "longitude": 3.0588
+      }
+    },
+    "lum-lag": {
+      "hostname": "lum-lag",
+      "loopback_ip": "6.0.1.18/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,60,70"
+      ],
+      "customer_net": null,
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": 6.5935,
+      "longitude": 3.3516,
+      "interfaces": [
+        {
+          "bridge": "v111",
+          "ip": "172.16.0.101",
+          "cidr": "30",
+          "ospf_area": "60",
+          "latency_ms": 11.29
+        },
+        {
+          "bridge": "v112",
+          "ip": "172.16.0.97",
+          "cidr": "30",
+          "ospf_area": "70",
+          "latency_ms": 8.385
+        },
+        {
+          "bridge": "v113",
+          "ip": "172.16.0.94",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 11.97
+        },
+        {
+          "bridge": "v114",
+          "ip": "172.16.0.90",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 9.775
+        },
+        {
+          "bridge": "v115",
+          "ip": "172.16.0.105",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 11.0
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Lagos",
+        "latitude": 6.5935,
+        "longitude": 3.3516
+      }
+    },
+    "lum-dji": {
+      "hostname": "lum-dji",
+      "loopback_ip": "6.0.1.17/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,60"
+      ],
+      "customer_net": null,
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": 11.589,
+      "longitude": 43.1456,
+      "interfaces": [
+        {
+          "bridge": "v109",
+          "ip": "172.16.0.113",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 8.225
+        },
+        {
+          "bridge": "v110",
+          "ip": "172.16.0.109",
+          "cidr": "30",
+          "ospf_area": "60",
+          "latency_ms": 11.27
+        },
+        {
+          "bridge": "v115",
+          "ip": "172.16.0.106",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 11.0
+        },
+        {
+          "bridge": "v116",
+          "ip": "172.16.0.86",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 5.98
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Djibouti",
+        "latitude": 11.589,
+        "longitude": 43.1456
+      }
+    },
+    "lum-dub": {
+      "hostname": "lum-dub",
+      "loopback_ip": "6.0.1.16/32",
+      "roles": null,
+      "ospf_areas": [
+        "50"
+      ],
+      "customer_net": "212.77.192.0/24",
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": 25.2048,
+      "longitude": 55.2708,
+      "interfaces": [
+        {
+          "bridge": "v108",
+          "ip": "172.16.0.117",
+          "cidr": "30",
+          "ospf_area": "50",
+          "latency_ms": 4.84
+        },
+        {
+          "bridge": "v117",
+          "ip": "172.16.0.82",
+          "cidr": "30",
+          "ospf_area": "50",
+          "latency_ms": 6.06
+        },
+        {
+          "bridge": "v235",
+          "ip": "212.77.192.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Dubai",
+        "latitude": 25.2048,
+        "longitude": 55.2708
+      }
+    },
+    "lum-cai": {
+      "hostname": "lum-cai",
+      "loopback_ip": "6.0.1.15/32",
+      "roles": [
+        "ABR,RR"
+      ],
+      "ospf_areas": [
+        "0,40,50"
+      ],
+      "customer_net": null,
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": 30.0444,
+      "longitude": 31.2357,
+      "interfaces": [
+        {
+          "bridge": "v114",
+          "ip": "172.16.0.89",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 9.775
+        },
+        {
+          "bridge": "v116",
+          "ip": "172.16.0.85",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 5.98
+        },
+        {
+          "bridge": "v117",
+          "ip": "172.16.0.81",
+          "cidr": "30",
+          "ospf_area": "50",
+          "latency_ms": 6.06
+        },
+        {
+          "bridge": "v118",
+          "ip": "26.0.0.6",
+          "cidr": "30",
+          "ospf_area": null,
+          "latency_ms": 0.0
+        },
+        {
+          "bridge": "v119",
+          "ip": "7.0.0.14",
+          "cidr": "30",
+          "ospf_area": null,
+          "latency_ms": 0.0
+        },
+        {
+          "bridge": "v120",
+          "ip": "172.16.0.78",
+          "cidr": "30",
+          "ospf_area": "40",
+          "latency_ms": 7.255
+        },
+        {
+          "bridge": "v121",
+          "ip": "172.16.0.74",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 8.78
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-cai",
+          "ip": "26.0.0.5",
+          "asn": 2914,
+          "type": "PEERS_WITH",
+          "relationship": "peer"
+        },
+        {
+          "hostname": "are-cai",
+          "ip": "7.0.0.13",
+          "asn": 1299,
+          "type": "PEERS_WITH",
+          "relationship": "peer"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-seo",
+          "ip": "6.0.1.26",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-tok",
+          "ip": "6.0.1.25",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-sin",
+          "ip": "6.0.1.24",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-man",
+          "ip": "6.0.1.23",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-hkg",
+          "ip": "6.0.1.22",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-mum",
+          "ip": "6.0.1.21",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-joh",
+          "ip": "6.0.1.20",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-alg",
+          "ip": "6.0.1.19",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-lag",
+          "ip": "6.0.1.18",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-dji",
+          "ip": "6.0.1.17",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-dub",
+          "ip": "6.0.1.16",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-mos",
+          "ip": "6.0.1.14",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-hel",
+          "ip": "6.0.1.13",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-fra",
+          "ip": "6.0.1.12",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-lon",
+          "ip": "6.0.1.11",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-brs",
+          "ip": "6.0.1.10",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-lim",
+          "ip": "6.0.1.9",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-for",
+          "ip": "6.0.1.8",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-nyc",
+          "ip": "6.0.1.6",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-chi",
+          "ip": "6.0.1.5",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-mex",
+          "ip": "6.0.1.4",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-kck",
+          "ip": "6.0.1.3",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-por",
+          "ip": "6.0.1.2",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-sfr",
+          "ip": "6.0.1.1",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Cairo",
+        "latitude": 30.0444,
+        "longitude": 31.2357
+      }
+    },
+    "lum-mos": {
+      "hostname": "lum-mos",
+      "loopback_ip": "6.0.1.14/32",
+      "roles": null,
+      "ospf_areas": [
+        "40"
+      ],
+      "customer_net": null,
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": 55.7558,
+      "longitude": 37.6173,
+      "interfaces": [
+        {
+          "bridge": "v120",
+          "ip": "172.16.0.77",
+          "cidr": "30",
+          "ospf_area": "40",
+          "latency_ms": 7.255
+        },
+        {
+          "bridge": "v122",
+          "ip": "172.16.0.70",
+          "cidr": "30",
+          "ospf_area": "40",
+          "latency_ms": 2.23
+        },
+        {
+          "bridge": "v123",
+          "ip": "172.16.0.66",
+          "cidr": "30",
+          "ospf_area": "40",
+          "latency_ms": 5.055
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Moscow",
+        "latitude": 55.7558,
+        "longitude": 37.6173
+      }
+    },
+    "lum-hel": {
+      "hostname": "lum-hel",
+      "loopback_ip": "6.0.1.13/32",
+      "roles": null,
+      "ospf_areas": [
+        "40"
+      ],
+      "customer_net": "194.156.121.0/24",
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": 60.1699,
+      "longitude": 24.9384,
+      "interfaces": [
+        {
+          "bridge": "v122",
+          "ip": "172.16.0.69",
+          "cidr": "30",
+          "ospf_area": "40",
+          "latency_ms": 2.23
+        },
+        {
+          "bridge": "v124",
+          "ip": "172.16.0.62",
+          "cidr": "30",
+          "ospf_area": "40",
+          "latency_ms": 3.785
+        },
+        {
+          "bridge": "v236",
+          "ip": "194.156.121.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Helsinki",
+        "latitude": 60.1699,
+        "longitude": 24.9384
+      }
+    },
+    "lum-fra": {
+      "hostname": "lum-fra",
+      "loopback_ip": "6.0.1.12/32",
+      "roles": null,
+      "ospf_areas": [
+        "40"
+      ],
+      "customer_net": "213.242.111.0/24",
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": 50.1109,
+      "longitude": 8.6821,
+      "interfaces": [
+        {
+          "bridge": "v123",
+          "ip": "172.16.0.65",
+          "cidr": "30",
+          "ospf_area": "40",
+          "latency_ms": 5.055
+        },
+        {
+          "bridge": "v124",
+          "ip": "172.16.0.61",
+          "cidr": "30",
+          "ospf_area": "40",
+          "latency_ms": 3.785
+        },
+        {
+          "bridge": "v125",
+          "ip": "172.16.0.58",
+          "cidr": "30",
+          "ospf_area": "40",
+          "latency_ms": 1.595
+        },
+        {
+          "bridge": "v237",
+          "ip": "213.242.111.1",
+          "cidr": "24",
+          "ospf_area": null
+        },
+        {
+          "bridge": "v282",
+          "ip": "194.169.218.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Frankfurt",
+        "latitude": 50.1109,
+        "longitude": 8.6821
+      }
+    },
+    "lum-lon": {
+      "hostname": "lum-lon",
+      "loopback_ip": "6.0.1.11/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,40"
+      ],
+      "customer_net": "193.0.14.0/24",
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": 51.5074,
+      "longitude": -0.1278,
+      "interfaces": [
+        {
+          "bridge": "v121",
+          "ip": "172.16.0.73",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 8.78
+        },
+        {
+          "bridge": "v125",
+          "ip": "172.16.0.57",
+          "cidr": "30",
+          "ospf_area": "40",
+          "latency_ms": 1.595
+        },
+        {
+          "bridge": "v126",
+          "ip": "7.0.0.10",
+          "cidr": "30",
+          "ospf_area": null,
+          "latency_ms": 0.0
+        },
+        {
+          "bridge": "v127",
+          "ip": "172.16.0.54",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 14.795
+        },
+        {
+          "bridge": "v238",
+          "ip": "193.0.14.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-lon",
+          "ip": "7.0.0.9",
+          "asn": 1299,
+          "type": "PEERS_WITH",
+          "relationship": "peer"
+        },
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "London",
+        "latitude": 51.5074,
+        "longitude": -0.1278
+      }
+    },
+    "lum-brs": {
+      "hostname": "lum-brs",
+      "loopback_ip": "6.0.1.10/32",
+      "roles": null,
+      "ospf_areas": [
+        "30"
+      ],
+      "customer_net": "200.223.128.0/24",
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": -15.7939,
+      "longitude": -47.8828,
+      "interfaces": [
+        {
+          "bridge": "v128",
+          "ip": "172.16.0.50",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 7.93
+        },
+        {
+          "bridge": "v129",
+          "ip": "172.16.0.46",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 4.215
+        },
+        {
+          "bridge": "v239",
+          "ip": "200.223.128.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Brasilia",
+        "latitude": -15.7939,
+        "longitude": -47.8828
+      }
+    },
+    "lum-lim": {
+      "hostname": "lum-lim",
+      "loopback_ip": "6.0.1.9/32",
+      "roles": null,
+      "ospf_areas": [
+        "30"
+      ],
+      "customer_net": "200.48.243.0/24",
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": -12.0464,
+      "longitude": -77.0428,
+      "interfaces": [
+        {
+          "bridge": "v128",
+          "ip": "172.16.0.49",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 7.93
+        },
+        {
+          "bridge": "v130",
+          "ip": "172.16.0.42",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 10.84
+        },
+        {
+          "bridge": "v240",
+          "ip": "200.48.243.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Lima",
+        "latitude": -12.0464,
+        "longitude": -77.0428
+      }
+    },
+    "lum-for": {
+      "hostname": "lum-for",
+      "loopback_ip": "6.0.1.8/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,30"
+      ],
+      "customer_net": null,
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": -3.7319,
+      "longitude": -38.5267,
+      "interfaces": [
+        {
+          "bridge": "v113",
+          "ip": "172.16.0.93",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 11.97
+        },
+        {
+          "bridge": "v129",
+          "ip": "172.16.0.45",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 4.215
+        },
+        {
+          "bridge": "v130",
+          "ip": "172.16.0.41",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 10.84
+        },
+        {
+          "bridge": "v131",
+          "ip": "172.16.0.38",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 15.52
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Fortaleza",
+        "latitude": -3.7319,
+        "longitude": -38.5267
+      }
+    },
+    "lum-ash": {
+      "hostname": "lum-ash",
+      "loopback_ip": "6.0.1.7/32",
+      "roles": [
+        "ABR,RR"
+      ],
+      "ospf_areas": [
+        "0,10"
+      ],
+      "customer_net": "156.154.100.0/24",
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": 39.0437,
+      "longitude": -77.4874,
+      "interfaces": [
+        {
+          "bridge": "v127",
+          "ip": "172.16.0.53",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 14.795
+        },
+        {
+          "bridge": "v131",
+          "ip": "172.16.0.37",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 15.52
+        },
+        {
+          "bridge": "v132",
+          "ip": "26.0.0.2",
+          "cidr": "30",
+          "ospf_area": null,
+          "latency_ms": 0.0
+        },
+        {
+          "bridge": "v133",
+          "ip": "7.0.0.2",
+          "cidr": "30",
+          "ospf_area": null,
+          "latency_ms": 0.0
+        },
+        {
+          "bridge": "v134",
+          "ip": "172.16.0.22",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 3.685
+        },
+        {
+          "bridge": "v135",
+          "ip": "172.16.0.29",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 0.875
+        },
+        {
+          "bridge": "v137",
+          "ip": "172.16.0.25",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 2.285
+        },
+        {
+          "bridge": "v241",
+          "ip": "156.154.100.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.0.1",
+          "asn": 2914,
+          "type": "PEERS_WITH",
+          "relationship": "peer"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.0.1",
+          "asn": 1299,
+          "type": "PEERS_WITH",
+          "relationship": "peer"
+        },
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-seo",
+          "ip": "6.0.1.26",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-tok",
+          "ip": "6.0.1.25",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-sin",
+          "ip": "6.0.1.24",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-man",
+          "ip": "6.0.1.23",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-hkg",
+          "ip": "6.0.1.22",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-mum",
+          "ip": "6.0.1.21",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-joh",
+          "ip": "6.0.1.20",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-alg",
+          "ip": "6.0.1.19",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-lag",
+          "ip": "6.0.1.18",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-dji",
+          "ip": "6.0.1.17",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-dub",
+          "ip": "6.0.1.16",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-mos",
+          "ip": "6.0.1.14",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-hel",
+          "ip": "6.0.1.13",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-fra",
+          "ip": "6.0.1.12",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-lon",
+          "ip": "6.0.1.11",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-brs",
+          "ip": "6.0.1.10",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-lim",
+          "ip": "6.0.1.9",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-for",
+          "ip": "6.0.1.8",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-nyc",
+          "ip": "6.0.1.6",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-chi",
+          "ip": "6.0.1.5",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-mex",
+          "ip": "6.0.1.4",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-kck",
+          "ip": "6.0.1.3",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-por",
+          "ip": "6.0.1.2",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-sfr",
+          "ip": "6.0.1.1",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Ashburn",
+        "latitude": 39.0437,
+        "longitude": -77.4874
+      }
+    },
+    "lum-nyc": {
+      "hostname": "lum-nyc",
+      "loopback_ip": "6.0.1.6/32",
+      "roles": null,
+      "ospf_areas": [
+        "10"
+      ],
+      "customer_net": "216.239.34.0/24",
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": 40.7128,
+      "longitude": -74.006,
+      "interfaces": [
+        {
+          "bridge": "v135",
+          "ip": "172.16.0.30",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 0.875
+        },
+        {
+          "bridge": "v136",
+          "ip": "172.16.0.33",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 2.86
+        },
+        {
+          "bridge": "v242",
+          "ip": "216.239.34.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "New York",
+        "latitude": 40.7128,
+        "longitude": -74.006
+      }
+    },
+    "lum-chi": {
+      "hostname": "lum-chi",
+      "loopback_ip": "6.0.1.5/32",
+      "roles": null,
+      "ospf_areas": [
+        "10"
+      ],
+      "customer_net": "209.151.130.0/24",
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": 41.8781,
+      "longitude": -87.6298,
+      "interfaces": [
+        {
+          "bridge": "v136",
+          "ip": "172.16.0.34",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 2.86
+        },
+        {
+          "bridge": "v137",
+          "ip": "172.16.0.26",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 2.285
+        },
+        {
+          "bridge": "v138",
+          "ip": "172.16.0.10",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 7.06
+        },
+        {
+          "bridge": "v139",
+          "ip": "172.16.0.2",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 7.46
+        },
+        {
+          "bridge": "v243",
+          "ip": "209.151.130.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Chicago",
+        "latitude": 41.8781,
+        "longitude": -87.6298
+      }
+    },
+    "lum-mex": {
+      "hostname": "lum-mex",
+      "loopback_ip": "6.0.1.4/32",
+      "roles": null,
+      "ospf_areas": [
+        "20"
+      ],
+      "customer_net": "200.38.194.0/24",
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": 19.4326,
+      "longitude": -99.1332,
+      "interfaces": [
+        {
+          "bridge": "v140",
+          "ip": "172.16.0.18",
+          "cidr": "30",
+          "ospf_area": "20",
+          "latency_ms": 5.575
+        },
+        {
+          "bridge": "v244",
+          "ip": "200.38.194.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Mexico City",
+        "latitude": 19.4326,
+        "longitude": -99.1332
+      }
+    },
+    "lum-kck": {
+      "hostname": "lum-kck",
+      "loopback_ip": "6.0.1.3/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,20"
+      ],
+      "customer_net": null,
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": 39.0997,
+      "longitude": -94.5786,
+      "interfaces": [
+        {
+          "bridge": "v134",
+          "ip": "172.16.0.21",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 3.685
+        },
+        {
+          "bridge": "v140",
+          "ip": "172.16.0.17",
+          "cidr": "30",
+          "ospf_area": "20",
+          "latency_ms": 5.575
+        },
+        {
+          "bridge": "v141",
+          "ip": "172.16.0.14",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 6.05
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Kansas City",
+        "latitude": 39.0997,
+        "longitude": -94.5786
+      }
+    },
+    "lum-por": {
+      "hostname": "lum-por",
+      "loopback_ip": "6.0.1.2/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,10"
+      ],
+      "customer_net": null,
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": 45.5152,
+      "longitude": -122.6784,
+      "interfaces": [
+        {
+          "bridge": "v138",
+          "ip": "172.16.0.9",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 7.06
+        },
+        {
+          "bridge": "v142",
+          "ip": "172.16.0.150",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 19.49
+        },
+        {
+          "bridge": "v143",
+          "ip": "172.16.0.6",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 2.15
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Portland",
+        "latitude": 45.5152,
+        "longitude": -122.6784
+      }
+    },
+    "lum-sfr": {
+      "hostname": "lum-sfr",
+      "loopback_ip": "6.0.1.1/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,10"
+      ],
+      "customer_net": "8.8.8.0/24",
+      "isp_name": "Lumen",
+      "asn": 3356,
+      "public_block": "6.0.0.0/16",
+      "latitude": 37.7749,
+      "longitude": -122.4194,
+      "interfaces": [
+        {
+          "bridge": "v139",
+          "ip": "172.16.0.1",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 7.46
+        },
+        {
+          "bridge": "v141",
+          "ip": "172.16.0.13",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 6.05
+        },
+        {
+          "bridge": "v143",
+          "ip": "172.16.0.5",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 2.15
+        },
+        {
+          "bridge": "v144",
+          "ip": "172.16.0.138",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 27.74
+        },
+        {
+          "bridge": "v245",
+          "ip": "8.8.8.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-cai",
+          "ip": "6.0.1.15",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "lum-ash",
+          "ip": "6.0.1.7",
+          "asn": 3356,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "San Francisco",
+        "latitude": 37.7749,
+        "longitude": -122.4194
+      }
+    },
+    "are-ade": {
+      "hostname": "are-ade",
+      "loopback_ip": "7.0.1.28/32",
+      "roles": null,
+      "ospf_areas": [
+        "90"
+      ],
+      "customer_net": "125.7.128.0/24",
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": -34.9285,
+      "longitude": 138.6007,
+      "interfaces": [
+        {
+          "bridge": "v145",
+          "ip": "172.16.0.162",
+          "cidr": "30",
+          "ospf_area": "90",
+          "latency_ms": 2.905
+        },
+        {
+          "bridge": "v146",
+          "ip": "172.16.0.154",
+          "cidr": "30",
+          "ospf_area": "90",
+          "latency_ms": 5.33
+        },
+        {
+          "bridge": "v246",
+          "ip": "125.7.128.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Adelaide",
+        "latitude": -34.9285,
+        "longitude": 138.6007
+      }
+    },
+    "are-syd": {
+      "hostname": "are-syd",
+      "loopback_ip": "7.0.1.27/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,90"
+      ],
+      "customer_net": null,
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": -33.8688,
+      "longitude": 151.2093,
+      "interfaces": [
+        {
+          "bridge": "v145",
+          "ip": "172.16.0.161",
+          "cidr": "30",
+          "ospf_area": "90",
+          "latency_ms": 2.905
+        },
+        {
+          "bridge": "v147",
+          "ip": "172.16.0.158",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 8.225
+        },
+        {
+          "bridge": "v174",
+          "ip": "172.16.0.165",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 28.365
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Sydney",
+        "latitude": -33.8688,
+        "longitude": 151.2093
+      }
+    },
+    "are-per": {
+      "hostname": "are-per",
+      "loopback_ip": "7.0.1.26/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,90"
+      ],
+      "customer_net": null,
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": -31.9505,
+      "longitude": 115.8605,
+      "interfaces": [
+        {
+          "bridge": "v146",
+          "ip": "172.16.0.153",
+          "cidr": "30",
+          "ospf_area": "90",
+          "latency_ms": 5.33
+        },
+        {
+          "bridge": "v147",
+          "ip": "172.16.0.157",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 8.225
+        },
+        {
+          "bridge": "v148",
+          "ip": "172.16.0.150",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 9.77
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Perth",
+        "latitude": -31.9505,
+        "longitude": 115.8605
+      }
+    },
+    "are-sin": {
+      "hostname": "are-sin",
+      "loopback_ip": "7.0.1.25/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,80"
+      ],
+      "customer_net": null,
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": 1.2953,
+      "longitude": 103.8363,
+      "interfaces": [
+        {
+          "bridge": "v148",
+          "ip": "172.16.0.149",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 9.77
+        },
+        {
+          "bridge": "v149",
+          "ip": "172.16.0.142",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 6.48
+        },
+        {
+          "bridge": "v150",
+          "ip": "172.16.0.145",
+          "cidr": "30",
+          "ospf_area": "80",
+          "latency_ms": 5.99
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Singapore",
+        "latitude": 1.2953,
+        "longitude": 103.8363
+      }
+    },
+    "are-man": {
+      "hostname": "are-man",
+      "loopback_ip": "7.0.1.24/32",
+      "roles": null,
+      "ospf_areas": [
+        "80"
+      ],
+      "customer_net": "122.53.116.0/24",
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": 14.5995,
+      "longitude": 120.9842,
+      "interfaces": [
+        {
+          "bridge": "v150",
+          "ip": "172.16.0.146",
+          "cidr": "30",
+          "ospf_area": "80",
+          "latency_ms": 5.99
+        },
+        {
+          "bridge": "v151",
+          "ip": "172.16.0.138",
+          "cidr": "30",
+          "ospf_area": "80",
+          "latency_ms": 2.8
+        },
+        {
+          "bridge": "v247",
+          "ip": "122.53.116.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Manila",
+        "latitude": 14.5995,
+        "longitude": 120.9842
+      }
+    },
+    "are-seo": {
+      "hostname": "are-seo",
+      "loopback_ip": "7.0.1.23/32",
+      "roles": null,
+      "ospf_areas": [
+        "70"
+      ],
+      "customer_net": "118.221.112.0/24",
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": 37.5665,
+      "longitude": 126.978,
+      "interfaces": [
+        {
+          "bridge": "v152",
+          "ip": "172.16.0.130",
+          "cidr": "30",
+          "ospf_area": "70",
+          "latency_ms": 5.23
+        },
+        {
+          "bridge": "v248",
+          "ip": "118.221.112.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Seoul",
+        "latitude": 37.5665,
+        "longitude": 126.978
+      }
+    },
+    "are-hkg": {
+      "hostname": "are-hkg",
+      "loopback_ip": "7.0.1.22/32",
+      "roles": [
+        "ABR,RR"
+      ],
+      "ospf_areas": [
+        "0,70,80"
+      ],
+      "customer_net": "114.114.114.0/24",
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": 22.3193,
+      "longitude": 114.1694,
+      "interfaces": [
+        {
+          "bridge": "v106",
+          "ip": "7.0.0.21",
+          "cidr": "30",
+          "ospf_area": null,
+          "latency_ms": 0.0
+        },
+        {
+          "bridge": "v149",
+          "ip": "172.16.0.141",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 6.48
+        },
+        {
+          "bridge": "v151",
+          "ip": "172.16.0.137",
+          "cidr": "30",
+          "ospf_area": "80",
+          "latency_ms": 2.8
+        },
+        {
+          "bridge": "v152",
+          "ip": "172.16.0.129",
+          "cidr": "30",
+          "ospf_area": "70",
+          "latency_ms": 5.23
+        },
+        {
+          "bridge": "v153",
+          "ip": "172.16.0.126",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 9.4
+        },
+        {
+          "bridge": "v185",
+          "ip": "172.16.0.133",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 29.125
+        },
+        {
+          "bridge": "v200",
+          "ip": "7.0.0.25",
+          "cidr": "30",
+          "ospf_area": null,
+          "latency_ms": 0.0
+        },
+        {
+          "bridge": "v249",
+          "ip": "114.114.114.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-hkg",
+          "ip": "7.0.0.22",
+          "asn": 3356,
+          "type": "PEERS_WITH",
+          "relationship": "peer"
+        },
+        {
+          "hostname": "ntt-hkg",
+          "ip": "7.0.0.26",
+          "asn": 2914,
+          "type": "PEERS_WITH",
+          "relationship": "peer"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ade",
+          "ip": "7.0.1.28",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-syd",
+          "ip": "7.0.1.27",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-per",
+          "ip": "7.0.1.26",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-sin",
+          "ip": "7.0.1.25",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-man",
+          "ip": "7.0.1.24",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-seo",
+          "ip": "7.0.1.23",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-che",
+          "ip": "7.0.1.21",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-mum",
+          "ip": "7.0.1.20",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-del",
+          "ip": "7.0.1.19",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-dub",
+          "ip": "7.0.1.18",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-dji",
+          "ip": "7.0.1.17",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-lag",
+          "ip": "7.0.1.16",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-cai",
+          "ip": "7.0.1.15",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-mos",
+          "ip": "7.0.1.14",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-hel",
+          "ip": "7.0.1.13",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-fra",
+          "ip": "7.0.1.12",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-lis",
+          "ip": "7.0.1.11",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-par",
+          "ip": "7.0.1.10",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-lon",
+          "ip": "7.0.1.9",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-san",
+          "ip": "7.0.1.8",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-bog",
+          "ip": "7.0.1.7",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-for",
+          "ip": "7.0.1.6",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-chi",
+          "ip": "7.0.1.4",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-den",
+          "ip": "7.0.1.3",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-lax",
+          "ip": "7.0.1.2",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-sfr",
+          "ip": "7.0.1.1",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Hong Kong",
+        "latitude": 22.3193,
+        "longitude": 114.1694
+      }
+    },
+    "are-che": {
+      "hostname": "are-che",
+      "loopback_ip": "7.0.1.21/32",
+      "roles": null,
+      "ospf_areas": [
+        "60"
+      ],
+      "customer_net": "111.93.125.0/24",
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": 13.0827,
+      "longitude": 80.2707,
+      "interfaces": [
+        {
+          "bridge": "v154",
+          "ip": "172.16.0.118",
+          "cidr": "30",
+          "ospf_area": "60",
+          "latency_ms": 4.39
+        },
+        {
+          "bridge": "v155",
+          "ip": "172.16.0.121",
+          "cidr": "30",
+          "ospf_area": "60",
+          "latency_ms": 2.585
+        },
+        {
+          "bridge": "v250",
+          "ip": "111.93.125.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Chennai",
+        "latitude": 13.0827,
+        "longitude": 80.2707
+      }
+    },
+    "are-mum": {
+      "hostname": "are-mum",
+      "loopback_ip": "7.0.1.20/32",
+      "roles": null,
+      "ospf_areas": [
+        "60"
+      ],
+      "customer_net": "116.206.32.0/24",
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": 19.076,
+      "longitude": 72.8777,
+      "interfaces": [
+        {
+          "bridge": "v155",
+          "ip": "172.16.0.122",
+          "cidr": "30",
+          "ospf_area": "60",
+          "latency_ms": 2.585
+        },
+        {
+          "bridge": "v156",
+          "ip": "172.16.0.114",
+          "cidr": "30",
+          "ospf_area": "60",
+          "latency_ms": 2.87
+        },
+        {
+          "bridge": "v251",
+          "ip": "116.206.32.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Mumbai",
+        "latitude": 19.076,
+        "longitude": 72.8777
+      }
+    },
+    "are-del": {
+      "hostname": "are-del",
+      "loopback_ip": "7.0.1.19/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,60"
+      ],
+      "customer_net": null,
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": 28.6139,
+      "longitude": 77.209,
+      "interfaces": [
+        {
+          "bridge": "v153",
+          "ip": "172.16.0.125",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 9.4
+        },
+        {
+          "bridge": "v154",
+          "ip": "172.16.0.117",
+          "cidr": "30",
+          "ospf_area": "60",
+          "latency_ms": 4.39
+        },
+        {
+          "bridge": "v156",
+          "ip": "172.16.0.113",
+          "cidr": "30",
+          "ospf_area": "60",
+          "latency_ms": 2.87
+        },
+        {
+          "bridge": "v157",
+          "ip": "172.16.0.110",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 5.51
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Delhi",
+        "latitude": 28.6139,
+        "longitude": 77.209
+      }
+    },
+    "are-dub": {
+      "hostname": "are-dub",
+      "loopback_ip": "7.0.1.18/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,50"
+      ],
+      "customer_net": null,
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": 25.2048,
+      "longitude": 55.2708,
+      "interfaces": [
+        {
+          "bridge": "v157",
+          "ip": "172.16.0.109",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 5.51
+        },
+        {
+          "bridge": "v158",
+          "ip": "172.16.0.102",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 6.06
+        },
+        {
+          "bridge": "v159",
+          "ip": "172.16.0.105",
+          "cidr": "30",
+          "ospf_area": "50",
+          "latency_ms": 4.95
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Dubai",
+        "latitude": 25.2048,
+        "longitude": 55.2708
+      }
+    },
+    "are-dji": {
+      "hostname": "are-dji",
+      "loopback_ip": "7.0.1.17/32",
+      "roles": null,
+      "ospf_areas": [
+        "50"
+      ],
+      "customer_net": "102.132.227.0/24",
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": 11.589,
+      "longitude": 43.1456,
+      "interfaces": [
+        {
+          "bridge": "v159",
+          "ip": "172.16.0.106",
+          "cidr": "30",
+          "ospf_area": "50",
+          "latency_ms": 4.95
+        },
+        {
+          "bridge": "v160",
+          "ip": "172.16.0.98",
+          "cidr": "30",
+          "ospf_area": "50",
+          "latency_ms": 5.98
+        },
+        {
+          "bridge": "v161",
+          "ip": "172.16.0.94",
+          "cidr": "30",
+          "ospf_area": "50",
+          "latency_ms": 11.0
+        },
+        {
+          "bridge": "v252",
+          "ip": "102.132.227.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Djibouti",
+        "latitude": 11.589,
+        "longitude": 43.1456
+      }
+    },
+    "are-lag": {
+      "hostname": "are-lag",
+      "loopback_ip": "7.0.1.16/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,50"
+      ],
+      "customer_net": null,
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": 6.5935,
+      "longitude": 3.3516,
+      "interfaces": [
+        {
+          "bridge": "v161",
+          "ip": "172.16.0.93",
+          "cidr": "30",
+          "ospf_area": "50",
+          "latency_ms": 11.0
+        },
+        {
+          "bridge": "v162",
+          "ip": "172.16.0.90",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 11.97
+        },
+        {
+          "bridge": "v163",
+          "ip": "172.16.0.86",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 9.775
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Lagos",
+        "latitude": 6.5935,
+        "longitude": 3.3516
+      }
+    },
+    "are-cai": {
+      "hostname": "are-cai",
+      "loopback_ip": "7.0.1.15/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,50"
+      ],
+      "customer_net": null,
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": 30.0444,
+      "longitude": 31.2357,
+      "interfaces": [
+        {
+          "bridge": "v119",
+          "ip": "7.0.0.13",
+          "cidr": "30",
+          "ospf_area": null,
+          "latency_ms": 0.0
+        },
+        {
+          "bridge": "v158",
+          "ip": "172.16.0.101",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 6.06
+        },
+        {
+          "bridge": "v160",
+          "ip": "172.16.0.97",
+          "cidr": "30",
+          "ospf_area": "50",
+          "latency_ms": 5.98
+        },
+        {
+          "bridge": "v163",
+          "ip": "172.16.0.85",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 9.775
+        },
+        {
+          "bridge": "v164",
+          "ip": "172.16.0.82",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 7.3
+        },
+        {
+          "bridge": "v214",
+          "ip": "7.0.0.17",
+          "cidr": "30",
+          "ospf_area": null,
+          "latency_ms": 0.0
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-cai",
+          "ip": "7.0.0.14",
+          "asn": 3356,
+          "type": "PEERS_WITH",
+          "relationship": "peer"
+        },
+        {
+          "hostname": "ntt-cai",
+          "ip": "7.0.0.18",
+          "asn": 2914,
+          "type": "PEERS_WITH",
+          "relationship": "peer"
+        },
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Cairo",
+        "latitude": 30.0444,
+        "longitude": 31.2357
+      }
+    },
+    "are-mos": {
+      "hostname": "are-mos",
+      "loopback_ip": "7.0.1.14/32",
+      "roles": null,
+      "ospf_areas": [
+        "40"
+      ],
+      "customer_net": "94.142.136.0/24",
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": 55.7558,
+      "longitude": 37.6173,
+      "interfaces": [
+        {
+          "bridge": "v165",
+          "ip": "172.16.0.78",
+          "cidr": "30",
+          "ospf_area": "40",
+          "latency_ms": 2.23
+        },
+        {
+          "bridge": "v166",
+          "ip": "172.16.0.74",
+          "cidr": "30",
+          "ospf_area": "40",
+          "latency_ms": 5.055
+        },
+        {
+          "bridge": "v253",
+          "ip": "94.142.136.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Moscow",
+        "latitude": 55.7558,
+        "longitude": 37.6173
+      }
+    },
+    "are-hel": {
+      "hostname": "are-hel",
+      "loopback_ip": "7.0.1.13/32",
+      "roles": null,
+      "ospf_areas": [
+        "40"
+      ],
+      "customer_net": "9.9.9.0/24",
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": 60.1699,
+      "longitude": 24.9384,
+      "interfaces": [
+        {
+          "bridge": "v165",
+          "ip": "172.16.0.77",
+          "cidr": "30",
+          "ospf_area": "40",
+          "latency_ms": 2.23
+        },
+        {
+          "bridge": "v167",
+          "ip": "172.16.0.70",
+          "cidr": "30",
+          "ospf_area": "40",
+          "latency_ms": 3.785
+        },
+        {
+          "bridge": "v254",
+          "ip": "9.9.9.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Helsinki",
+        "latitude": 60.1699,
+        "longitude": 24.9384
+      }
+    },
+    "are-fra": {
+      "hostname": "are-fra",
+      "loopback_ip": "7.0.1.12/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,30,40"
+      ],
+      "customer_net": null,
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": 50.1109,
+      "longitude": 8.6821,
+      "interfaces": [
+        {
+          "bridge": "v164",
+          "ip": "172.16.0.81",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 7.3
+        },
+        {
+          "bridge": "v166",
+          "ip": "172.16.0.73",
+          "cidr": "30",
+          "ospf_area": "40",
+          "latency_ms": 5.055
+        },
+        {
+          "bridge": "v167",
+          "ip": "172.16.0.69",
+          "cidr": "30",
+          "ospf_area": "40",
+          "latency_ms": 3.785
+        },
+        {
+          "bridge": "v168",
+          "ip": "172.16.0.62",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 1.595
+        },
+        {
+          "bridge": "v171",
+          "ip": "172.16.0.65",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 1.195
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Frankfurt",
+        "latitude": 50.1109,
+        "longitude": 8.6821
+      }
+    },
+    "are-lis": {
+      "hostname": "are-lis",
+      "loopback_ip": "7.0.1.11/32",
+      "roles": null,
+      "ospf_areas": [
+        "30"
+      ],
+      "customer_net": "91.196.216.0/24",
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": 38.7223,
+      "longitude": -9.1393,
+      "interfaces": [
+        {
+          "bridge": "v169",
+          "ip": "172.16.0.58",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 3.63
+        },
+        {
+          "bridge": "v170",
+          "ip": "172.16.0.50",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 3.96
+        },
+        {
+          "bridge": "v255",
+          "ip": "91.196.216.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Lisbon",
+        "latitude": 38.7223,
+        "longitude": -9.1393
+      }
+    },
+    "are-par": {
+      "hostname": "are-par",
+      "loopback_ip": "7.0.1.10/32",
+      "roles": null,
+      "ospf_areas": [
+        "30"
+      ],
+      "customer_net": "213.186.33.0/24",
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": 48.8566,
+      "longitude": 2.3522,
+      "interfaces": [
+        {
+          "bridge": "v169",
+          "ip": "172.16.0.57",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 3.63
+        },
+        {
+          "bridge": "v171",
+          "ip": "172.16.0.66",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 1.195
+        },
+        {
+          "bridge": "v172",
+          "ip": "172.16.0.54",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 0.86
+        },
+        {
+          "bridge": "v256",
+          "ip": "213.186.33.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Paris",
+        "latitude": 48.8566,
+        "longitude": 2.3522
+      }
+    },
+    "are-lon": {
+      "hostname": "are-lon",
+      "loopback_ip": "7.0.1.9/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,30"
+      ],
+      "customer_net": null,
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": 51.5074,
+      "longitude": -0.1278,
+      "interfaces": [
+        {
+          "bridge": "v126",
+          "ip": "7.0.0.9",
+          "cidr": "30",
+          "ospf_area": null,
+          "latency_ms": 0.0
+        },
+        {
+          "bridge": "v168",
+          "ip": "172.16.0.61",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 1.595
+        },
+        {
+          "bridge": "v170",
+          "ip": "172.16.0.49",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 3.96
+        },
+        {
+          "bridge": "v172",
+          "ip": "172.16.0.53",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 0.86
+        },
+        {
+          "bridge": "v173",
+          "ip": "172.16.0.46",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 14.795
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-lon",
+          "ip": "7.0.0.10",
+          "asn": 3356,
+          "type": "PEERS_WITH",
+          "relationship": "peer"
+        },
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "London",
+        "latitude": 51.5074,
+        "longitude": -0.1278
+      }
+    },
+    "are-san": {
+      "hostname": "are-san",
+      "loopback_ip": "7.0.1.8/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,20"
+      ],
+      "customer_net": "200.29.16.0/24",
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": -33.4489,
+      "longitude": -70.6693,
+      "interfaces": [
+        {
+          "bridge": "v174",
+          "ip": "172.16.0.166",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 28.365
+        },
+        {
+          "bridge": "v175",
+          "ip": "172.16.0.38",
+          "cidr": "30",
+          "ospf_area": "20",
+          "latency_ms": 10.645
+        },
+        {
+          "bridge": "v177",
+          "ip": "172.16.0.41",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 11.73
+        },
+        {
+          "bridge": "v257",
+          "ip": "200.29.16.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Santiago",
+        "latitude": -33.4489,
+        "longitude": -70.6693
+      }
+    },
+    "are-bog": {
+      "hostname": "are-bog",
+      "loopback_ip": "7.0.1.7/32",
+      "roles": null,
+      "ospf_areas": [
+        "20"
+      ],
+      "customer_net": "200.13.238.0/24",
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": 4.711,
+      "longitude": -74.0721,
+      "interfaces": [
+        {
+          "bridge": "v175",
+          "ip": "172.16.0.37",
+          "cidr": "30",
+          "ospf_area": "20",
+          "latency_ms": 10.645
+        },
+        {
+          "bridge": "v176",
+          "ip": "172.16.0.34",
+          "cidr": "30",
+          "ospf_area": "20",
+          "latency_ms": 10.145
+        },
+        {
+          "bridge": "v258",
+          "ip": "200.13.238.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Bogota",
+        "latitude": 4.711,
+        "longitude": -74.0721
+      }
+    },
+    "are-for": {
+      "hostname": "are-for",
+      "loopback_ip": "7.0.1.6/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,20"
+      ],
+      "customer_net": null,
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": -3.7319,
+      "longitude": -38.5267,
+      "interfaces": [
+        {
+          "bridge": "v162",
+          "ip": "172.16.0.89",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 11.97
+        },
+        {
+          "bridge": "v176",
+          "ip": "172.16.0.33",
+          "cidr": "30",
+          "ospf_area": "20",
+          "latency_ms": 10.145
+        },
+        {
+          "bridge": "v177",
+          "ip": "172.16.0.42",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 11.73
+        },
+        {
+          "bridge": "v178",
+          "ip": "172.16.0.30",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 15.52
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Fortaleza",
+        "latitude": -3.7319,
+        "longitude": -38.5267
+      }
+    },
+    "are-ash": {
+      "hostname": "are-ash",
+      "loopback_ip": "7.0.1.5/32",
+      "roles": [
+        "ABR,RR"
+      ],
+      "ospf_areas": [
+        "0,10"
+      ],
+      "customer_net": "198.41.0.0/24",
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": 39.0437,
+      "longitude": -77.4874,
+      "interfaces": [
+        {
+          "bridge": "v133",
+          "ip": "7.0.0.1",
+          "cidr": "30",
+          "ospf_area": null,
+          "latency_ms": 0.0
+        },
+        {
+          "bridge": "v173",
+          "ip": "172.16.0.45",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 14.795
+        },
+        {
+          "bridge": "v178",
+          "ip": "172.16.0.29",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 15.52
+        },
+        {
+          "bridge": "v179",
+          "ip": "172.16.0.26",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 2.285
+        },
+        {
+          "bridge": "v180",
+          "ip": "172.16.0.18",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 5.89
+        },
+        {
+          "bridge": "v222",
+          "ip": "7.0.0.5",
+          "cidr": "30",
+          "ospf_area": null,
+          "latency_ms": 0.0
+        },
+        {
+          "bridge": "v259",
+          "ip": "198.41.0.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-ash",
+          "ip": "7.0.0.2",
+          "asn": 3356,
+          "type": "PEERS_WITH",
+          "relationship": "peer"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "7.0.0.6",
+          "asn": 2914,
+          "type": "PEERS_WITH",
+          "relationship": "peer"
+        },
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ade",
+          "ip": "7.0.1.28",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-syd",
+          "ip": "7.0.1.27",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-per",
+          "ip": "7.0.1.26",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-sin",
+          "ip": "7.0.1.25",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-man",
+          "ip": "7.0.1.24",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-seo",
+          "ip": "7.0.1.23",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-che",
+          "ip": "7.0.1.21",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-mum",
+          "ip": "7.0.1.20",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-del",
+          "ip": "7.0.1.19",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-dub",
+          "ip": "7.0.1.18",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-dji",
+          "ip": "7.0.1.17",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-lag",
+          "ip": "7.0.1.16",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-cai",
+          "ip": "7.0.1.15",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-mos",
+          "ip": "7.0.1.14",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-hel",
+          "ip": "7.0.1.13",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-fra",
+          "ip": "7.0.1.12",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-lis",
+          "ip": "7.0.1.11",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-par",
+          "ip": "7.0.1.10",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-lon",
+          "ip": "7.0.1.9",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-san",
+          "ip": "7.0.1.8",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-bog",
+          "ip": "7.0.1.7",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-for",
+          "ip": "7.0.1.6",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-chi",
+          "ip": "7.0.1.4",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-den",
+          "ip": "7.0.1.3",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-lax",
+          "ip": "7.0.1.2",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-sfr",
+          "ip": "7.0.1.1",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Ashburn",
+        "latitude": 39.0437,
+        "longitude": -77.4874
+      }
+    },
+    "are-chi": {
+      "hostname": "are-chi",
+      "loopback_ip": "7.0.1.4/32",
+      "roles": null,
+      "ospf_areas": [
+        "10"
+      ],
+      "customer_net": "199.7.83.0/24",
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": 41.8781,
+      "longitude": -87.6298,
+      "interfaces": [
+        {
+          "bridge": "v179",
+          "ip": "172.16.0.25",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 2.285
+        },
+        {
+          "bridge": "v181",
+          "ip": "172.16.0.22",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 3.695
+        },
+        {
+          "bridge": "v182",
+          "ip": "172.16.0.10",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 7.46
+        },
+        {
+          "bridge": "v260",
+          "ip": "199.7.83.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Chicago",
+        "latitude": 41.8781,
+        "longitude": -87.6298
+      }
+    },
+    "are-den": {
+      "hostname": "are-den",
+      "loopback_ip": "7.0.1.3/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,10"
+      ],
+      "customer_net": "198.54.100.0/24",
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": 39.7392,
+      "longitude": -104.9903,
+      "interfaces": [
+        {
+          "bridge": "v180",
+          "ip": "172.16.0.17",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 5.89
+        },
+        {
+          "bridge": "v181",
+          "ip": "172.16.0.21",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 3.695
+        },
+        {
+          "bridge": "v183",
+          "ip": "172.16.0.14",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 3.34
+        },
+        {
+          "bridge": "v184",
+          "ip": "172.16.0.6",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 3.81
+        },
+        {
+          "bridge": "v261",
+          "ip": "198.54.100.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Denver",
+        "latitude": 39.7392,
+        "longitude": -104.9903
+      }
+    },
+    "are-lax": {
+      "hostname": "are-lax",
+      "loopback_ip": "7.0.1.2/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,10"
+      ],
+      "customer_net": null,
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": 34.0522,
+      "longitude": -118.2437,
+      "interfaces": [
+        {
+          "bridge": "v183",
+          "ip": "172.16.0.13",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 3.34
+        },
+        {
+          "bridge": "v185",
+          "ip": "172.16.0.134",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 29.125
+        },
+        {
+          "bridge": "v186",
+          "ip": "172.16.0.2",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 1.4
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Los Angeles",
+        "latitude": 34.0522,
+        "longitude": -118.2437
+      }
+    },
+    "are-sfr": {
+      "hostname": "are-sfr",
+      "loopback_ip": "7.0.1.1/32",
+      "roles": null,
+      "ospf_areas": [
+        "10"
+      ],
+      "customer_net": "108.162.192.0/24",
+      "isp_name": "Arelion",
+      "asn": 1299,
+      "public_block": "7.0.0.0/16",
+      "latitude": 37.7749,
+      "longitude": -122.4194,
+      "interfaces": [
+        {
+          "bridge": "v182",
+          "ip": "172.16.0.9",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 7.46
+        },
+        {
+          "bridge": "v184",
+          "ip": "172.16.0.5",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 3.81
+        },
+        {
+          "bridge": "v186",
+          "ip": "172.16.0.1",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 1.4
+        },
+        {
+          "bridge": "v262",
+          "ip": "108.162.192.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.1.22",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.1.5",
+          "asn": 1299,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "San Francisco",
+        "latitude": 37.7749,
+        "longitude": -122.4194
+      }
+    },
+    "ntt-vla": {
+      "hostname": "ntt-vla",
+      "loopback_ip": "26.0.1.28/32",
+      "roles": null,
+      "ospf_areas": [
+        "30"
+      ],
+      "customer_net": "212.109.192.0/24",
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": 43.1155,
+      "longitude": 131.8855,
+      "interfaces": [
+        {
+          "bridge": "v187",
+          "ip": "172.16.0.154",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 7.755
+        },
+        {
+          "bridge": "v188",
+          "ip": "172.16.0.150",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 2.655
+        },
+        {
+          "bridge": "v263",
+          "ip": "212.109.192.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Vladivostok",
+        "latitude": 43.1155,
+        "longitude": 131.8855
+      }
+    },
+    "ntt-tok": {
+      "hostname": "ntt-tok",
+      "loopback_ip": "26.0.1.27/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,30"
+      ],
+      "customer_net": "202.12.27.0/24",
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": 35.6762,
+      "longitude": 139.6503,
+      "interfaces": [
+        {
+          "bridge": "v188",
+          "ip": "172.16.0.149",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 2.655
+        },
+        {
+          "bridge": "v189",
+          "ip": "172.16.0.138",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 7.19
+        },
+        {
+          "bridge": "v190",
+          "ip": "172.16.0.145",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 2.875
+        },
+        {
+          "bridge": "v264",
+          "ip": "202.12.27.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Tokyo",
+        "latitude": 35.6762,
+        "longitude": 139.6503
+      }
+    },
+    "ntt-seo": {
+      "hostname": "ntt-seo",
+      "loopback_ip": "26.0.1.26/32",
+      "roles": null,
+      "ospf_areas": [
+        "30"
+      ],
+      "customer_net": "210.155.128.0/24",
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": 37.5665,
+      "longitude": 126.978,
+      "interfaces": [
+        {
+          "bridge": "v190",
+          "ip": "172.16.0.146",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 2.875
+        },
+        {
+          "bridge": "v191",
+          "ip": "172.16.0.142",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 5.23
+        },
+        {
+          "bridge": "v265",
+          "ip": "210.155.128.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Seoul",
+        "latitude": 37.5665,
+        "longitude": 126.978
+      }
+    },
+    "ntt-syd": {
+      "hostname": "ntt-syd",
+      "loopback_ip": "26.0.1.25/32",
+      "roles": null,
+      "ospf_areas": [
+        "60"
+      ],
+      "customer_net": "203.49.208.0/24",
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": -33.8688,
+      "longitude": 151.2093,
+      "interfaces": [
+        {
+          "bridge": "v192",
+          "ip": "172.16.0.126",
+          "cidr": "30",
+          "ospf_area": "60",
+          "latency_ms": 7.87
+        },
+        {
+          "bridge": "v193",
+          "ip": "172.16.0.129",
+          "cidr": "30",
+          "ospf_area": "60",
+          "latency_ms": 8.225
+        },
+        {
+          "bridge": "v266",
+          "ip": "203.49.208.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Sydney",
+        "latitude": -33.8688,
+        "longitude": 151.2093
+      }
+    },
+    "ntt-per": {
+      "hostname": "ntt-per",
+      "loopback_ip": "26.0.1.24/32",
+      "roles": null,
+      "ospf_areas": [
+        "60"
+      ],
+      "customer_net": "150.107.64.0/24",
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": -31.9505,
+      "longitude": 115.8605,
+      "interfaces": [
+        {
+          "bridge": "v193",
+          "ip": "172.16.0.130",
+          "cidr": "30",
+          "ospf_area": "60",
+          "latency_ms": 8.225
+        },
+        {
+          "bridge": "v194",
+          "ip": "172.16.0.118",
+          "cidr": "30",
+          "ospf_area": "60",
+          "latency_ms": 9.77
+        },
+        {
+          "bridge": "v195",
+          "ip": "172.16.0.121",
+          "cidr": "30",
+          "ospf_area": "60",
+          "latency_ms": 6.635
+        },
+        {
+          "bridge": "v267",
+          "ip": "150.107.64.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Perth",
+        "latitude": -31.9505,
+        "longitude": 115.8605
+      }
+    },
+    "ntt-dar": {
+      "hostname": "ntt-dar",
+      "loopback_ip": "26.0.1.23/32",
+      "roles": null,
+      "ospf_areas": [
+        "60"
+      ],
+      "customer_net": "14.200.0.0/24",
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": -12.4634,
+      "longitude": 130.8456,
+      "interfaces": [
+        {
+          "bridge": "v192",
+          "ip": "172.16.0.125",
+          "cidr": "30",
+          "ospf_area": "60",
+          "latency_ms": 7.87
+        },
+        {
+          "bridge": "v195",
+          "ip": "172.16.0.122",
+          "cidr": "30",
+          "ospf_area": "60",
+          "latency_ms": 6.635
+        },
+        {
+          "bridge": "v196",
+          "ip": "172.16.0.114",
+          "cidr": "30",
+          "ospf_area": "60",
+          "latency_ms": 8.0
+        },
+        {
+          "bridge": "v268",
+          "ip": "14.200.0.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Darwin",
+        "latitude": -12.4634,
+        "longitude": 130.8456
+      }
+    },
+    "ntt-sin": {
+      "hostname": "ntt-sin",
+      "loopback_ip": "26.0.1.22/32",
+      "roles": null,
+      "ospf_areas": [
+        "60"
+      ],
+      "customer_net": "203.116.0.0/24",
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": 1.2953,
+      "longitude": 103.8363,
+      "interfaces": [
+        {
+          "bridge": "v194",
+          "ip": "172.16.0.117",
+          "cidr": "30",
+          "ospf_area": "60",
+          "latency_ms": 9.77
+        },
+        {
+          "bridge": "v197",
+          "ip": "172.16.0.110",
+          "cidr": "30",
+          "ospf_area": "60",
+          "latency_ms": 5.99
+        },
+        {
+          "bridge": "v198",
+          "ip": "172.16.0.106",
+          "cidr": "30",
+          "ospf_area": "60",
+          "latency_ms": 6.48
+        },
+        {
+          "bridge": "v269",
+          "ip": "203.116.0.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Singapore",
+        "latitude": 1.2953,
+        "longitude": 103.8363
+      }
+    },
+    "ntt-man": {
+      "hostname": "ntt-man",
+      "loopback_ip": "26.0.1.21/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,60"
+      ],
+      "customer_net": null,
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": 14.5995,
+      "longitude": 120.9842,
+      "interfaces": [
+        {
+          "bridge": "v196",
+          "ip": "172.16.0.113",
+          "cidr": "30",
+          "ospf_area": "60",
+          "latency_ms": 8.0
+        },
+        {
+          "bridge": "v197",
+          "ip": "172.16.0.109",
+          "cidr": "30",
+          "ospf_area": "60",
+          "latency_ms": 5.99
+        },
+        {
+          "bridge": "v199",
+          "ip": "172.16.0.102",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 2.8
+        },
+        {
+          "bridge": "v227",
+          "ip": "172.16.0.133",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 29.36
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Manila",
+        "latitude": 14.5995,
+        "longitude": 120.9842
+      }
+    },
+    "ntt-hkg": {
+      "hostname": "ntt-hkg",
+      "loopback_ip": "26.0.1.20/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,30,60"
+      ],
+      "customer_net": "223.5.5.0/24",
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": 22.3193,
+      "longitude": 114.1694,
+      "interfaces": [
+        {
+          "bridge": "v105",
+          "ip": "26.0.0.9",
+          "cidr": "30",
+          "ospf_area": null,
+          "latency_ms": 0.0
+        },
+        {
+          "bridge": "v189",
+          "ip": "172.16.0.137",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 7.19
+        },
+        {
+          "bridge": "v191",
+          "ip": "172.16.0.141",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 5.23
+        },
+        {
+          "bridge": "v198",
+          "ip": "172.16.0.105",
+          "cidr": "30",
+          "ospf_area": "60",
+          "latency_ms": 6.48
+        },
+        {
+          "bridge": "v199",
+          "ip": "172.16.0.101",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 2.8
+        },
+        {
+          "bridge": "v200",
+          "ip": "7.0.0.26",
+          "cidr": "30",
+          "ospf_area": null,
+          "latency_ms": 0.0
+        },
+        {
+          "bridge": "v201",
+          "ip": "172.16.0.98",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 9.4
+        },
+        {
+          "bridge": "v270",
+          "ip": "223.5.5.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-hkg",
+          "ip": "26.0.0.10",
+          "asn": 3356,
+          "type": "PEERS_WITH",
+          "relationship": "peer"
+        },
+        {
+          "hostname": "are-hkg",
+          "ip": "7.0.0.25",
+          "asn": 1299,
+          "type": "PEERS_WITH",
+          "relationship": "peer"
+        },
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Hong Kong",
+        "latitude": 22.3193,
+        "longitude": 114.1694
+      }
+    },
+    "ntt-krs": {
+      "hostname": "ntt-krs",
+      "loopback_ip": "26.0.1.19/32",
+      "roles": null,
+      "ospf_areas": [
+        "30"
+      ],
+      "customer_net": "77.88.8.0/24",
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": 56.0153,
+      "longitude": 92.8932,
+      "interfaces": [
+        {
+          "bridge": "v187",
+          "ip": "172.16.0.153",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 7.755
+        },
+        {
+          "bridge": "v202",
+          "ip": "172.16.0.82",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 8.385
+        },
+        {
+          "bridge": "v204",
+          "ip": "172.16.0.89",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 8.225
+        },
+        {
+          "bridge": "v271",
+          "ip": "77.88.8.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Krasnoyarsk",
+        "latitude": 56.0153,
+        "longitude": 92.8932
+      }
+    },
+    "ntt-che": {
+      "hostname": "ntt-che",
+      "loopback_ip": "26.0.1.18/32",
+      "roles": null,
+      "ospf_areas": [
+        "50"
+      ],
+      "customer_net": "111.68.96.0/24",
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": 13.0827,
+      "longitude": 80.2707,
+      "interfaces": [
+        {
+          "bridge": "v203",
+          "ip": "172.16.0.94",
+          "cidr": "30",
+          "ospf_area": "50",
+          "latency_ms": 4.39
+        },
+        {
+          "bridge": "v272",
+          "ip": "111.68.96.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Chennai",
+        "latitude": 13.0827,
+        "longitude": 80.2707
+      }
+    },
+    "ntt-del": {
+      "hostname": "ntt-del",
+      "loopback_ip": "26.0.1.17/32",
+      "roles": [
+        "ABR,RR"
+      ],
+      "ospf_areas": [
+        "0,30,50"
+      ],
+      "customer_net": null,
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": 28.6139,
+      "longitude": 77.209,
+      "interfaces": [
+        {
+          "bridge": "v201",
+          "ip": "172.16.0.97",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 9.4
+        },
+        {
+          "bridge": "v203",
+          "ip": "172.16.0.93",
+          "cidr": "30",
+          "ospf_area": "50",
+          "latency_ms": 4.39
+        },
+        {
+          "bridge": "v204",
+          "ip": "172.16.0.90",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 8.225
+        },
+        {
+          "bridge": "v205",
+          "ip": "172.16.0.86",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 5.51
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-vla",
+          "ip": "26.0.1.28",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-tok",
+          "ip": "26.0.1.27",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-seo",
+          "ip": "26.0.1.26",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-syd",
+          "ip": "26.0.1.25",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-per",
+          "ip": "26.0.1.24",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-dar",
+          "ip": "26.0.1.23",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-sin",
+          "ip": "26.0.1.22",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-man",
+          "ip": "26.0.1.21",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-hkg",
+          "ip": "26.0.1.20",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-krs",
+          "ip": "26.0.1.19",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-che",
+          "ip": "26.0.1.18",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-dub",
+          "ip": "26.0.1.16",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-joh",
+          "ip": "26.0.1.15",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-lag",
+          "ip": "26.0.1.14",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-dji",
+          "ip": "26.0.1.13",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-mos",
+          "ip": "26.0.1.12",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-kyv",
+          "ip": "26.0.1.11",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-cai",
+          "ip": "26.0.1.10",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-bai",
+          "ip": "26.0.1.9",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-brs",
+          "ip": "26.0.1.8",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-lim",
+          "ip": "26.0.1.7",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-san",
+          "ip": "26.0.1.6",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-lis",
+          "ip": "26.0.1.5",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-chi",
+          "ip": "26.0.1.3",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-lax",
+          "ip": "26.0.1.2",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-por",
+          "ip": "26.0.1.1",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Delhi",
+        "latitude": 28.6139,
+        "longitude": 77.209
+      }
+    },
+    "ntt-dub": {
+      "hostname": "ntt-dub",
+      "loopback_ip": "26.0.1.16/32",
+      "roles": null,
+      "ospf_areas": [
+        "0"
+      ],
+      "customer_net": "163.121.128.0/24",
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": 25.2048,
+      "longitude": 55.2708,
+      "interfaces": [
+        {
+          "bridge": "v205",
+          "ip": "172.16.0.85",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 5.51
+        },
+        {
+          "bridge": "v206",
+          "ip": "172.16.0.58",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 6.06
+        },
+        {
+          "bridge": "v273",
+          "ip": "163.121.128.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Dubai",
+        "latitude": 25.2048,
+        "longitude": 55.2708
+      }
+    },
+    "ntt-joh": {
+      "hostname": "ntt-joh",
+      "loopback_ip": "26.0.1.15/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,40"
+      ],
+      "customer_net": null,
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": -26.2041,
+      "longitude": 28.0473,
+      "interfaces": [
+        {
+          "bridge": "v207",
+          "ip": "172.16.0.66",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 11.27
+        },
+        {
+          "bridge": "v208",
+          "ip": "172.16.0.46",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 20.22
+        },
+        {
+          "bridge": "v209",
+          "ip": "172.16.0.73",
+          "cidr": "30",
+          "ospf_area": "40",
+          "latency_ms": 11.29
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Johannesburg",
+        "latitude": -26.2041,
+        "longitude": 28.0473
+      }
+    },
+    "ntt-lag": {
+      "hostname": "ntt-lag",
+      "loopback_ip": "26.0.1.14/32",
+      "roles": null,
+      "ospf_areas": [
+        "40"
+      ],
+      "customer_net": "41.217.160.0/24",
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": 6.5935,
+      "longitude": 3.3516,
+      "interfaces": [
+        {
+          "bridge": "v209",
+          "ip": "172.16.0.74",
+          "cidr": "30",
+          "ospf_area": "40",
+          "latency_ms": 11.29
+        },
+        {
+          "bridge": "v210",
+          "ip": "172.16.0.70",
+          "cidr": "30",
+          "ospf_area": "40",
+          "latency_ms": 11.0
+        },
+        {
+          "bridge": "v274",
+          "ip": "41.217.160.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Lagos",
+        "latitude": 6.5935,
+        "longitude": 3.3516
+      }
+    },
+    "ntt-dji": {
+      "hostname": "ntt-dji",
+      "loopback_ip": "26.0.1.13/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,40"
+      ],
+      "customer_net": null,
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": 11.589,
+      "longitude": 43.1456,
+      "interfaces": [
+        {
+          "bridge": "v207",
+          "ip": "172.16.0.65",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 11.27
+        },
+        {
+          "bridge": "v210",
+          "ip": "172.16.0.69",
+          "cidr": "30",
+          "ospf_area": "40",
+          "latency_ms": 11.0
+        },
+        {
+          "bridge": "v211",
+          "ip": "172.16.0.62",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 5.98
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Djibouti",
+        "latitude": 11.589,
+        "longitude": 43.1456
+      }
+    },
+    "ntt-mos": {
+      "hostname": "ntt-mos",
+      "loopback_ip": "26.0.1.12/32",
+      "roles": null,
+      "ospf_areas": [
+        "30"
+      ],
+      "customer_net": "193.232.192.0/24",
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": 55.7558,
+      "longitude": 37.6173,
+      "interfaces": [
+        {
+          "bridge": "v202",
+          "ip": "172.16.0.81",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 8.385
+        },
+        {
+          "bridge": "v212",
+          "ip": "172.16.0.78",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 1.89
+        },
+        {
+          "bridge": "v275",
+          "ip": "193.232.192.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Moscow",
+        "latitude": 55.7558,
+        "longitude": 37.6173
+      }
+    },
+    "ntt-kyv": {
+      "hostname": "ntt-kyv",
+      "loopback_ip": "26.0.1.11/32",
+      "roles": null,
+      "ospf_areas": [
+        "30"
+      ],
+      "customer_net": "93.178.204.0/24",
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": 50.4501,
+      "longitude": 30.5234,
+      "interfaces": [
+        {
+          "bridge": "v212",
+          "ip": "172.16.0.77",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 1.89
+        },
+        {
+          "bridge": "v213",
+          "ip": "172.16.0.54",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 5.675
+        },
+        {
+          "bridge": "v276",
+          "ip": "93.178.204.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Kyiv",
+        "latitude": 50.4501,
+        "longitude": 30.5234
+      }
+    },
+    "ntt-cai": {
+      "hostname": "ntt-cai",
+      "loopback_ip": "26.0.1.10/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,30"
+      ],
+      "customer_net": null,
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": 30.0444,
+      "longitude": 31.2357,
+      "interfaces": [
+        {
+          "bridge": "v118",
+          "ip": "26.0.0.5",
+          "cidr": "30",
+          "ospf_area": null,
+          "latency_ms": 0.0
+        },
+        {
+          "bridge": "v206",
+          "ip": "172.16.0.57",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 6.06
+        },
+        {
+          "bridge": "v211",
+          "ip": "172.16.0.61",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 5.98
+        },
+        {
+          "bridge": "v213",
+          "ip": "172.16.0.53",
+          "cidr": "30",
+          "ospf_area": "30",
+          "latency_ms": 5.675
+        },
+        {
+          "bridge": "v214",
+          "ip": "7.0.0.18",
+          "cidr": "30",
+          "ospf_area": null,
+          "latency_ms": 0.0
+        },
+        {
+          "bridge": "v215",
+          "ip": "172.16.0.50",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 9.49
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-cai",
+          "ip": "26.0.0.6",
+          "asn": 3356,
+          "type": "PEERS_WITH",
+          "relationship": "peer"
+        },
+        {
+          "hostname": "are-cai",
+          "ip": "7.0.0.17",
+          "asn": 1299,
+          "type": "PEERS_WITH",
+          "relationship": "peer"
+        },
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Cairo",
+        "latitude": 30.0444,
+        "longitude": 31.2357
+      }
+    },
+    "ntt-bai": {
+      "hostname": "ntt-bai",
+      "loopback_ip": "26.0.1.9/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,20"
+      ],
+      "customer_net": null,
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": -34.6037,
+      "longitude": -58.3816,
+      "interfaces": [
+        {
+          "bridge": "v208",
+          "ip": "172.16.0.45",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 20.22
+        },
+        {
+          "bridge": "v216",
+          "ip": "172.16.0.42",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 2.845
+        },
+        {
+          "bridge": "v217",
+          "ip": "172.16.0.38",
+          "cidr": "30",
+          "ospf_area": "20",
+          "latency_ms": 5.85
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Buenos Aires",
+        "latitude": -34.6037,
+        "longitude": -58.3816
+      }
+    },
+    "ntt-brs": {
+      "hostname": "ntt-brs",
+      "loopback_ip": "26.0.1.8/32",
+      "roles": null,
+      "ospf_areas": [
+        "20"
+      ],
+      "customer_net": "156.154.101.0/24",
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": -15.7939,
+      "longitude": -47.8828,
+      "interfaces": [
+        {
+          "bridge": "v217",
+          "ip": "172.16.0.37",
+          "cidr": "30",
+          "ospf_area": "20",
+          "latency_ms": 5.85
+        },
+        {
+          "bridge": "v218",
+          "ip": "172.16.0.34",
+          "cidr": "30",
+          "ospf_area": "20",
+          "latency_ms": 7.93
+        },
+        {
+          "bridge": "v277",
+          "ip": "156.154.101.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Brasilia",
+        "latitude": -15.7939,
+        "longitude": -47.8828
+      }
+    },
+    "ntt-lim": {
+      "hostname": "ntt-lim",
+      "loopback_ip": "26.0.1.7/32",
+      "roles": null,
+      "ospf_areas": [
+        "20"
+      ],
+      "customer_net": "200.60.101.0/24",
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": -12.0464,
+      "longitude": -77.0428,
+      "interfaces": [
+        {
+          "bridge": "v218",
+          "ip": "172.16.0.33",
+          "cidr": "30",
+          "ospf_area": "20",
+          "latency_ms": 7.93
+        },
+        {
+          "bridge": "v219",
+          "ip": "172.16.0.30",
+          "cidr": "30",
+          "ospf_area": "20",
+          "latency_ms": 6.165
+        },
+        {
+          "bridge": "v278",
+          "ip": "200.60.101.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Lima",
+        "latitude": -12.0464,
+        "longitude": -77.0428
+      }
+    },
+    "ntt-san": {
+      "hostname": "ntt-san",
+      "loopback_ip": "26.0.1.6/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,20"
+      ],
+      "customer_net": null,
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": -33.4489,
+      "longitude": -70.6693,
+      "interfaces": [
+        {
+          "bridge": "v216",
+          "ip": "172.16.0.41",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 2.845
+        },
+        {
+          "bridge": "v219",
+          "ip": "172.16.0.29",
+          "cidr": "30",
+          "ospf_area": "20",
+          "latency_ms": 6.165
+        },
+        {
+          "bridge": "v220",
+          "ip": "172.16.0.18",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 22.495
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Santiago",
+        "latitude": -33.4489,
+        "longitude": -70.6693
+      }
+    },
+    "ntt-lis": {
+      "hostname": "ntt-lis",
+      "loopback_ip": "26.0.1.5/32",
+      "roles": null,
+      "ospf_areas": [
+        "0"
+      ],
+      "customer_net": "212.119.33.0/24",
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": 38.7223,
+      "longitude": -9.1393,
+      "interfaces": [
+        {
+          "bridge": "v215",
+          "ip": "172.16.0.49",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 9.49
+        },
+        {
+          "bridge": "v221",
+          "ip": "172.16.0.26",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 14.415
+        },
+        {
+          "bridge": "v279",
+          "ip": "212.119.33.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Lisbon",
+        "latitude": 38.7223,
+        "longitude": -9.1393
+      }
+    },
+    "ntt-ash": {
+      "hostname": "ntt-ash",
+      "loopback_ip": "26.0.1.4/32",
+      "roles": [
+        "ABR,RR"
+      ],
+      "ospf_areas": [
+        "0,10"
+      ],
+      "customer_net": "205.251.192.0/24",
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": 39.0437,
+      "longitude": -77.4874,
+      "interfaces": [
+        {
+          "bridge": "v132",
+          "ip": "26.0.0.1",
+          "cidr": "30",
+          "ospf_area": null,
+          "latency_ms": 0.0
+        },
+        {
+          "bridge": "v221",
+          "ip": "172.16.0.25",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 14.415
+        },
+        {
+          "bridge": "v222",
+          "ip": "7.0.0.6",
+          "cidr": "30",
+          "ospf_area": null,
+          "latency_ms": 0.0
+        },
+        {
+          "bridge": "v223",
+          "ip": "172.16.0.22",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 2.285
+        },
+        {
+          "bridge": "v224",
+          "ip": "172.16.0.14",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 9.13
+        },
+        {
+          "bridge": "v280",
+          "ip": "205.251.192.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "lum-ash",
+          "ip": "26.0.0.2",
+          "asn": 3356,
+          "type": "PEERS_WITH",
+          "relationship": "peer"
+        },
+        {
+          "hostname": "are-ash",
+          "ip": "7.0.0.5",
+          "asn": 1299,
+          "type": "PEERS_WITH",
+          "relationship": "peer"
+        },
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-vla",
+          "ip": "26.0.1.28",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-tok",
+          "ip": "26.0.1.27",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-seo",
+          "ip": "26.0.1.26",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-syd",
+          "ip": "26.0.1.25",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-per",
+          "ip": "26.0.1.24",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-dar",
+          "ip": "26.0.1.23",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-sin",
+          "ip": "26.0.1.22",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-man",
+          "ip": "26.0.1.21",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-hkg",
+          "ip": "26.0.1.20",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-krs",
+          "ip": "26.0.1.19",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-che",
+          "ip": "26.0.1.18",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-dub",
+          "ip": "26.0.1.16",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-joh",
+          "ip": "26.0.1.15",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-lag",
+          "ip": "26.0.1.14",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-dji",
+          "ip": "26.0.1.13",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-mos",
+          "ip": "26.0.1.12",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-kyv",
+          "ip": "26.0.1.11",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-cai",
+          "ip": "26.0.1.10",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-bai",
+          "ip": "26.0.1.9",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-brs",
+          "ip": "26.0.1.8",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-lim",
+          "ip": "26.0.1.7",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-san",
+          "ip": "26.0.1.6",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-lis",
+          "ip": "26.0.1.5",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-chi",
+          "ip": "26.0.1.3",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-lax",
+          "ip": "26.0.1.2",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-por",
+          "ip": "26.0.1.1",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Ashburn",
+        "latitude": 39.0437,
+        "longitude": -77.4874
+      }
+    },
+    "ntt-chi": {
+      "hostname": "ntt-chi",
+      "loopback_ip": "26.0.1.3/32",
+      "roles": null,
+      "ospf_areas": [
+        "10"
+      ],
+      "customer_net": "129.250.3.0/24",
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": 41.8781,
+      "longitude": -87.6298,
+      "interfaces": [
+        {
+          "bridge": "v223",
+          "ip": "172.16.0.21",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 2.285
+        },
+        {
+          "bridge": "v225",
+          "ip": "172.16.0.10",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 7.01
+        },
+        {
+          "bridge": "v226",
+          "ip": "172.16.0.6",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 7.06
+        },
+        {
+          "bridge": "v281",
+          "ip": "129.250.3.1",
+          "cidr": "24",
+          "ospf_area": null
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Chicago",
+        "latitude": 41.8781,
+        "longitude": -87.6298
+      }
+    },
+    "ntt-lax": {
+      "hostname": "ntt-lax",
+      "loopback_ip": "26.0.1.2/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,10"
+      ],
+      "customer_net": null,
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": 34.0522,
+      "longitude": -118.2437,
+      "interfaces": [
+        {
+          "bridge": "v220",
+          "ip": "172.16.0.17",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 22.495
+        },
+        {
+          "bridge": "v224",
+          "ip": "172.16.0.13",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 9.13
+        },
+        {
+          "bridge": "v225",
+          "ip": "172.16.0.9",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 7.01
+        },
+        {
+          "bridge": "v227",
+          "ip": "172.16.0.134",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 29.36
+        },
+        {
+          "bridge": "v228",
+          "ip": "172.16.0.2",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 3.325
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Los Angeles",
+        "latitude": 34.0522,
+        "longitude": -118.2437
+      }
+    },
+    "ntt-por": {
+      "hostname": "ntt-por",
+      "loopback_ip": "26.0.1.1/32",
+      "roles": [
+        "ABR"
+      ],
+      "ospf_areas": [
+        "0,10"
+      ],
+      "customer_net": null,
+      "isp_name": "NTT",
+      "asn": 2914,
+      "public_block": "26.0.0.0/16",
+      "latitude": 45.5152,
+      "longitude": -122.6784,
+      "interfaces": [
+        {
+          "bridge": "v226",
+          "ip": "172.16.0.5",
+          "cidr": "30",
+          "ospf_area": "10",
+          "latency_ms": 7.06
+        },
+        {
+          "bridge": "v228",
+          "ip": "172.16.0.1",
+          "cidr": "30",
+          "ospf_area": "0",
+          "latency_ms": 3.325
+        }
+      ],
+      "bgp_neighbors": [
+        {
+          "hostname": "ntt-del",
+          "ip": "26.0.1.17",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        },
+        {
+          "hostname": "ntt-ash",
+          "ip": "26.0.1.4",
+          "asn": 2914,
+          "type": "INTERNAL_LINK"
+        }
+      ],
+      "location": {
+        "name": "Portland",
+        "latitude": 45.5152,
+        "longitude": -122.6784
+      }
+    }
+  },
+  "core_dns": {
+    "root-a": {
+      "hostname": "root-a",
+      "image": "http://download.proxmox.com/images/system/alpine-3.22-default_20250617_amd64.tar.xz",
+      "role": "root-dns",
+      "zones": [
+        "."
+      ],
+      "cores": 2,
+      "memory": 512,
+      "disk": 32,
+      "ip_address": "198.41.0.4/24",
+      "router": "are-ash",
+      "subnet": "198.41.0.0/24",
+      "interfaces": [
+        {
+          "bridge": "v259",
+          "ip": "198.41.0.4/24"
+        }
+      ]
+    },
+    "root-k": {
+      "hostname": "root-k",
+      "image": "http://download.proxmox.com/images/system/alpine-3.22-default_20250617_amd64.tar.xz",
+      "role": "root-dns",
+      "zones": [
+        "."
+      ],
+      "cores": 2,
+      "memory": 512,
+      "disk": 32,
+      "ip_address": "193.0.14.129/24",
+      "router": "lum-lon",
+      "subnet": "193.0.14.0/24",
+      "interfaces": [
+        {
+          "bridge": "v238",
+          "ip": "193.0.14.129/24"
+        }
+      ]
+    },
+    "root-m": {
+      "hostname": "root-m",
+      "image": "http://download.proxmox.com/images/system/alpine-3.22-default_20250617_amd64.tar.xz",
+      "role": "root-dns",
+      "zones": [
+        "."
+      ],
+      "cores": 2,
+      "memory": 512,
+      "disk": 32,
+      "ip_address": "202.12.27.33/24",
+      "router": "ntt-tok",
+      "subnet": "202.12.27.0/24",
+      "interfaces": [
+        {
+          "bridge": "v264",
+          "ip": "202.12.27.33/24"
+        }
+      ]
+    },
+    "dns-gtld": {
+      "hostname": "dns-gtld",
+      "image": "http://download.proxmox.com/images/system/alpine-3.22-default_20250617_amd64.tar.xz",
+      "role": "tld",
+      "zones": [
+        "com,net,org"
+      ],
+      "cores": 2,
+      "memory": 512,
+      "disk": 32,
+      "ip_address": "216.239.34.10/24",
+      "router": "lum-nyc",
+      "subnet": "216.239.34.0/24",
+      "interfaces": [
+        {
+          "bridge": "v242",
+          "ip": "216.239.34.10/24"
+        }
+      ]
+    },
+    "dns-gov": {
+      "hostname": "dns-gov",
+      "image": "http://download.proxmox.com/images/system/alpine-3.22-default_20250617_amd64.tar.xz",
+      "role": "tld",
+      "zones": [
+        "gov,mil"
+      ],
+      "cores": 2,
+      "memory": 512,
+      "disk": 32,
+      "ip_address": "156.154.100.2/24",
+      "router": "lum-ash",
+      "subnet": "156.154.100.0/24",
+      "interfaces": [
+        {
+          "bridge": "v241",
+          "ip": "156.154.100.2/24"
+        }
+      ]
+    },
+    "dns-ru": {
+      "hostname": "dns-ru",
+      "image": "http://download.proxmox.com/images/system/alpine-3.22-default_20250617_amd64.tar.xz",
+      "role": "tld",
+      "zones": [
+        "ru"
+      ],
+      "cores": 2,
+      "memory": 512,
+      "disk": 32,
+      "ip_address": "193.232.192.10/24",
+      "router": "ntt-mos",
+      "subnet": "193.232.192.0/24",
+      "interfaces": [
+        {
+          "bridge": "v275",
+          "ip": "193.232.192.10/24"
+        }
+      ]
+    },
+    "dns-cn": {
+      "hostname": "dns-cn",
+      "image": "http://download.proxmox.com/images/system/alpine-3.22-default_20250617_amd64.tar.xz",
+      "role": "tld",
+      "zones": [
+        "cn"
+      ],
+      "cores": 2,
+      "memory": 512,
+      "disk": 32,
+      "ip_address": "114.114.114.114/24",
+      "router": "are-hkg",
+      "subnet": "114.114.114.0/24",
+      "interfaces": [
+        {
+          "bridge": "v249",
+          "ip": "114.114.114.114/24"
+        }
+      ]
+    },
+    "dns-apnic": {
+      "hostname": "dns-apnic",
+      "image": "http://download.proxmox.com/images/system/alpine-3.22-default_20250617_amd64.tar.xz",
+      "role": "tld",
+      "zones": [
+        "jp,kr,sg,io,au"
+      ],
+      "cores": 2,
+      "memory": 512,
+      "disk": 32,
+      "ip_address": "210.138.175.244/24",
+      "router": "lum-tok",
+      "subnet": "210.138.175.0/24",
+      "interfaces": [
+        {
+          "bridge": "v230",
+          "ip": "210.138.175.244/24"
+        }
+      ]
+    },
+    "dns-lacnic": {
+      "hostname": "dns-lacnic",
+      "image": "http://download.proxmox.com/images/system/alpine-3.22-default_20250617_amd64.tar.xz",
+      "role": "tld",
+      "zones": [
+        "br,mx,ar,ai"
+      ],
+      "cores": 2,
+      "memory": 512,
+      "disk": 32,
+      "ip_address": "156.154.101.2/24",
+      "router": "ntt-brs",
+      "subnet": "156.154.101.0/24",
+      "interfaces": [
+        {
+          "bridge": "v277",
+          "ip": "156.154.101.2/24"
+        }
+      ]
+    },
+    "dns-aws": {
+      "hostname": "dns-aws",
+      "image": "http://download.proxmox.com/images/system/alpine-3.22-default_20250617_amd64.tar.xz",
+      "role": "hosting",
+      "zones": [],
+      "cores": 2,
+      "memory": 512,
+      "disk": 32,
+      "ip_address": "205.251.192.123/24",
+      "router": "ntt-ash",
+      "subnet": "205.251.192.0/24",
+      "interfaces": [
+        {
+          "bridge": "v280",
+          "ip": "205.251.192.123/24"
+        }
+      ]
+    },
+    "dns-namecheap": {
+      "hostname": "dns-namecheap",
+      "image": "http://download.proxmox.com/images/system/alpine-3.22-default_20250617_amd64.tar.xz",
+      "role": "hosting",
+      "zones": [],
+      "cores": 2,
+      "memory": 512,
+      "disk": 32,
+      "ip_address": "198.54.100.10/24",
+      "router": "are-den",
+      "subnet": "198.54.100.0/24",
+      "interfaces": [
+        {
+          "bridge": "v261",
+          "ip": "198.54.100.10/24"
+        }
+      ]
+    },
+    "dns-ovh": {
+      "hostname": "dns-ovh",
+      "image": "http://download.proxmox.com/images/system/alpine-3.22-default_20250617_amd64.tar.xz",
+      "role": "hosting",
+      "zones": [],
+      "cores": 2,
+      "memory": 512,
+      "disk": 32,
+      "ip_address": "213.186.33.99/24",
+      "router": "are-par",
+      "subnet": "213.186.33.0/24",
+      "interfaces": [
+        {
+          "bridge": "v256",
+          "ip": "213.186.33.99/24"
+        }
+      ]
+    },
+    "dns-cloudflare": {
+      "hostname": "dns-cloudflare",
+      "image": "http://download.proxmox.com/images/system/alpine-3.22-default_20250617_amd64.tar.xz",
+      "role": "hosting",
+      "zones": [],
+      "cores": 2,
+      "memory": 512,
+      "disk": 32,
+      "ip_address": "108.162.192.9/24",
+      "router": "are-sfr",
+      "subnet": "108.162.192.0/24",
+      "interfaces": [
+        {
+          "bridge": "v262",
+          "ip": "108.162.192.9/24"
+        }
+      ]
+    },
+    "dns-alibaba": {
+      "hostname": "dns-alibaba",
+      "image": "http://download.proxmox.com/images/system/alpine-3.22-default_20250617_amd64.tar.xz",
+      "role": "hosting",
+      "zones": [],
+      "cores": 2,
+      "memory": 512,
+      "disk": 32,
+      "ip_address": "223.5.5.5/24",
+      "router": "ntt-hkg",
+      "subnet": "223.5.5.0/24",
+      "interfaces": [
+        {
+          "bridge": "v270",
+          "ip": "223.5.5.5/24"
+        }
+      ]
+    },
+    "dns-google": {
+      "hostname": "dns-google",
+      "image": "http://download.proxmox.com/images/system/alpine-3.22-default_20250617_amd64.tar.xz",
+      "role": "resolver",
+      "zones": [],
+      "cores": 2,
+      "memory": 512,
+      "disk": 32,
+      "ip_address": "8.8.8.8/24",
+      "router": "lum-sfr",
+      "subnet": "8.8.8.0/24",
+      "interfaces": [
+        {
+          "bridge": "v245",
+          "ip": "8.8.8.8/24"
+        }
+      ]
+    },
+    "dns-quad9": {
+      "hostname": "dns-quad9",
+      "image": "http://download.proxmox.com/images/system/alpine-3.22-default_20250617_amd64.tar.xz",
+      "role": "resolver",
+      "zones": [],
+      "cores": 2,
+      "memory": 512,
+      "disk": 32,
+      "ip_address": "9.9.9.9/24",
+      "router": "are-hel",
+      "subnet": "9.9.9.0/24",
+      "interfaces": [
+        {
+          "bridge": "v254",
+          "ip": "9.9.9.9/24"
+        }
+      ]
+    },
+    "dns-krnic": {
+      "hostname": "dns-krnic",
+      "image": "http://download.proxmox.com/images/system/alpine-3.22-default_20250617_amd64.tar.xz",
+      "role": "resolver",
+      "zones": [],
+      "cores": 2,
+      "memory": 512,
+      "disk": 32,
+      "ip_address": "118.221.112.10/24",
+      "router": "are-seo",
+      "subnet": "118.221.112.0/24",
+      "interfaces": [
+        {
+          "bridge": "v248",
+          "ip": "118.221.112.10/24"
+        }
+      ]
+    },
+    "dns-yandex": {
+      "hostname": "dns-yandex",
+      "image": "http://download.proxmox.com/images/system/alpine-3.22-default_20250617_amd64.tar.xz",
+      "role": "resolver",
+      "zones": [],
+      "cores": 2,
+      "memory": 512,
+      "disk": 32,
+      "ip_address": "77.88.8.8/24",
+      "router": "ntt-krs",
+      "subnet": "77.88.8.0/24",
+      "interfaces": [
+        {
+          "bridge": "v271",
+          "ip": "77.88.8.8/24"
+        }
+      ]
+    }
+  },
+  "core_ca": {
+    "ca-cyberlock": {
+      "hostname": "ca-cyberlock",
+      "image": "http://download.proxmox.com/images/system/alpine-3.22-default_20250617_amd64.tar.xz",
+      "role": "ca",
+      "ca_name": "CyberLock",
+      "cores": 2,
+      "memory": 512,
+      "disk": 32,
+      "ip_address": "194.169.218.10/24",
+      "router": "lum-fra",
+      "subnet": "194.169.218.0/24",
+      "interfaces": [
+        {
+          "bridge": "v282",
+          "ip": "194.169.218.10/24"
+        }
+      ]
+    }
+  },
+  "networks": {
+    "v100": {
+      "subnet": "172.16.0.144/30",
+      "description": "p2p link between lum-tok and lum-seo",
+      "distance_km": 1149.36,
+      "latency_ms": 2.875
+    },
+    "v101": {
+      "subnet": "172.16.0.140/30",
+      "description": "p2p link between lum-hkg and lum-tok",
+      "distance_km": 2875.63,
+      "latency_ms": 7.19
+    },
+    "v102": {
+      "subnet": "172.16.0.132/30",
+      "description": "p2p link between lum-man and lum-sin",
+      "distance_km": 2395.25,
+      "latency_ms": 5.99
+    },
+    "v103": {
+      "subnet": "172.16.0.128/30",
+      "description": "p2p link between lum-hkg and lum-sin",
+      "distance_km": 2591.09,
+      "latency_ms": 6.48
+    },
+    "v104": {
+      "subnet": "172.16.0.124/30",
+      "description": "p2p link between lum-hkg and lum-man",
+      "distance_km": 1119.11,
+      "latency_ms": 2.8
+    },
+    "v105": {
+      "subnet": "26.0.0.8/30",
+      "description": "p2p link between ntt-hkg and lum-hkg",
+      "distance_km": 0.0,
+      "latency_ms": 0.0
+    },
+    "v106": {
+      "subnet": "7.0.0.20/30",
+      "description": "p2p link between are-hkg and lum-hkg",
+      "distance_km": 0.0,
+      "latency_ms": 0.0
+    },
+    "v107": {
+      "subnet": "172.16.0.120/30",
+      "description": "p2p link between lum-mum and lum-hkg",
+      "distance_km": 4297.27,
+      "latency_ms": 10.745
+    },
+    "v108": {
+      "subnet": "172.16.0.116/30",
+      "description": "p2p link between lum-dub and lum-mum",
+      "distance_km": 1935.09,
+      "latency_ms": 4.84
+    },
+    "v109": {
+      "subnet": "172.16.0.112/30",
+      "description": "p2p link between lum-dji and lum-mum",
+      "distance_km": 3290.09,
+      "latency_ms": 8.225
+    },
+    "v110": {
+      "subnet": "172.16.0.108/30",
+      "description": "p2p link between lum-dji and lum-joh",
+      "distance_km": 4508.47,
+      "latency_ms": 11.27
+    },
+    "v111": {
+      "subnet": "172.16.0.100/30",
+      "description": "p2p link between lum-lag and lum-joh",
+      "distance_km": 4516.47,
+      "latency_ms": 11.29
+    },
+    "v112": {
+      "subnet": "172.16.0.96/30",
+      "description": "p2p link between lum-lag and lum-alg",
+      "distance_km": 3353.8,
+      "latency_ms": 8.385
+    },
+    "v113": {
+      "subnet": "172.16.0.92/30",
+      "description": "p2p link between lum-for and lum-lag",
+      "distance_km": 4788.44,
+      "latency_ms": 11.97
+    },
+    "v114": {
+      "subnet": "172.16.0.88/30",
+      "description": "p2p link between lum-cai and lum-lag",
+      "distance_km": 3909.45,
+      "latency_ms": 9.775
+    },
+    "v115": {
+      "subnet": "172.16.0.104/30",
+      "description": "p2p link between lum-lag and lum-dji",
+      "distance_km": 4400.7,
+      "latency_ms": 11.0
+    },
+    "v116": {
+      "subnet": "172.16.0.84/30",
+      "description": "p2p link between lum-cai and lum-dji",
+      "distance_km": 2392.46,
+      "latency_ms": 5.98
+    },
+    "v117": {
+      "subnet": "172.16.0.80/30",
+      "description": "p2p link between lum-cai and lum-dub",
+      "distance_km": 2423.35,
+      "latency_ms": 6.06
+    },
+    "v118": {
+      "subnet": "26.0.0.4/30",
+      "description": "p2p link between ntt-cai and lum-cai",
+      "distance_km": 0.0,
+      "latency_ms": 0.0
+    },
+    "v119": {
+      "subnet": "7.0.0.12/30",
+      "description": "p2p link between are-cai and lum-cai",
+      "distance_km": 0.0,
+      "latency_ms": 0.0
+    },
+    "v120": {
+      "subnet": "172.16.0.76/30",
+      "description": "p2p link between lum-mos and lum-cai",
+      "distance_km": 2902.99,
+      "latency_ms": 7.255
+    },
+    "v121": {
+      "subnet": "172.16.0.72/30",
+      "description": "p2p link between lum-lon and lum-cai",
+      "distance_km": 3511.31,
+      "latency_ms": 8.78
+    },
+    "v122": {
+      "subnet": "172.16.0.68/30",
+      "description": "p2p link between lum-hel and lum-mos",
+      "distance_km": 892.29,
+      "latency_ms": 2.23
+    },
+    "v123": {
+      "subnet": "172.16.0.64/30",
+      "description": "p2p link between lum-fra and lum-mos",
+      "distance_km": 2021.1,
+      "latency_ms": 5.055
+    },
+    "v124": {
+      "subnet": "172.16.0.60/30",
+      "description": "p2p link between lum-fra and lum-hel",
+      "distance_km": 1514.6,
+      "latency_ms": 3.785
+    },
+    "v125": {
+      "subnet": "172.16.0.56/30",
+      "description": "p2p link between lum-lon and lum-fra",
+      "distance_km": 637.77,
+      "latency_ms": 1.595
+    },
+    "v126": {
+      "subnet": "7.0.0.8/30",
+      "description": "p2p link between are-lon and lum-lon",
+      "distance_km": 0.0,
+      "latency_ms": 0.0
+    },
+    "v127": {
+      "subnet": "172.16.0.52/30",
+      "description": "p2p link between lum-ash and lum-lon",
+      "distance_km": 5917.27,
+      "latency_ms": 14.795
+    },
+    "v128": {
+      "subnet": "172.16.0.48/30",
+      "description": "p2p link between lum-lim and lum-brs",
+      "distance_km": 3172.03,
+      "latency_ms": 7.93
+    },
+    "v129": {
+      "subnet": "172.16.0.44/30",
+      "description": "p2p link between lum-for and lum-brs",
+      "distance_km": 1686.95,
+      "latency_ms": 4.215
+    },
+    "v130": {
+      "subnet": "172.16.0.40/30",
+      "description": "p2p link between lum-for and lum-lim",
+      "distance_km": 4336.41,
+      "latency_ms": 10.84
+    },
+    "v131": {
+      "subnet": "172.16.0.36/30",
+      "description": "p2p link between lum-ash and lum-for",
+      "distance_km": 6208.11,
+      "latency_ms": 15.52
+    },
+    "v132": {
+      "subnet": "26.0.0.0/30",
+      "description": "p2p link between ntt-ash and lum-ash",
+      "distance_km": 0.0,
+      "latency_ms": 0.0
+    },
+    "v133": {
+      "subnet": "7.0.0.0/30",
+      "description": "p2p link between are-ash and lum-ash",
+      "distance_km": 0.0,
+      "latency_ms": 0.0
+    },
+    "v134": {
+      "subnet": "172.16.0.20/30",
+      "description": "p2p link between lum-kck and lum-ash",
+      "distance_km": 1473.26,
+      "latency_ms": 3.685
+    },
+    "v135": {
+      "subnet": "172.16.0.28/30",
+      "description": "p2p link between lum-ash and lum-nyc",
+      "distance_km": 350.24,
+      "latency_ms": 0.875
+    },
+    "v136": {
+      "subnet": "172.16.0.32/30",
+      "description": "p2p link between lum-nyc and lum-chi",
+      "distance_km": 1144.29,
+      "latency_ms": 2.86
+    },
+    "v137": {
+      "subnet": "172.16.0.24/30",
+      "description": "p2p link between lum-ash and lum-chi",
+      "distance_km": 913.42,
+      "latency_ms": 2.285
+    },
+    "v138": {
+      "subnet": "172.16.0.8/30",
+      "description": "p2p link between lum-por and lum-chi",
+      "distance_km": 2823.72,
+      "latency_ms": 7.06
+    },
+    "v139": {
+      "subnet": "172.16.0.0/30",
+      "description": "p2p link between lum-sfr and lum-chi",
+      "distance_km": 2984.91,
+      "latency_ms": 7.46
+    },
+    "v140": {
+      "subnet": "172.16.0.16/30",
+      "description": "p2p link between lum-kck and lum-mex",
+      "distance_km": 2230.22,
+      "latency_ms": 5.575
+    },
+    "v141": {
+      "subnet": "172.16.0.12/30",
+      "description": "p2p link between lum-sfr and lum-kck",
+      "distance_km": 2419.86,
+      "latency_ms": 6.05
+    },
+    "v142": {
+      "subnet": "172.16.0.148/30",
+      "description": "p2p link between lum-tok and lum-por",
+      "distance_km": 7796.69,
+      "latency_ms": 19.49
+    },
+    "v143": {
+      "subnet": "172.16.0.4/30",
+      "description": "p2p link between lum-sfr and lum-por",
+      "distance_km": 860.95,
+      "latency_ms": 2.15
+    },
+    "v144": {
+      "subnet": "172.16.0.136/30",
+      "description": "p2p link between lum-hkg and lum-sfr",
+      "distance_km": 11095.92,
+      "latency_ms": 27.74
+    },
+    "v145": {
+      "subnet": "172.16.0.160/30",
+      "description": "p2p link between are-syd and are-ade",
+      "distance_km": 1162.04,
+      "latency_ms": 2.905
+    },
+    "v146": {
+      "subnet": "172.16.0.152/30",
+      "description": "p2p link between are-per and are-ade",
+      "distance_km": 2131.12,
+      "latency_ms": 5.33
+    },
+    "v147": {
+      "subnet": "172.16.0.156/30",
+      "description": "p2p link between are-per and are-syd",
+      "distance_km": 3290.58,
+      "latency_ms": 8.225
+    },
+    "v148": {
+      "subnet": "172.16.0.148/30",
+      "description": "p2p link between are-sin and are-per",
+      "distance_km": 3907.76,
+      "latency_ms": 9.77
+    },
+    "v149": {
+      "subnet": "172.16.0.140/30",
+      "description": "p2p link between are-hkg and are-sin",
+      "distance_km": 2591.09,
+      "latency_ms": 6.48
+    },
+    "v150": {
+      "subnet": "172.16.0.144/30",
+      "description": "p2p link between are-sin and are-man",
+      "distance_km": 2395.25,
+      "latency_ms": 5.99
+    },
+    "v151": {
+      "subnet": "172.16.0.136/30",
+      "description": "p2p link between are-hkg and are-man",
+      "distance_km": 1119.11,
+      "latency_ms": 2.8
+    },
+    "v152": {
+      "subnet": "172.16.0.128/30",
+      "description": "p2p link between are-hkg and are-seo",
+      "distance_km": 2092.35,
+      "latency_ms": 5.23
+    },
+    "v153": {
+      "subnet": "172.16.0.124/30",
+      "description": "p2p link between are-del and are-hkg",
+      "distance_km": 3760.72,
+      "latency_ms": 9.4
+    },
+    "v154": {
+      "subnet": "172.16.0.116/30",
+      "description": "p2p link between are-del and are-che",
+      "distance_km": 1755.8,
+      "latency_ms": 4.39
+    },
+    "v155": {
+      "subnet": "172.16.0.120/30",
+      "description": "p2p link between are-che and are-mum",
+      "distance_km": 1033.1,
+      "latency_ms": 2.585
+    },
+    "v156": {
+      "subnet": "172.16.0.112/30",
+      "description": "p2p link between are-del and are-mum",
+      "distance_km": 1148.09,
+      "latency_ms": 2.87
+    },
+    "v157": {
+      "subnet": "172.16.0.108/30",
+      "description": "p2p link between are-dub and are-del",
+      "distance_km": 2204.79,
+      "latency_ms": 5.51
+    },
+    "v158": {
+      "subnet": "172.16.0.100/30",
+      "description": "p2p link between are-cai and are-dub",
+      "distance_km": 2423.35,
+      "latency_ms": 6.06
+    },
+    "v159": {
+      "subnet": "172.16.0.104/30",
+      "description": "p2p link between are-dub and are-dji",
+      "distance_km": 1979.41,
+      "latency_ms": 4.95
+    },
+    "v160": {
+      "subnet": "172.16.0.96/30",
+      "description": "p2p link between are-cai and are-dji",
+      "distance_km": 2392.46,
+      "latency_ms": 5.98
+    },
+    "v161": {
+      "subnet": "172.16.0.92/30",
+      "description": "p2p link between are-lag and are-dji",
+      "distance_km": 4400.7,
+      "latency_ms": 11.0
+    },
+    "v162": {
+      "subnet": "172.16.0.88/30",
+      "description": "p2p link between are-for and are-lag",
+      "distance_km": 4788.44,
+      "latency_ms": 11.97
+    },
+    "v163": {
+      "subnet": "172.16.0.84/30",
+      "description": "p2p link between are-cai and are-lag",
+      "distance_km": 3909.45,
+      "latency_ms": 9.775
+    },
+    "v164": {
+      "subnet": "172.16.0.80/30",
+      "description": "p2p link between are-fra and are-cai",
+      "distance_km": 2919.36,
+      "latency_ms": 7.3
+    },
+    "v165": {
+      "subnet": "172.16.0.76/30",
+      "description": "p2p link between are-hel and are-mos",
+      "distance_km": 892.29,
+      "latency_ms": 2.23
+    },
+    "v166": {
+      "subnet": "172.16.0.72/30",
+      "description": "p2p link between are-fra and are-mos",
+      "distance_km": 2021.1,
+      "latency_ms": 5.055
+    },
+    "v167": {
+      "subnet": "172.16.0.68/30",
+      "description": "p2p link between are-fra and are-hel",
+      "distance_km": 1514.6,
+      "latency_ms": 3.785
+    },
+    "v168": {
+      "subnet": "172.16.0.60/30",
+      "description": "p2p link between are-lon and are-fra",
+      "distance_km": 637.77,
+      "latency_ms": 1.595
+    },
+    "v169": {
+      "subnet": "172.16.0.56/30",
+      "description": "p2p link between are-par and are-lis",
+      "distance_km": 1452.93,
+      "latency_ms": 3.63
+    },
+    "v170": {
+      "subnet": "172.16.0.48/30",
+      "description": "p2p link between are-lon and are-lis",
+      "distance_km": 1584.99,
+      "latency_ms": 3.96
+    },
+    "v171": {
+      "subnet": "172.16.0.64/30",
+      "description": "p2p link between are-fra and are-par",
+      "distance_km": 477.89,
+      "latency_ms": 1.195
+    },
+    "v172": {
+      "subnet": "172.16.0.52/30",
+      "description": "p2p link between are-lon and are-par",
+      "distance_km": 343.56,
+      "latency_ms": 0.86
+    },
+    "v173": {
+      "subnet": "172.16.0.44/30",
+      "description": "p2p link between are-ash and are-lon",
+      "distance_km": 5917.27,
+      "latency_ms": 14.795
+    },
+    "v174": {
+      "subnet": "172.16.0.164/30",
+      "description": "p2p link between are-syd and are-san",
+      "distance_km": 11346.72,
+      "latency_ms": 28.365
+    },
+    "v175": {
+      "subnet": "172.16.0.36/30",
+      "description": "p2p link between are-bog and are-san",
+      "distance_km": 4258.28,
+      "latency_ms": 10.645
+    },
+    "v176": {
+      "subnet": "172.16.0.32/30",
+      "description": "p2p link between are-for and are-bog",
+      "distance_km": 4058.78,
+      "latency_ms": 10.145
+    },
+    "v177": {
+      "subnet": "172.16.0.40/30",
+      "description": "p2p link between are-san and are-for",
+      "distance_km": 4691.83,
+      "latency_ms": 11.73
+    },
+    "v178": {
+      "subnet": "172.16.0.28/30",
+      "description": "p2p link between are-ash and are-for",
+      "distance_km": 6208.11,
+      "latency_ms": 15.52
+    },
+    "v179": {
+      "subnet": "172.16.0.24/30",
+      "description": "p2p link between are-chi and are-ash",
+      "distance_km": 913.42,
+      "latency_ms": 2.285
+    },
+    "v180": {
+      "subnet": "172.16.0.16/30",
+      "description": "p2p link between are-den and are-ash",
+      "distance_km": 2355.42,
+      "latency_ms": 5.89
+    },
+    "v181": {
+      "subnet": "172.16.0.20/30",
+      "description": "p2p link between are-den and are-chi",
+      "distance_km": 1477.7,
+      "latency_ms": 3.695
+    },
+    "v182": {
+      "subnet": "172.16.0.8/30",
+      "description": "p2p link between are-sfr and are-chi",
+      "distance_km": 2984.91,
+      "latency_ms": 7.46
+    },
+    "v183": {
+      "subnet": "172.16.0.12/30",
+      "description": "p2p link between are-lax and are-den",
+      "distance_km": 1335.52,
+      "latency_ms": 3.34
+    },
+    "v184": {
+      "subnet": "172.16.0.4/30",
+      "description": "p2p link between are-sfr and are-den",
+      "distance_km": 1524.5,
+      "latency_ms": 3.81
+    },
+    "v185": {
+      "subnet": "172.16.0.132/30",
+      "description": "p2p link between are-hkg and are-lax",
+      "distance_km": 11649.37,
+      "latency_ms": 29.125
+    },
+    "v186": {
+      "subnet": "172.16.0.0/30",
+      "description": "p2p link between are-sfr and are-lax",
+      "distance_km": 559.12,
+      "latency_ms": 1.4
+    },
+    "v187": {
+      "subnet": "172.16.0.152/30",
+      "description": "p2p link between ntt-krs and ntt-vla",
+      "distance_km": 3101.0,
+      "latency_ms": 7.755
+    },
+    "v188": {
+      "subnet": "172.16.0.148/30",
+      "description": "p2p link between ntt-tok and ntt-vla",
+      "distance_km": 1061.74,
+      "latency_ms": 2.655
+    },
+    "v189": {
+      "subnet": "172.16.0.136/30",
+      "description": "p2p link between ntt-hkg and ntt-tok",
+      "distance_km": 2875.63,
+      "latency_ms": 7.19
+    },
+    "v190": {
+      "subnet": "172.16.0.144/30",
+      "description": "p2p link between ntt-tok and ntt-seo",
+      "distance_km": 1149.36,
+      "latency_ms": 2.875
+    },
+    "v191": {
+      "subnet": "172.16.0.140/30",
+      "description": "p2p link between ntt-hkg and ntt-seo",
+      "distance_km": 2092.35,
+      "latency_ms": 5.23
+    },
+    "v192": {
+      "subnet": "172.16.0.124/30",
+      "description": "p2p link between ntt-dar and ntt-syd",
+      "distance_km": 3148.5,
+      "latency_ms": 7.87
+    },
+    "v193": {
+      "subnet": "172.16.0.128/30",
+      "description": "p2p link between ntt-syd and ntt-per",
+      "distance_km": 3290.58,
+      "latency_ms": 8.225
+    },
+    "v194": {
+      "subnet": "172.16.0.116/30",
+      "description": "p2p link between ntt-sin and ntt-per",
+      "distance_km": 3907.76,
+      "latency_ms": 9.77
+    },
+    "v195": {
+      "subnet": "172.16.0.120/30",
+      "description": "p2p link between ntt-per and ntt-dar",
+      "distance_km": 2653.03,
+      "latency_ms": 6.635
+    },
+    "v196": {
+      "subnet": "172.16.0.112/30",
+      "description": "p2p link between ntt-man and ntt-dar",
+      "distance_km": 3199.24,
+      "latency_ms": 8.0
+    },
+    "v197": {
+      "subnet": "172.16.0.108/30",
+      "description": "p2p link between ntt-man and ntt-sin",
+      "distance_km": 2395.25,
+      "latency_ms": 5.99
+    },
+    "v198": {
+      "subnet": "172.16.0.104/30",
+      "description": "p2p link between ntt-hkg and ntt-sin",
+      "distance_km": 2591.09,
+      "latency_ms": 6.48
+    },
+    "v199": {
+      "subnet": "172.16.0.100/30",
+      "description": "p2p link between ntt-hkg and ntt-man",
+      "distance_km": 1119.11,
+      "latency_ms": 2.8
+    },
+    "v200": {
+      "subnet": "7.0.0.24/30",
+      "description": "p2p link between are-hkg and ntt-hkg",
+      "distance_km": 0.0,
+      "latency_ms": 0.0
+    },
+    "v201": {
+      "subnet": "172.16.0.96/30",
+      "description": "p2p link between ntt-del and ntt-hkg",
+      "distance_km": 3760.72,
+      "latency_ms": 9.4
+    },
+    "v202": {
+      "subnet": "172.16.0.80/30",
+      "description": "p2p link between ntt-mos and ntt-krs",
+      "distance_km": 3353.74,
+      "latency_ms": 8.385
+    },
+    "v203": {
+      "subnet": "172.16.0.92/30",
+      "description": "p2p link between ntt-del and ntt-che",
+      "distance_km": 1755.8,
+      "latency_ms": 4.39
+    },
+    "v204": {
+      "subnet": "172.16.0.88/30",
+      "description": "p2p link between ntt-krs and ntt-del",
+      "distance_km": 3290.87,
+      "latency_ms": 8.225
+    },
+    "v205": {
+      "subnet": "172.16.0.84/30",
+      "description": "p2p link between ntt-dub and ntt-del",
+      "distance_km": 2204.79,
+      "latency_ms": 5.51
+    },
+    "v206": {
+      "subnet": "172.16.0.56/30",
+      "description": "p2p link between ntt-cai and ntt-dub",
+      "distance_km": 2423.35,
+      "latency_ms": 6.06
+    },
+    "v207": {
+      "subnet": "172.16.0.64/30",
+      "description": "p2p link between ntt-dji and ntt-joh",
+      "distance_km": 4508.47,
+      "latency_ms": 11.27
+    },
+    "v208": {
+      "subnet": "172.16.0.44/30",
+      "description": "p2p link between ntt-bai and ntt-joh",
+      "distance_km": 8087.94,
+      "latency_ms": 20.22
+    },
+    "v209": {
+      "subnet": "172.16.0.72/30",
+      "description": "p2p link between ntt-joh and ntt-lag",
+      "distance_km": 4516.47,
+      "latency_ms": 11.29
+    },
+    "v210": {
+      "subnet": "172.16.0.68/30",
+      "description": "p2p link between ntt-dji and ntt-lag",
+      "distance_km": 4400.7,
+      "latency_ms": 11.0
+    },
+    "v211": {
+      "subnet": "172.16.0.60/30",
+      "description": "p2p link between ntt-cai and ntt-dji",
+      "distance_km": 2392.46,
+      "latency_ms": 5.98
+    },
+    "v212": {
+      "subnet": "172.16.0.76/30",
+      "description": "p2p link between ntt-kyv and ntt-mos",
+      "distance_km": 755.74,
+      "latency_ms": 1.89
+    },
+    "v213": {
+      "subnet": "172.16.0.52/30",
+      "description": "p2p link between ntt-cai and ntt-kyv",
+      "distance_km": 2269.79,
+      "latency_ms": 5.675
+    },
+    "v214": {
+      "subnet": "7.0.0.16/30",
+      "description": "p2p link between are-cai and ntt-cai",
+      "distance_km": 0.0,
+      "latency_ms": 0.0
+    },
+    "v215": {
+      "subnet": "172.16.0.48/30",
+      "description": "p2p link between ntt-lis and ntt-cai",
+      "distance_km": 3795.89,
+      "latency_ms": 9.49
+    },
+    "v216": {
+      "subnet": "172.16.0.40/30",
+      "description": "p2p link between ntt-san and ntt-bai",
+      "distance_km": 1138.92,
+      "latency_ms": 2.845
+    },
+    "v217": {
+      "subnet": "172.16.0.36/30",
+      "description": "p2p link between ntt-brs and ntt-bai",
+      "distance_km": 2339.46,
+      "latency_ms": 5.85
+    },
+    "v218": {
+      "subnet": "172.16.0.32/30",
+      "description": "p2p link between ntt-lim and ntt-brs",
+      "distance_km": 3172.03,
+      "latency_ms": 7.93
+    },
+    "v219": {
+      "subnet": "172.16.0.28/30",
+      "description": "p2p link between ntt-san and ntt-lim",
+      "distance_km": 2466.4,
+      "latency_ms": 6.165
+    },
+    "v220": {
+      "subnet": "172.16.0.16/30",
+      "description": "p2p link between ntt-lax and ntt-san",
+      "distance_km": 8998.38,
+      "latency_ms": 22.495
+    },
+    "v221": {
+      "subnet": "172.16.0.24/30",
+      "description": "p2p link between ntt-ash and ntt-lis",
+      "distance_km": 5766.34,
+      "latency_ms": 14.415
+    },
+    "v222": {
+      "subnet": "7.0.0.4/30",
+      "description": "p2p link between are-ash and ntt-ash",
+      "distance_km": 0.0,
+      "latency_ms": 0.0
+    },
+    "v223": {
+      "subnet": "172.16.0.20/30",
+      "description": "p2p link between ntt-chi and ntt-ash",
+      "distance_km": 913.42,
+      "latency_ms": 2.285
+    },
+    "v224": {
+      "subnet": "172.16.0.12/30",
+      "description": "p2p link between ntt-lax and ntt-ash",
+      "distance_km": 3652.01,
+      "latency_ms": 9.13
+    },
+    "v225": {
+      "subnet": "172.16.0.8/30",
+      "description": "p2p link between ntt-lax and ntt-chi",
+      "distance_km": 2803.97,
+      "latency_ms": 7.01
+    },
+    "v226": {
+      "subnet": "172.16.0.4/30",
+      "description": "p2p link between ntt-por and ntt-chi",
+      "distance_km": 2823.72,
+      "latency_ms": 7.06
+    },
+    "v227": {
+      "subnet": "172.16.0.132/30",
+      "description": "p2p link between ntt-man and ntt-lax",
+      "distance_km": 11743.16,
+      "latency_ms": 29.36
+    },
+    "v228": {
+      "subnet": "172.16.0.0/30",
+      "description": "p2p link between ntt-por and ntt-lax",
+      "distance_km": 1329.2,
+      "latency_ms": 3.325
+    },
+    "v229": {
+      "subnet": "203.254.80.0/24",
+      "description": "Customer network for lum-seo"
+    },
+    "v230": {
+      "subnet": "210.138.175.0/24",
+      "description": "Customer network for lum-tok"
+    },
+    "v231": {
+      "subnet": "203.127.192.0/24",
+      "description": "Customer network for lum-sin"
+    },
+    "v232": {
+      "subnet": "202.137.96.0/24",
+      "description": "Customer network for lum-man"
+    },
+    "v233": {
+      "subnet": "41.150.128.0/24",
+      "description": "Customer network for lum-joh"
+    },
+    "v234": {
+      "subnet": "41.222.192.0/24",
+      "description": "Customer network for lum-alg"
+    },
+    "v235": {
+      "subnet": "212.77.192.0/24",
+      "description": "Customer network for lum-dub"
+    },
+    "v236": {
+      "subnet": "194.156.121.0/24",
+      "description": "Customer network for lum-hel"
+    },
+    "v237": {
+      "subnet": "213.242.111.0/24",
+      "description": "Customer network for lum-fra"
+    },
+    "v238": {
+      "subnet": "193.0.14.0/24",
+      "description": "Customer network for lum-lon"
+    },
+    "v239": {
+      "subnet": "200.223.128.0/24",
+      "description": "Customer network for lum-brs"
+    },
+    "v240": {
+      "subnet": "200.48.243.0/24",
+      "description": "Customer network for lum-lim"
+    },
+    "v241": {
+      "subnet": "156.154.100.0/24",
+      "description": "Customer network for lum-ash"
+    },
+    "v242": {
+      "subnet": "216.239.34.0/24",
+      "description": "Customer network for lum-nyc"
+    },
+    "v243": {
+      "subnet": "209.151.130.0/24",
+      "description": "Customer network for lum-chi"
+    },
+    "v244": {
+      "subnet": "200.38.194.0/24",
+      "description": "Customer network for lum-mex"
+    },
+    "v245": {
+      "subnet": "8.8.8.0/24",
+      "description": "Customer network for lum-sfr"
+    },
+    "v246": {
+      "subnet": "125.7.128.0/24",
+      "description": "Customer network for are-ade"
+    },
+    "v247": {
+      "subnet": "122.53.116.0/24",
+      "description": "Customer network for are-man"
+    },
+    "v248": {
+      "subnet": "118.221.112.0/24",
+      "description": "Customer network for are-seo"
+    },
+    "v249": {
+      "subnet": "114.114.114.0/24",
+      "description": "Customer network for are-hkg"
+    },
+    "v250": {
+      "subnet": "111.93.125.0/24",
+      "description": "Customer network for are-che"
+    },
+    "v251": {
+      "subnet": "116.206.32.0/24",
+      "description": "Customer network for are-mum"
+    },
+    "v252": {
+      "subnet": "102.132.227.0/24",
+      "description": "Customer network for are-dji"
+    },
+    "v253": {
+      "subnet": "94.142.136.0/24",
+      "description": "Customer network for are-mos"
+    },
+    "v254": {
+      "subnet": "9.9.9.0/24",
+      "description": "Customer network for are-hel"
+    },
+    "v255": {
+      "subnet": "91.196.216.0/24",
+      "description": "Customer network for are-lis"
+    },
+    "v256": {
+      "subnet": "213.186.33.0/24",
+      "description": "Customer network for are-par"
+    },
+    "v257": {
+      "subnet": "200.29.16.0/24",
+      "description": "Customer network for are-san"
+    },
+    "v258": {
+      "subnet": "200.13.238.0/24",
+      "description": "Customer network for are-bog"
+    },
+    "v259": {
+      "subnet": "198.41.0.0/24",
+      "description": "Customer network for are-ash"
+    },
+    "v260": {
+      "subnet": "199.7.83.0/24",
+      "description": "Customer network for are-chi"
+    },
+    "v261": {
+      "subnet": "198.54.100.0/24",
+      "description": "Customer network for are-den"
+    },
+    "v262": {
+      "subnet": "108.162.192.0/24",
+      "description": "Customer network for are-sfr"
+    },
+    "v263": {
+      "subnet": "212.109.192.0/24",
+      "description": "Customer network for ntt-vla"
+    },
+    "v264": {
+      "subnet": "202.12.27.0/24",
+      "description": "Customer network for ntt-tok"
+    },
+    "v265": {
+      "subnet": "210.155.128.0/24",
+      "description": "Customer network for ntt-seo"
+    },
+    "v266": {
+      "subnet": "203.49.208.0/24",
+      "description": "Customer network for ntt-syd"
+    },
+    "v267": {
+      "subnet": "150.107.64.0/24",
+      "description": "Customer network for ntt-per"
+    },
+    "v268": {
+      "subnet": "14.200.0.0/24",
+      "description": "Customer network for ntt-dar"
+    },
+    "v269": {
+      "subnet": "203.116.0.0/24",
+      "description": "Customer network for ntt-sin"
+    },
+    "v270": {
+      "subnet": "223.5.5.0/24",
+      "description": "Customer network for ntt-hkg"
+    },
+    "v271": {
+      "subnet": "77.88.8.0/24",
+      "description": "Customer network for ntt-krs"
+    },
+    "v272": {
+      "subnet": "111.68.96.0/24",
+      "description": "Customer network for ntt-che"
+    },
+    "v273": {
+      "subnet": "163.121.128.0/24",
+      "description": "Customer network for ntt-dub"
+    },
+    "v274": {
+      "subnet": "41.217.160.0/24",
+      "description": "Customer network for ntt-lag"
+    },
+    "v275": {
+      "subnet": "193.232.192.0/24",
+      "description": "Customer network for ntt-mos"
+    },
+    "v276": {
+      "subnet": "93.178.204.0/24",
+      "description": "Customer network for ntt-kyv"
+    },
+    "v277": {
+      "subnet": "156.154.101.0/24",
+      "description": "Customer network for ntt-brs"
+    },
+    "v278": {
+      "subnet": "200.60.101.0/24",
+      "description": "Customer network for ntt-lim"
+    },
+    "v279": {
+      "subnet": "212.119.33.0/24",
+      "description": "Customer network for ntt-lis"
+    },
+    "v280": {
+      "subnet": "205.251.192.0/24",
+      "description": "Customer network for ntt-ash"
+    },
+    "v281": {
+      "subnet": "129.250.3.0/24",
+      "description": "Customer network for ntt-chi"
+    },
+    "v282": {
+      "subnet": "194.169.218.0/24",
+      "description": "Core CA network for ca-cyberlock on lum-fra"
+    }
+  },
+  "locations": {
+    "San Francisco": {
+      "latitude": 37.7749,
+      "longitude": -122.4194
+    },
+    "Portland": {
+      "latitude": 45.5152,
+      "longitude": -122.6784
+    },
+    "Kansas City": {
+      "latitude": 39.0997,
+      "longitude": -94.5786
+    },
+    "Mexico City": {
+      "latitude": 19.4326,
+      "longitude": -99.1332
+    },
+    "Chicago": {
+      "latitude": 41.8781,
+      "longitude": -87.6298
+    },
+    "New York": {
+      "latitude": 40.7128,
+      "longitude": -74.006
+    },
+    "Ashburn": {
+      "latitude": 39.0437,
+      "longitude": -77.4874
+    },
+    "Fortaleza": {
+      "latitude": -3.7319,
+      "longitude": -38.5267
+    },
+    "Lima": {
+      "latitude": -12.0464,
+      "longitude": -77.0428
+    },
+    "Brasilia": {
+      "latitude": -15.7939,
+      "longitude": -47.8828
+    },
+    "London": {
+      "latitude": 51.5074,
+      "longitude": -0.1278
+    },
+    "Frankfurt": {
+      "latitude": 50.1109,
+      "longitude": 8.6821
+    },
+    "Helsinki": {
+      "latitude": 60.1699,
+      "longitude": 24.9384
+    },
+    "Moscow": {
+      "latitude": 55.7558,
+      "longitude": 37.6173
+    },
+    "Cairo": {
+      "latitude": 30.0444,
+      "longitude": 31.2357
+    },
+    "Dubai": {
+      "latitude": 25.2048,
+      "longitude": 55.2708
+    },
+    "Djibouti": {
+      "latitude": 11.589,
+      "longitude": 43.1456
+    },
+    "Lagos": {
+      "latitude": 6.5935,
+      "longitude": 3.3516
+    },
+    "Algiers": {
+      "latitude": 36.7538,
+      "longitude": 3.0588
+    },
+    "Johannesburg": {
+      "latitude": -26.2041,
+      "longitude": 28.0473
+    },
+    "Mumbai": {
+      "latitude": 19.076,
+      "longitude": 72.8777
+    },
+    "Hong Kong": {
+      "latitude": 22.3193,
+      "longitude": 114.1694
+    },
+    "Manila": {
+      "latitude": 14.5995,
+      "longitude": 120.9842
+    },
+    "Singapore": {
+      "latitude": 1.2953,
+      "longitude": 103.8363
+    },
+    "Tokyo": {
+      "latitude": 35.6762,
+      "longitude": 139.6503
+    },
+    "Seoul": {
+      "latitude": 37.5665,
+      "longitude": 126.978
+    },
+    "Los Angeles": {
+      "latitude": 34.0522,
+      "longitude": -118.2437
+    },
+    "Denver": {
+      "latitude": 39.7392,
+      "longitude": -104.9903
+    },
+    "Bogota": {
+      "latitude": 4.711,
+      "longitude": -74.0721
+    },
+    "Santiago": {
+      "latitude": -33.4489,
+      "longitude": -70.6693
+    },
+    "Paris": {
+      "latitude": 48.8566,
+      "longitude": 2.3522
+    },
+    "Lisbon": {
+      "latitude": 38.7223,
+      "longitude": -9.1393
+    },
+    "Delhi": {
+      "latitude": 28.6139,
+      "longitude": 77.209
+    },
+    "Chennai": {
+      "latitude": 13.0827,
+      "longitude": 80.2707
+    },
+    "Perth": {
+      "latitude": -31.9505,
+      "longitude": 115.8605
+    },
+    "Sydney": {
+      "latitude": -33.8688,
+      "longitude": 151.2093
+    },
+    "Adelaide": {
+      "latitude": -34.9285,
+      "longitude": 138.6007
+    },
+    "Buenos Aires": {
+      "latitude": -34.6037,
+      "longitude": -58.3816
+    },
+    "Kyiv": {
+      "latitude": 50.4501,
+      "longitude": 30.5234
+    },
+    "Krasnoyarsk": {
+      "latitude": 56.0153,
+      "longitude": 92.8932
+    },
+    "Darwin": {
+      "latitude": -12.4634,
+      "longitude": 130.8456
+    },
+    "Vladivostok": {
+      "latitude": 43.1155,
+      "longitude": 131.8855
+    },
+    "Houston": {
+      "latitude": 29.7604,
+      "longitude": -95.3698
+    },
+    "Vancouver": {
+      "latitude": 49.2827,
+      "longitude": -123.1207
+    },
+    "Edmonton": {
+      "latitude": 53.5461,
+      "longitude": -113.4938
+    },
+    "Winnipeg": {
+      "latitude": 49.8951,
+      "longitude": -97.1384
+    },
+    "Toronto": {
+      "latitude": 43.6532,
+      "longitude": -79.3832
+    },
+    "Montreal": {
+      "latitude": 45.5017,
+      "longitude": -73.5673
+    },
+    "Beijing": {
+      "latitude": 39.9042,
+      "longitude": 116.4074
+    },
+    "Shanghai": {
+      "latitude": 31.2304,
+      "longitude": 121.4737
+    },
+    "Chengdu": {
+      "latitude": 30.5728,
+      "longitude": 104.0668
+    },
+    "Ho Chi Minh City": {
+      "latitude": 10.8231,
+      "longitude": 106.6297
+    },
+    "Dili": {
+      "latitude": -8.5536,
+      "longitude": 125.574
+    },
+    "Brisbane": {
+      "latitude": -27.4698,
+      "longitude": 153.0251
+    },
+    "Melbourne": {
+      "latitude": -37.8136,
+      "longitude": 144.9631
+    },
+    "Abidjan": {
+      "latitude": 5.3661,
+      "longitude": -4.0
+    },
+    "Mombasa": {
+      "latitude": -4.0435,
+      "longitude": 39.6682
+    },
+    "Cape Town": {
+      "latitude": -33.9249,
+      "longitude": 18.4241
+    },
+    "Madrid": {
+      "latitude": 40.4168,
+      "longitude": -3.7038
+    },
+    "Copenhagen": {
+      "latitude": 55.6761,
+      "longitude": 12.5683
+    },
+    "Prague": {
+      "latitude": 50.0755,
+      "longitude": 14.4378
+    },
+    "Warsaw": {
+      "latitude": 52.2297,
+      "longitude": 21.0122
+    },
+    "Bucharest": {
+      "latitude": 44.4268,
+      "longitude": 26.1025
+    },
+    "Damascus": {
+      "latitude": 33.5138,
+      "longitude": 36.2765
+    },
+    "Riyadh": {
+      "latitude": 24.7136,
+      "longitude": 46.6753
+    },
+    "Tehran": {
+      "latitude": 35.6892,
+      "longitude": 51.389
+    },
+    "Hyderabad": {
+      "latitude": 17.385,
+      "longitude": 78.4867
+    },
+    "Kolkata": {
+      "latitude": 22.5726,
+      "longitude": 88.3639
+    },
+    "Salvador": {
+      "latitude": -12.9777,
+      "longitude": -38.5016
+    },
+    "Sao Paulo": {
+      "latitude": -23.5505,
+      "longitude": -46.6333
+    },
+    "Quito": {
+      "latitude": -0.1807,
+      "longitude": -78.4678
+    },
+    "Caracas": {
+      "latitude": 10.4806,
+      "longitude": -66.9036
+    },
+    "La Paz": {
+      "latitude": -16.4897,
+      "longitude": -68.1193
+    },
+    "Ashgabat": {
+      "latitude": 37.9601,
+      "longitude": 58.3261
+    },
+    "Guadalajara": {
+      "latitude": 20.6597,
+      "longitude": -103.3496
+    },
+    "Oaxaca": {
+      "latitude": 17.0732,
+      "longitude": -96.7266
+    }
+  },
+  "customer_dhcp_start": 20,
+  "base": {
+    "name": "grayspace/2026.11",
+    "csv_sha256": "bb233d80cbeb2913b9ce0b00ccb9cdc264e74cd535b239d992d77cf49de4b4e6",
+    "scope": "tier1"
+  }
+}

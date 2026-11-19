@@ -1,0 +1,42 @@
+# Internet hosts: a news outlet on GHOSTS Pandora and a company site, placed directly on base
+# routers' customer networks, outside any site, with DNS names and GrayTrust certificates. A
+# small reader site browses them by name over TLS.
+apiVersion: grayspace/v1
+kind: Slice
+slug: information-environment
+prefix: ie
+description: A news outlet and a company site on the simulated internet, and a site that reads them
+sites:
+  - name: readers
+    attach: { isp: Comcast, location: Chicago }
+    segments:
+      - name: rd-lan
+hosts:
+  - name: news
+    internet: { isp: Arelion, location: Ashburn }
+    image: ghosts-pandora
+    env:
+      MODE_TYPE: website
+      SITE_TYPE: news
+      SITE_NAME: The Daily Chronicle
+  - name: corp
+    internet: { router: lum-nyc }
+    image: grayspace-ubuntu-lxc
+    roles: [web]
+  - name: reader
+    count: 2
+    segment: rd-lan
+    image: grayspace-ubuntu-lxc
+dns:
+  domains:
+    - { domain: dailychronicle.com, hosting_server: dns-cloudflare }
+    - { domain: northwind-trading.com, hosting_server: dns-aws }
+  records:
+    - { name: www.dailychronicle.com, host: news }
+    - { name: www.northwind-trading.com, host: corp }
+tls:
+  - { host: news, names: [www.dailychronicle.com], ca: ca-graytrust }
+  - { host: corp, names: [www.northwind-trading.com], ca: ca-graytrust }
+role_vars:
+  web:
+    site_title: Northwind Trading

@@ -1,0 +1,108 @@
+---
+- name: Install archive tools
+  ansible.builtin.include_role:
+    name: grayspace-host
+    tasks_from: packages
+  vars:
+    gs_packages: [unzip, tar, ca-certificates]
+
+- name: Create the install directory
+  ansible.builtin.file:
+    path: "{{ ghosts_install_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Download the client
+  ansible.builtin.get_url:
+    url: "{{ ghosts.client_url }}"
+    dest: "{{ ghosts_install_dir }}/client-release{{ '.zip' if ghosts.client_url.endswith('.zip') else '.tar.gz' }}"
+    mode: "0644"
+  register: ghosts_download
+
+- name: Unpack the client
+  ansible.builtin.unarchive:
+    src: "{{ ghosts_download.dest }}"
+    dest: "{{ ghosts_install_dir }}"
+    remote_src: true
+  notify: Restart ghosts-client
+
+- name: Find the client's shipped configuration
+  ansible.builtin.find:
+    paths: "{{ ghosts_install_dir }}"
+    patterns: application.json
+    recurse: true
+  register: ghosts_configs
+
+- name: Read the shipped configuration
+  ansible.builtin.slurp:
+    src: "{{ (ghosts_configs.files | map(attribute='path') | sort | first) }}"
+  register: ghosts_shipped
+  when: ghosts_configs.matched > 0
+
+- name: Choose the configuration path and program
+  ansible.builtin.set_fact:
+    ghosts_config_dir: >-
+      {{ (ghosts_configs.files | map(attribute='path') | sort | first | dirname)
+         if ghosts_configs.matched > 0 else ghosts_install_dir ~ '/config' }}
+    ghosts_program: "{{ ghosts.executable | default('Ghosts.Client.Universal') }}"
+
+- name: Find the client program
+  ansible.builtin.find:
+    paths: "{{ ghosts_install_dir }}"
+    patterns: "{{ ghosts_program }}"
+    recurse: true
+  register: ghosts_programs
+
+- name: Fail when the archive has no client program
+  ansible.builtin.fail:
+    msg: "{{ ghosts.client_url }} has no {{ ghosts_program }}; set role_vars.ghosts-client.executable"
+  when: ghosts_programs.matched == 0
+
+- name: Create the configuration directory
+  ansible.builtin.file:
+    path: "{{ ghosts_config_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Write the client configuration
+  ansible.builtin.copy:
+    dest: "{{ ghosts_config_dir }}/application.json"
+    content: "{{ ghosts_base_config | combine(ghosts_overrides, recursive=true) | to_nice_json }}"
+    mode: "0644"
+  vars:
+    ghosts_base_config: "{{ (ghosts_shipped.content | b64decode | from_json) if ghosts_configs.matched > 0 else {} }}"
+    ghosts_overrides:
+      ApiRootUrl: "{{ ghosts.api_url }}"
+      Id:
+        IsEnabled: true
+        Format: hostname
+  notify: Restart ghosts-client
+
+- name: Write the timeline
+  ansible.builtin.copy:
+    dest: "{{ ghosts_config_dir }}/timeline.json"
+    content: "{{ ghosts.timeline | to_nice_json }}"
+    mode: "0644"
+  when: ghosts.timeline is defined
+  notify: Restart ghosts-client
+
+- name: Install the service
+  ansible.builtin.template:
+    src: ghosts-client.service.j2
+    dest: /etc/systemd/system/ghosts-client.service
+    mode: "0644"
+  vars:
+    ghosts_executable: "{{ ghosts_programs.files[0].path }}"
+  notify: Restart ghosts-client
+
+- name: Make the client executable
+  ansible.builtin.file:
+    path: "{{ ghosts_programs.files[0].path }}"
+    mode: "0755"
+
+- name: Start the client
+  ansible.builtin.systemd:
+    name: ghosts-client
+    state: started
+    enabled: true
+    daemon_reload: true

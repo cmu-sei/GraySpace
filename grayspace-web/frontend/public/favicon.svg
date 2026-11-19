@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- The top bar's mark: a rounded square with a white "G" for GraySpace. The tile is the nav square's purple half
+       (.mark in theme.css: #a98ef7 to #4a3487) across the whole square, without its silver half, which left too little
+       contrast for the letter. The G is a stroked path, not text, so it doesn't depend on fonts. After changing this
+       file, bump ?v= in index.html: browsers cache favicons past a hard refresh. -->
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a98ef7" />
+      <stop offset="1" stop-color="#4a3487" />
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="9" fill="url(#tile)" />
+  <path d="M22 10A8.5 8.5 0 1 0 24.5 16H16.6"
+        fill="none" stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

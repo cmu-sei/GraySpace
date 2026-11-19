@@ -1,0 +1,32 @@
+---
+- name: Trust the GraySpace CAs
+  ansible.windows.win_copy:
+    src: "{{ slice_ca_bundle }}"
+    dest: C:\ProgramData\GraySpace\grayspace-ca.crt
+  when: slice_ca_bundle | default('', true) | length > 0
+
+- name: Import the CA roots
+  ansible.windows.win_powershell:
+    script: |
+      Import-Certificate -FilePath C:\ProgramData\GraySpace\grayspace-ca.crt -CertStoreLocation Cert:\LocalMachine\Root | Out-Null
+  when: slice_ca_bundle | default('', true) | length > 0
+
+- name: Route default traffic over the simulated network and use its resolver
+  ansible.windows.win_powershell:
+    script: |
+      $sim = (Get-NetIPAddress -AddressFamily IPv4 | Where-Object IPAddress -eq '{{ gs.ip }}').InterfaceIndex
+      Get-NetRoute -AddressFamily IPv4 -DestinationPrefix 0.0.0.0/0 -InterfaceIndex {{ gs_mgmt_interface }} -ErrorAction SilentlyContinue |
+        Remove-NetRoute -Confirm:$false
+      Set-NetIPInterface -InterfaceIndex {{ gs_mgmt_interface }} -InterfaceMetric 500 -Dhcp Enabled
+      Set-DnsClientServerAddress -InterfaceIndex {{ gs_mgmt_interface }} -ResetServerAddresses
+      Set-DnsClientServerAddress -InterfaceIndex $sim -ServerAddresses '{{ gs.resolver }}'
+      if (-not (Get-NetRoute -AddressFamily IPv4 -DestinationPrefix 0.0.0.0/0 -InterfaceIndex $sim -ErrorAction SilentlyContinue)) {
+        New-NetRoute -AddressFamily IPv4 -DestinationPrefix 0.0.0.0/0 -InterfaceIndex $sim -NextHop '{{ gs.gateway }}' | Out-Null
+      }
+      {% for ip in gs_mgmt_route_ips %}
+      route -p add {{ ip }} mask 255.255.255.255 {{ gs_mgmt_gateway }} | Out-Null
+      {% endfor %}
+      # DHCP on management must not bring the default route back after a reboot.
+      Set-NetIPInterface -InterfaceIndex {{ gs_mgmt_interface }} -AutomaticMetric Disabled -InterfaceMetric 500
+      $cfg = Get-WmiObject Win32_NetworkAdapterConfiguration | Where-Object InterfaceIndex -eq {{ gs_mgmt_interface }}
+      if ($cfg) { $cfg.SetGateways(@(), @()) | Out-Null }

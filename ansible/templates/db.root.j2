@@ -1,0 +1,28 @@
+; Root zone file for GraySpace simulated DNS
+; Managed by Ansible — do not edit manually
+$TTL 86400
+@   IN  SOA root-a.root-servers.net. admin.root-servers.net. (
+        2024010101  ; serial
+        3600        ; refresh
+        900         ; retry
+        604800      ; expire
+        86400       ; minimum TTL
+)
+
+; Root server NS records
+{% for server in dns_root_hosts %}
+.                               IN  NS  {{ server.hostname }}.root-servers.net.
+{% endfor %}
+
+; Root server glue records
+{% for server in dns_root_hosts %}
+{{ server.hostname }}.root-servers.net.  IN  A   {{ server.ip }}
+{% endfor %}
+
+; TLD delegations
+{% for server in dns_tld_hosts %}
+{% for zone in server.zones %}
+{{ zone }}.                     IN  NS  ns1.{{ zone }}.
+ns1.{{ zone }}.                 IN  A   {{ server.ip }}
+{% endfor %}
+{% endfor %}

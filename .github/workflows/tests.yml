@@ -1,0 +1,77 @@
+# Tests that need no Proxmox: the topology loader and golden tfvars, the backend (slices, jobs with
+# fake Terraform and Ansible, the API contract, the map layer), the example slices against every
+# shipped base, Terraform modules with a mocked provider, Ansible syntax and lint, and the UI.
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          pip install -r grayspace-web/backend/requirements-dev.txt
+          pip install ansible-core netaddr
+          ansible-galaxy collection install ansible.utils ansible.posix community.general
+      - name: Backend tests
+        working-directory: grayspace-web/backend
+        run: python -m unittest discover -s tests -t . -v
+
+  infrastructure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.13.4"
+          terraform_wrapper: false
+      - uses: hashicorp/setup-packer@v3
+      - name: Install
+        run: |
+          pip install -r requirements.txt jinja2
+          ansible-galaxy collection install ansible.utils ansible.posix community.general ansible.windows
+      - name: Topology, golden tfvars, guard, Terraform, Packer and Ansible tests
+        run: python -m unittest discover -s tests -t . -v
+      - name: Ansible lint
+        working-directory: ansible
+        run: ansible-lint slice.yml slice-attach.yml roles/
+
+  apphost:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - name: Build the Aspire AppHost
+        run: dotnet build aspire/GraySpace.AppHost
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install
+        working-directory: grayspace-web/frontend
+        run: npm install --no-audit --no-fund
+      - name: Tests and build
+        working-directory: grayspace-web/frontend
+        env:
+          CI: "true"
+        run: |
+          npx tsc --noEmit -p .
+          npx react-scripts test --watchAll=false
+          npx react-scripts build

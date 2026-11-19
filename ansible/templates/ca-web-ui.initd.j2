@@ -1,0 +1,16 @@
+#!/sbin/openrc-run
+
+name="ca-web-ui"
+description="{{ ca_name }} Certificate Authority Web UI"
+command="/usr/bin/python3"
+command_args="/usr/local/bin/ca-web-ui.py"
+command_background=true
+pidfile="/run/${RC_SVCNAME}.pid"
+output_log="/var/log/step-ca/web-ui.log"
+error_log="/var/log/step-ca/web-ui.log"
+
+export STEPPATH="/etc/step-ca"
+
+depend() {
+    need net step-ca
+}

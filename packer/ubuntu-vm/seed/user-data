@@ -1,0 +1,13 @@
+#cloud-config
+# The build VM's seed only (ubuntu-vm.pkr.hcl): a password user for Packer's SSH, removed at
+# shutdown. Instances get their own seed from Proxmox.
+users:
+  - name: packer
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    lock_passwd: false
+    plain_text_passwd: packer
+ssh_pwauth: true
+# The image's packages are installed by provision.sh, which waits for cloud-init
+package_update: false
+package_upgrade: false

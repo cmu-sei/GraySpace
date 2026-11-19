@@ -1,0 +1,10 @@
+#!/sbin/openrc-run
+name="Node Exporter"
+description="Export node metrics to Prometheus"
+command="/usr/local/bin/node_exporter"
+# Only the container's own network interfaces. In an LXC the other default collectors report the
+# Proxmox host (its disks and CPUs), the same data from every router, which made up 1.2M of
+# Prometheus's 1.2M series. GraySpace reads node_network_* only (link traffic in grayspace-web).
+command_args="--collector.disable-defaults --collector.netdev --collector.netclass"
+command_background=true
+pidfile="/run/node_exporter.pid"

@@ -1,0 +1,11 @@
+---
+# A site DNS server: authoritative for an internal zone holding every host of the site, forwarding
+# everything else to the host's resolver. BIND serves it, except on a domain controller: Samba's DNS
+# already holds port 53 there, so the ad-dc role puts the zone in Samba (samba.yml) once the domain
+# is up, whichever order the roles come in.
+- name: Collect role settings
+  ansible.builtin.include_tasks: settings.yml
+
+- name: Run BIND
+  ansible.builtin.include_tasks: bind.yml
+  when: "'ad-dc' not in slice_hosts[inventory_hostname].roles"

@@ -1,0 +1,10 @@
+---
+- name: Install the GraySpace CA roots
+  ansible.builtin.copy:
+    src: "{{ slice_ca_bundle }}"
+    dest: /usr/local/share/ca-certificates/grayspace.crt
+    mode: "0644"
+  notify: Update the trust store
+
+- name: Trust them before the run ends
+  ansible.builtin.meta: flush_handlers

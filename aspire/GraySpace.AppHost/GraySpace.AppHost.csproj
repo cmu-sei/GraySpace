@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The development AppHost: F5 runs the API, the UI and the infrastructure they need. See aspire/README.md. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>grayspace-apphost-6f1d8c2e</UserSecretsId>
+    <!-- Run with F5 or dotnet run; the Aspire CLI bundle isn't needed. -->
+    <NoWarn>$(NoWarn);ASPIRE010</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Aspire 17: the AppHost is a plain project with these two in place of Aspire.AppHost.Sdk (ASPIRE012) -->
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="17.0.0" />
+    <PackageReference Include="Aspire.Hosting.Dotnet" Version="17.0.0" />
+    <PackageReference Include="Aspire.Hosting.JavaScript" Version="17.0.0" />
+    <PackageReference Include="Aspire.Hosting.Python" Version="17.0.0" />
+  </ItemGroup>
+
+</Project>

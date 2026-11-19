@@ -1,0 +1,1240 @@
+{
+  "slice_ca_bundle": "/data/instances/mb/ca-bundle.pem",
+  "slice_domains": [
+    "meridian-bank.com"
+  ],
+  "slice_edges": {
+    "mb-branch-edge": {
+      "bgp": null,
+      "mgmt_interface": "eth2",
+      "published": [],
+      "resolver": "8.8.8.8",
+      "routed": false,
+      "segments": [
+        {
+          "cidr": "192.168.1.0/24",
+          "gateway": "192.168.1.1",
+          "interface": "eth1",
+          "name": "br-lan"
+        }
+      ],
+      "site": "branch",
+      "wans": [
+        {
+          "gateway": "69.240.0.1",
+          "interface": "eth0",
+          "ip": "69.240.0.2",
+          "prefixlen": 24,
+          "router": "com-nyc"
+        }
+      ]
+    },
+    "mb-hq-edge": {
+      "bgp": null,
+      "mgmt_interface": "eth3",
+      "published": [
+        {
+          "hostname": "mb-web01",
+          "private_ip": "192.168.20.10",
+          "public_ip": "209.151.130.3"
+        }
+      ],
+      "resolver": "8.8.8.8",
+      "routed": false,
+      "segments": [
+        {
+          "cidr": "192.168.0.0/24",
+          "gateway": "192.168.0.1",
+          "interface": "eth1",
+          "name": "hq-lan"
+        },
+        {
+          "cidr": "192.168.20.0/24",
+          "gateway": "192.168.20.1",
+          "interface": "eth2",
+          "name": "hq-dmz"
+        }
+      ],
+      "site": "hq",
+      "wans": [
+        {
+          "gateway": "209.151.130.1",
+          "interface": "eth0",
+          "ip": "209.151.130.2",
+          "prefixlen": 24,
+          "router": "lum-chi"
+        }
+      ]
+    }
+  },
+  "slice_hosts": {
+    "mb-br-ws-01": {
+      "certificate": null,
+      "gateway": "192.168.1.1",
+      "ip": "192.168.1.10",
+      "labels": {
+        "ghosts.pool": "branch-staff"
+      },
+      "mgmt_interface": "eth1",
+      "name": "br-ws-01",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "br-lan",
+      "sim_interface": "eth0",
+      "site": "branch"
+    },
+    "mb-br-ws-02": {
+      "certificate": null,
+      "gateway": "192.168.1.1",
+      "ip": "192.168.1.11",
+      "labels": {
+        "ghosts.pool": "branch-staff"
+      },
+      "mgmt_interface": "eth1",
+      "name": "br-ws-02",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "br-lan",
+      "sim_interface": "eth0",
+      "site": "branch"
+    },
+    "mb-br-ws-03": {
+      "certificate": null,
+      "gateway": "192.168.1.1",
+      "ip": "192.168.1.12",
+      "labels": {
+        "ghosts.pool": "branch-staff"
+      },
+      "mgmt_interface": "eth1",
+      "name": "br-ws-03",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "br-lan",
+      "sim_interface": "eth0",
+      "site": "branch"
+    },
+    "mb-br-ws-04": {
+      "certificate": null,
+      "gateway": "192.168.1.1",
+      "ip": "192.168.1.13",
+      "labels": {
+        "ghosts.pool": "branch-staff"
+      },
+      "mgmt_interface": "eth1",
+      "name": "br-ws-04",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "br-lan",
+      "sim_interface": "eth0",
+      "site": "branch"
+    },
+    "mb-br-ws-05": {
+      "certificate": null,
+      "gateway": "192.168.1.1",
+      "ip": "192.168.1.14",
+      "labels": {
+        "ghosts.pool": "branch-staff"
+      },
+      "mgmt_interface": "eth1",
+      "name": "br-ws-05",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "br-lan",
+      "sim_interface": "eth0",
+      "site": "branch"
+    },
+    "mb-web01": {
+      "certificate": {
+        "cert": "/data/instances/mb/mb-web01.crt",
+        "key": "/data/instances/mb/mb-web01.key"
+      },
+      "gateway": "192.168.20.1",
+      "ip": "192.168.20.10",
+      "labels": {},
+      "mgmt_interface": "eth1",
+      "name": "web01",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": "209.151.130.3",
+      "resolver": "8.8.8.8",
+      "roles": [
+        "web"
+      ],
+      "segment": "hq-dmz",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-01": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.10",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-01",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-02": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.11",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-02",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-03": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.12",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-03",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-04": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.13",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-04",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-05": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.14",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-05",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-06": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.15",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-06",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-07": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.16",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-07",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-08": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.17",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-08",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-09": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.18",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-09",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-10": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.19",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-10",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-11": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.20",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-11",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-12": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.21",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-12",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-13": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.22",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-13",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-14": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.23",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-14",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-15": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.24",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-15",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-16": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.25",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-16",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-17": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.26",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-17",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-18": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.27",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-18",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-19": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.28",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-19",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-20": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.29",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-20",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-21": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.30",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-21",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-22": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.31",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-22",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-23": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.32",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-23",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-24": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.33",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-24",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-25": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.34",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-25",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-26": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.35",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-26",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-27": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.36",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-27",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-28": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.37",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-28",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-29": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.38",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-29",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-30": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.39",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-30",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-31": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.40",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-31",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-32": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.41",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-32",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-33": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.42",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-33",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-34": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.43",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-34",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-35": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.44",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-35",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-36": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.45",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-36",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-37": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.46",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-37",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-38": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.47",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-38",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-39": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.48",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-39",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    },
+    "mb-ws-40": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.49",
+      "labels": {
+        "ghosts.pool": "tellers"
+      },
+      "mgmt_interface": "eth1",
+      "name": "ws-40",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [
+        "ghosts-client"
+      ],
+      "segment": "hq-lan",
+      "sim_interface": "eth0",
+      "site": "hq"
+    }
+  },
+  "slice_instance": "mb",
+  "slice_mgmt_routes": [
+    "ghosts.mgmt.example"
+  ],
+  "slice_role_vars": {
+    "ghosts-client": {
+      "api_host": "ghosts.mgmt.example",
+      "api_url": "http://ghosts.mgmt.example:5000/api",
+      "client_url": "http://ghosts.mgmt.example/clients/ghosts-client-universal-linux-x64.tar.gz"
+    }
+  },
+  "slice_site_hosts": {
+    "branch": [
+      {
+        "hostname": "mb-br-ws-01",
+        "ip": "192.168.1.10",
+        "name": "br-ws-01"
+      },
+      {
+        "hostname": "mb-br-ws-02",
+        "ip": "192.168.1.11",
+        "name": "br-ws-02"
+      },
+      {
+        "hostname": "mb-br-ws-03",
+        "ip": "192.168.1.12",
+        "name": "br-ws-03"
+      },
+      {
+        "hostname": "mb-br-ws-04",
+        "ip": "192.168.1.13",
+        "name": "br-ws-04"
+      },
+      {
+        "hostname": "mb-br-ws-05",
+        "ip": "192.168.1.14",
+        "name": "br-ws-05"
+      }
+    ],
+    "hq": [
+      {
+        "hostname": "mb-web01",
+        "ip": "192.168.20.10",
+        "name": "web01"
+      },
+      {
+        "hostname": "mb-ws-01",
+        "ip": "192.168.0.10",
+        "name": "ws-01"
+      },
+      {
+        "hostname": "mb-ws-02",
+        "ip": "192.168.0.11",
+        "name": "ws-02"
+      },
+      {
+        "hostname": "mb-ws-03",
+        "ip": "192.168.0.12",
+        "name": "ws-03"
+      },
+      {
+        "hostname": "mb-ws-04",
+        "ip": "192.168.0.13",
+        "name": "ws-04"
+      },
+      {
+        "hostname": "mb-ws-05",
+        "ip": "192.168.0.14",
+        "name": "ws-05"
+      },
+      {
+        "hostname": "mb-ws-06",
+        "ip": "192.168.0.15",
+        "name": "ws-06"
+      },
+      {
+        "hostname": "mb-ws-07",
+        "ip": "192.168.0.16",
+        "name": "ws-07"
+      },
+      {
+        "hostname": "mb-ws-08",
+        "ip": "192.168.0.17",
+        "name": "ws-08"
+      },
+      {
+        "hostname": "mb-ws-09",
+        "ip": "192.168.0.18",
+        "name": "ws-09"
+      },
+      {
+        "hostname": "mb-ws-10",
+        "ip": "192.168.0.19",
+        "name": "ws-10"
+      },
+      {
+        "hostname": "mb-ws-11",
+        "ip": "192.168.0.20",
+        "name": "ws-11"
+      },
+      {
+        "hostname": "mb-ws-12",
+        "ip": "192.168.0.21",
+        "name": "ws-12"
+      },
+      {
+        "hostname": "mb-ws-13",
+        "ip": "192.168.0.22",
+        "name": "ws-13"
+      },
+      {
+        "hostname": "mb-ws-14",
+        "ip": "192.168.0.23",
+        "name": "ws-14"
+      },
+      {
+        "hostname": "mb-ws-15",
+        "ip": "192.168.0.24",
+        "name": "ws-15"
+      },
+      {
+        "hostname": "mb-ws-16",
+        "ip": "192.168.0.25",
+        "name": "ws-16"
+      },
+      {
+        "hostname": "mb-ws-17",
+        "ip": "192.168.0.26",
+        "name": "ws-17"
+      },
+      {
+        "hostname": "mb-ws-18",
+        "ip": "192.168.0.27",
+        "name": "ws-18"
+      },
+      {
+        "hostname": "mb-ws-19",
+        "ip": "192.168.0.28",
+        "name": "ws-19"
+      },
+      {
+        "hostname": "mb-ws-20",
+        "ip": "192.168.0.29",
+        "name": "ws-20"
+      },
+      {
+        "hostname": "mb-ws-21",
+        "ip": "192.168.0.30",
+        "name": "ws-21"
+      },
+      {
+        "hostname": "mb-ws-22",
+        "ip": "192.168.0.31",
+        "name": "ws-22"
+      },
+      {
+        "hostname": "mb-ws-23",
+        "ip": "192.168.0.32",
+        "name": "ws-23"
+      },
+      {
+        "hostname": "mb-ws-24",
+        "ip": "192.168.0.33",
+        "name": "ws-24"
+      },
+      {
+        "hostname": "mb-ws-25",
+        "ip": "192.168.0.34",
+        "name": "ws-25"
+      },
+      {
+        "hostname": "mb-ws-26",
+        "ip": "192.168.0.35",
+        "name": "ws-26"
+      },
+      {
+        "hostname": "mb-ws-27",
+        "ip": "192.168.0.36",
+        "name": "ws-27"
+      },
+      {
+        "hostname": "mb-ws-28",
+        "ip": "192.168.0.37",
+        "name": "ws-28"
+      },
+      {
+        "hostname": "mb-ws-29",
+        "ip": "192.168.0.38",
+        "name": "ws-29"
+      },
+      {
+        "hostname": "mb-ws-30",
+        "ip": "192.168.0.39",
+        "name": "ws-30"
+      },
+      {
+        "hostname": "mb-ws-31",
+        "ip": "192.168.0.40",
+        "name": "ws-31"
+      },
+      {
+        "hostname": "mb-ws-32",
+        "ip": "192.168.0.41",
+        "name": "ws-32"
+      },
+      {
+        "hostname": "mb-ws-33",
+        "ip": "192.168.0.42",
+        "name": "ws-33"
+      },
+      {
+        "hostname": "mb-ws-34",
+        "ip": "192.168.0.43",
+        "name": "ws-34"
+      },
+      {
+        "hostname": "mb-ws-35",
+        "ip": "192.168.0.44",
+        "name": "ws-35"
+      },
+      {
+        "hostname": "mb-ws-36",
+        "ip": "192.168.0.45",
+        "name": "ws-36"
+      },
+      {
+        "hostname": "mb-ws-37",
+        "ip": "192.168.0.46",
+        "name": "ws-37"
+      },
+      {
+        "hostname": "mb-ws-38",
+        "ip": "192.168.0.47",
+        "name": "ws-38"
+      },
+      {
+        "hostname": "mb-ws-39",
+        "ip": "192.168.0.48",
+        "name": "ws-39"
+      },
+      {
+        "hostname": "mb-ws-40",
+        "ip": "192.168.0.49",
+        "name": "ws-40"
+      }
+    ]
+  }
+}

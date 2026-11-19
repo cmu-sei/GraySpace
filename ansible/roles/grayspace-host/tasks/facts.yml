@@ -1,0 +1,14 @@
+---
+- name: Collect this guest's slice settings
+  ansible.builtin.set_fact:
+    gs_edge: "{{ inventory_hostname in slice_edges }}"
+    gs: "{{ slice_edges[inventory_hostname] if inventory_hostname in slice_edges else slice_hosts[inventory_hostname] }}"
+
+- name: Choose the simulated default route
+  ansible.builtin.set_fact:
+    # Hosts route via their segment gateway (or base router, for internet hosts). A NAT edge routes
+    # via its base router; a routed edge has no static default, its routes come from BGP.
+    gs_default_gateway: >-
+      {{ (gs.wans[0].gateway if not gs.routed else '') if gs_edge else gs.gateway }}
+    gs_sim_interface: "{{ gs.wans[0].interface if gs_edge else gs.sim_interface }}"
+    gs_family: "{{ 'alpine' if gs_edge else gs.os_family }}"

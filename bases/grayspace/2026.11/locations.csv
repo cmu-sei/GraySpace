@@ -1,0 +1,77 @@
+name:ID(Location),latitude:FLOAT,longitude:FLOAT
+San Francisco,37.7749,-122.4194
+Portland,45.5152,-122.6784
+Kansas City,39.0997,-94.5786
+Mexico City,19.4326,-99.1332
+Chicago,41.8781,-87.6298
+New York,40.7128,-74.006
+Ashburn,39.0437,-77.4874
+Fortaleza,-3.7319,-38.5267
+Lima,-12.0464,-77.0428
+Brasilia,-15.7939,-47.8828
+London,51.5074,-0.1278
+Frankfurt,50.1109,8.6821
+Helsinki,60.1699,24.9384
+Moscow,55.7558,37.6173
+Cairo,30.0444,31.2357
+Dubai,25.2048,55.2708
+Djibouti,11.589,43.1456
+Lagos,6.5935,3.3516
+Algiers,36.7538,3.0588
+Johannesburg,-26.2041,28.0473
+Mumbai,19.076,72.8777
+Hong Kong,22.3193,114.1694
+Manila,14.5995,120.9842
+Singapore,1.2953,103.8363
+Tokyo,35.6762,139.6503
+Seoul,37.5665,126.978
+Los Angeles,34.0522,-118.2437
+Denver,39.7392,-104.9903
+Bogota,4.711,-74.0721
+Santiago,-33.4489,-70.6693
+Paris,48.8566,2.3522
+Lisbon,38.7223,-9.1393
+Delhi,28.6139,77.209
+Chennai,13.0827,80.2707
+Perth,-31.9505,115.8605
+Sydney,-33.8688,151.2093
+Adelaide,-34.9285,138.6007
+Buenos Aires,-34.6037,-58.3816
+Kyiv,50.4501,30.5234
+Krasnoyarsk,56.0153,92.8932
+Darwin,-12.4634,130.8456
+Vladivostok,43.1155,131.8855
+Houston,29.7604,-95.3698
+Vancouver,49.2827,-123.1207
+Edmonton,53.5461,-113.4938
+Winnipeg,49.8951,-97.1384
+Toronto,43.6532,-79.3832
+Montreal,45.5017,-73.5673
+Beijing,39.9042,116.4074
+Shanghai,31.2304,121.4737
+Chengdu,30.5728,104.0668
+Ho Chi Minh City,10.8231,106.6297
+Dili,-8.5536,125.574
+Brisbane,-27.4698,153.0251
+Melbourne,-37.8136,144.9631
+Abidjan,5.3661,-4.0
+Mombasa,-4.0435,39.6682
+Cape Town,-33.9249,18.4241
+Madrid,40.4168,-3.7038
+Copenhagen,55.6761,12.5683
+Prague,50.0755,14.4378
+Warsaw,52.2297,21.0122
+Bucharest,44.4268,26.1025
+Damascus,33.5138,36.2765
+Riyadh,24.7136,46.6753
+Tehran,35.6892,51.389
+Hyderabad,17.385,78.4867
+Kolkata,22.5726,88.3639
+Salvador,-12.9777,-38.5016
+Sao Paulo,-23.5505,-46.6333
+Quito,-0.1807,-78.4678
+Caracas,10.4806,-66.9036
+La Paz,-16.4897,-68.1193
+Ashgabat,37.9601,58.3261
+Guadalajara,20.6597,-103.3496
+Oaxaca,17.0732,-96.7266

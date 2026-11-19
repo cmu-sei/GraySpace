@@ -1,0 +1,31 @@
+---
+- name: Collect role settings
+  ansible.builtin.set_fact:
+    file_share: "{{ (slice_role_vars.file | default({})).share_name | default(file_share_name) }}"
+    file_guest: "{{ (slice_role_vars.file | default({})).guest_ok | default(file_guest_ok) | bool }}"
+
+- name: Install Samba
+  ansible.builtin.include_role:
+    name: grayspace-host
+    tasks_from: packages
+  vars:
+    gs_packages: [samba]
+
+- name: Create the share directory
+  ansible.builtin.file:
+    path: "/srv/{{ file_share }}"
+    state: directory
+    mode: "0777"
+
+- name: Configure Samba
+  ansible.builtin.template:
+    src: smb.conf.j2
+    dest: /etc/samba/smb.conf
+    mode: "0644"
+  notify: Restart Samba
+
+- name: Start Samba
+  ansible.builtin.service:
+    name: smbd
+    state: started
+    enabled: true

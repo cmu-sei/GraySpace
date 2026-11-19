@@ -1,0 +1,7 @@
+---
+# Set by the job (vars.json): the CA bundle, addresses kept on management, and the management
+# gateway and resolver to fall back on when a guest's DHCP lease doesn't show them.
+slice_ca_bundle: null
+slice_mgmt_routes: []
+slice_mgmt_gateway: ""
+slice_mgmt_resolver: ""

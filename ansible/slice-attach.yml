@@ -1,0 +1,40 @@
+---
+# Apply routed slice sites' BGP neighbors to the base routers they attach to.
+#
+#   ansible-playbook slice-attach.yml --limit lum-chi,are-chi
+#
+# The dynamic inventory merges every live instance's attachments into the base routers'
+# bgp_neighbors, so this play and task configure render the same frr.conf.j2,
+# and task configure keeps the attachments. Only the routers named in --limit are touched, and FRR
+# is reloaded rather than restarted, so their other sessions stay up.
+- name: Apply slice attachments to base routers
+  hosts: routers
+  gather_facts: false
+  vars:
+    ansible_ssh_private_key_file: ../.ssh/terraform_key
+  tasks:
+    - name: Deploy the FRR configuration from template
+      ansible.builtin.template:
+        src: ./templates/frr.conf.j2
+        dest: /etc/frr/frr.conf
+        owner: frr
+        group: frr
+        mode: "0644"
+      register: frr_conf
+
+    - name: Find frr-reload.py
+      ansible.builtin.stat:
+        path: /usr/lib/frr/frr-reload.py
+      register: frr_reload
+
+    - name: Reload FRR without restarting its sessions
+      ansible.builtin.command:
+        cmd: python3 /usr/lib/frr/frr-reload.py --reload /etc/frr/frr.conf
+      when: frr_conf.changed and frr_reload.stat.exists
+      changed_when: true
+
+    - name: Restart FRR (no frr-reload.py on this router)
+      ansible.builtin.service:
+        name: frr
+        state: restarted
+      when: frr_conf.changed and not frr_reload.stat.exists

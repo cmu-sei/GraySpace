@@ -1,0 +1,348 @@
+#!/usr/bin/env python3
+"""{{ ca_name }} Certificate Authority - Web UI
+
+Simple web interface for requesting and managing SSL certificates.
+Communicates with the local step-ca instance via CLI.
+"""
+import json
+import os
+import re
+import subprocess
+import tempfile
+from flask import Flask, request, jsonify, render_template_string
+
+app = Flask(__name__)
+
+CA_NAME = "{{ ca_name }}"
+SERVICE_IP = "{{ service_ip }}"
+STEPPATH = "/etc/step-ca"
+CA_URL = "https://localhost"
+PASSWORD_FILE = f"{STEPPATH}/secrets/password.txt"
+ROOT_CERT = f"{STEPPATH}/certs/root_ca.crt"
+CERTS_DB = f"{STEPPATH}/issued_certs.json"
+
+HTML_TEMPLATE = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ ca_name }} Certificate Authority</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f7fa; color: #333; }
+        .header { background: #1a365d; color: white; padding: 1.5rem 2rem; }
+        .header h1 { font-size: 1.5rem; }
+        .header p { opacity: 0.8; margin-top: 0.25rem; font-size: 0.9rem; }
+        .container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem; overflow: hidden; }
+        .card-header { padding: 1rem 1.5rem; border-bottom: 1px solid #e2e8f0; font-weight: 600; }
+        .card-body { padding: 1.5rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; }
+        .form-group input { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.9rem; }
+        .btn { padding: 0.5rem 1.5rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; font-weight: 500; }
+        .btn-primary { background: #2563eb; color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-danger { background: #dc2626; color: white; }
+        .btn-danger:hover { background: #b91c1c; }
+        .btn-sm { padding: 0.25rem 0.75rem; font-size: 0.8rem; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { font-weight: 600; color: #64748b; }
+        .status-active { color: #16a34a; font-weight: 500; }
+        .status-revoked { color: #dc2626; font-weight: 500; }
+        .alert { padding: 0.75rem 1rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem; }
+        .alert-success { background: #dcfce7; color: #166534; }
+        .alert-error { background: #fef2f2; color: #991b1b; }
+        .cert-download { background: #f8fafc; padding: 1rem; border-radius: 4px; margin-top: 1rem; }
+        .cert-download pre { white-space: pre-wrap; word-break: break-all; font-size: 0.75rem; }
+        .info-row { display: flex; gap: 2rem; margin-bottom: 0.5rem; font-size: 0.85rem; }
+        .info-row strong { min-width: 80px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>""" + CA_NAME + """ Certificate Authority</h1>
+        <p>IP: """ + SERVICE_IP + """ | Issue and manage SSL/TLS certificates</p>
+    </div>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">Request Certificate</div>
+            <div class="card-body">
+                <div id="request-result"></div>
+                <form id="request-form">
+                    <div class="form-group">
+                        <label for="domain">Domain Name</label>
+                        <input type="text" id="domain" name="domain" placeholder="example.com" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Issue Certificate</button>
+                </form>
+                <div id="cert-output" style="display:none" class="cert-download">
+                    <div style="display:flex; gap:0.5rem; margin-bottom:0.75rem;">
+                        <a id="download-cert" class="btn btn-primary" style="font-size:0.8rem; text-decoration:none;" download="cert.crt">Download Certificate (.crt)</a>
+                        <a id="download-key" class="btn btn-primary" style="font-size:0.8rem; text-decoration:none;" download="key.key">Download Private Key (.key)</a>
+                    </div>
+                    <details>
+                        <summary>View PEM contents</summary>
+                        <strong>Certificate:</strong>
+                        <pre id="cert-pem"></pre>
+                        <strong>Private Key:</strong>
+                        <pre id="key-pem"></pre>
+                    </details>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">Issued Certificates</div>
+            <div class="card-body">
+                <table>
+                    <thead><tr><th>Serial</th><th>Subject</th><th>Issued</th><th>Expires</th><th>Status</th><th></th></tr></thead>
+                    <tbody id="cert-table"></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">CA Information</div>
+            <div class="card-body">
+                <div class="info-row"><strong>Name:</strong> <span>""" + CA_NAME + """</span></div>
+                <div class="info-row"><strong>Address:</strong> <span>""" + SERVICE_IP + """:443</span></div>
+                <div class="info-row"><strong>Root CA:</strong> <a href="/api/root" download="root_ca.crt">Download Root Certificate</a></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('request-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const domain = document.getElementById('domain').value;
+            const resultDiv = document.getElementById('request-result');
+            const certOutput = document.getElementById('cert-output');
+            resultDiv.innerHTML = '<div class="alert">Issuing certificate...</div>';
+            certOutput.style.display = 'none';
+            try {
+                const resp = await fetch('/api/issue', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({domain: domain})
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    resultDiv.innerHTML = '<div class="alert alert-success">Certificate issued for ' + domain + '</div>';
+                    document.getElementById('cert-pem').textContent = data.certificate;
+                    document.getElementById('key-pem').textContent = data.private_key;
+                    const certBlob = new Blob([data.certificate], {type: 'application/x-pem-file'});
+                    const keyBlob = new Blob([data.private_key], {type: 'application/x-pem-file'});
+                    document.getElementById('download-cert').href = URL.createObjectURL(certBlob);
+                    document.getElementById('download-cert').download = domain + '.crt';
+                    document.getElementById('download-key').href = URL.createObjectURL(keyBlob);
+                    document.getElementById('download-key').download = domain + '.key';
+                    certOutput.style.display = 'block';
+                    loadCerts();
+                } else {
+                    resultDiv.innerHTML = '<div class="alert alert-error">' + data.error + '</div>';
+                }
+            } catch(err) {
+                resultDiv.innerHTML = '<div class="alert alert-error">Request failed: ' + err.message + '</div>';
+            }
+        });
+
+        async function loadCerts() {
+            try {
+                const resp = await fetch('/api/certificates');
+                const data = await resp.json();
+                const tbody = document.getElementById('cert-table');
+                tbody.innerHTML = data.certificates.map(c => `
+                    <tr>
+                        <td>${c.serial.substring(0, 16)}...</td>
+                        <td>${c.subject}</td>
+                        <td>${c.not_before}</td>
+                        <td>${c.not_after}</td>
+                        <td class="status-${c.status}">${c.status}</td>
+                        <td>${c.status === 'active' ? `<button class="btn btn-danger btn-sm" onclick="revoke('${c.serial}')">Revoke</button>` : ''}</td>
+                    </tr>
+                `).join('');
+            } catch(err) { console.error(err); }
+        }
+
+        async function revoke(serial) {
+            if (!confirm('Revoke this certificate?')) return;
+            try {
+                const resp = await fetch('/api/revoke', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({serial: serial})
+                });
+                const data = await resp.json();
+                if (data.success) loadCerts();
+                else alert('Revoke failed: ' + data.error);
+            } catch(err) { alert('Error: ' + err.message); }
+        }
+
+        loadCerts();
+    </script>
+</body>
+</html>
+"""
+
+
+def run_step(args, input_data=None):
+    """Run a step CLI command and return stdout."""
+    env = os.environ.copy()
+    env["STEPPATH"] = STEPPATH
+    result = subprocess.run(
+        args, capture_output=True, text=True, env=env, input=input_data
+    )
+    return result
+
+
+@app.route("/")
+def index():
+    return render_template_string(HTML_TEMPLATE)
+
+
+@app.route("/api/root")
+def get_root_cert():
+    try:
+        with open(ROOT_CERT, "r") as f:
+            return f.read(), 200, {"Content-Type": "application/x-pem-file",
+                                   "Content-Disposition": "attachment; filename=root_ca.crt"}
+    except FileNotFoundError:
+        return jsonify({"error": "Root certificate not found"}), 500
+
+
+def _load_certs_db():
+    """Load the issued certificates database."""
+    try:
+        with open(CERTS_DB, "r") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return []
+
+
+def _save_certs_db(certs):
+    """Save the issued certificates database."""
+    with open(CERTS_DB, "w") as f:
+        json.dump(certs, f, indent=2)
+
+
+def _parse_cert_info(cert_pem):
+    """Extract serial, not_before, not_after from a PEM certificate."""
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".crt", delete=False) as f:
+        f.write(cert_pem)
+        tmp_path = f.name
+    try:
+        result = subprocess.run(
+            ["openssl", "x509", "-in", tmp_path, "-noout",
+             "-serial", "-startdate", "-enddate"],
+            capture_output=True, text=True
+        )
+        info = {}
+        for line in result.stdout.strip().split("\n"):
+            if line.startswith("serial="):
+                info["serial"] = line.split("=", 1)[1]
+            elif line.startswith("notBefore="):
+                info["not_before"] = line.split("=", 1)[1]
+            elif line.startswith("notAfter="):
+                info["not_after"] = line.split("=", 1)[1]
+        return info
+    finally:
+        os.unlink(tmp_path)
+
+
+@app.route("/api/issue", methods=["POST"])
+def issue_certificate():
+    data = request.get_json()
+    domain = data.get("domain", "").strip()
+    if not domain:
+        return jsonify({"success": False, "error": "Domain is required"}), 400
+    # Optional: more names (subject alternative names) and a validity such as "720h". Slices ask
+    # for longer than the UI's default, up to the CA's maximum (ansible/main.yml sets 2160h).
+    sans = [s.strip() for s in data.get("sans") or [] if isinstance(s, str) and s.strip()]
+    not_after = str(data.get("not_after") or "24h")
+    name_ok = re.compile(r"^(\*\.)?[A-Za-z0-9_.-]+$")
+    if not all(name_ok.match(n) for n in [domain] + sans) or not re.fullmatch(r"[0-9]{1,5}h", not_after):
+        return jsonify({"success": False, "error": "Invalid domain, sans or not_after"}), 400
+
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".crt", delete=False) as cert_file, \
+         tempfile.NamedTemporaryFile(mode="w", suffix=".key", delete=False) as key_file:
+        cert_path = cert_file.name
+        key_path = key_file.name
+
+    try:
+        result = run_step([
+            "step", "ca", "certificate",
+            domain, cert_path, key_path,
+            "--provisioner", "admin",
+            "--provisioner-password-file", PASSWORD_FILE,
+            "--ca-url", CA_URL,
+            "--root", ROOT_CERT,
+            "--not-after", not_after,
+            "--force",
+        ] + [arg for name in ([domain] + sans if sans else []) for arg in ("--san", name)])
+
+        if result.returncode != 0:
+            return jsonify({"success": False, "error": result.stderr.strip()}), 500
+
+        with open(cert_path, "r") as f:
+            cert_pem = f.read()
+        with open(key_path, "r") as f:
+            key_pem = f.read()
+
+        # Track the issued certificate
+        cert_info = _parse_cert_info(cert_pem)
+        certs = _load_certs_db()
+        certs.append({
+            "serial": cert_info.get("serial", "unknown"),
+            "subject": domain,
+            "not_before": cert_info.get("not_before", ""),
+            "not_after": cert_info.get("not_after", ""),
+            "status": "active",
+        })
+        _save_certs_db(certs)
+
+        return jsonify({
+            "success": True,
+            "certificate": cert_pem,
+            "private_key": key_pem,
+            "domain": domain,
+        })
+    finally:
+        os.unlink(cert_path)
+        os.unlink(key_path)
+
+
+@app.route("/api/certificates")
+def list_certificates():
+    certs = _load_certs_db()
+    return jsonify({"certificates": certs})
+
+
+@app.route("/api/revoke", methods=["POST"])
+def revoke_certificate():
+    data = request.get_json()
+    serial = data.get("serial", "").strip()
+    if not serial:
+        return jsonify({"success": False, "error": "Serial number is required"}), 400
+
+    result = run_step([
+        "step", "ca", "revoke",
+        serial,
+        "--provisioner", "admin",
+        "--provisioner-password-file", PASSWORD_FILE,
+        "--ca-url", CA_URL,
+        "--root", ROOT_CERT,
+    ])
+
+    if result.returncode != 0:
+        return jsonify({"success": False, "error": result.stderr.strip()}), 500
+
+    # Update status in tracking DB
+    certs = _load_certs_db()
+    for cert in certs:
+        if cert.get("serial") == serial:
+            cert["status"] = "revoked"
+    _save_certs_db(certs)
+
+    return jsonify({"success": True, "message": f"Certificate {serial} revoked"})
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=80)

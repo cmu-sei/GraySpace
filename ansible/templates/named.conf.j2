@@ -1,0 +1,64 @@
+// BIND configuration for {{ inventory_hostname }} (role: {{ role }})
+// Managed by Ansible — do not edit manually
+
+options {
+    directory "/var/bind";
+    listen-on { any; };
+    listen-on-v6 { none; };
+
+    // Simulated environment — no real DNSSEC
+    dnssec-validation no;
+
+{% if role == 'resolver' %}
+    recursion yes;
+    allow-recursion { any; };
+    allow-query { any; };
+{% else %}
+    recursion no;
+    allow-query { any; };
+{% endif %}
+
+    // Disable zone transfers for security
+    allow-transfer { none; };
+
+    // Reduce logging noise
+    minimal-responses yes;
+};
+
+logging {
+    channel default_log {
+        file "/var/log/named/named.log" versions 3 size 5m;
+        severity info;
+        print-time yes;
+        print-severity yes;
+        print-category yes;
+    };
+    category default { default_log; };
+    category queries { default_log; };
+};
+
+{% if role == 'root-dns' %}
+// Root zone — authoritative for "."
+zone "." {
+    type master;
+    file "/var/bind/db.root";
+};
+{% elif role == 'tld' %}
+// TLD zones — authoritative
+{% for zone in effective_zones %}
+zone "{{ zone }}" {
+    type master;
+    file "/var/bind/db.{{ zone }}";
+};
+
+{% endfor %}
+{% elif role == 'hosting' %}
+// Hosting provider - zone files managed dynamically
+include "/etc/bind/zones.d/dynamic.conf";
+{% elif role == 'resolver' %}
+// Root hints — points to our simulated root servers
+zone "." {
+    type hint;
+    file "/var/bind/root.hints";
+};
+{% endif %}

@@ -1,0 +1,72 @@
+{
+  "name": "Grayspace development environment",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "dev",
+  "workspaceFolder": "/workspaces",
+  "onCreateCommand": "bash .devcontainer/setup-history.sh",
+  "postCreateCommand": "cp .devcontainer/ssh/* /home/vscode/.ssh/ 2>/dev/null || true && git config --global --add safe.directory '*' && git config core.fileMode true && bash .devcontainer/setup-aspire.sh",
+  "postStartCommand": "bash -l .devcontainer/poststart.sh",
+  // .NET and Node for building and testing the GHOSTS clone in GHOSTS/
+  "features": {
+    "ghcr.io/devcontainers/features/dotnet:2": { "version": "10.0" },
+    "ghcr.io/devcontainers/features/node:2": {},
+    // Docker for building and testing container/ (the GraySpace image). Docker CE, not moby,
+    // which is not packaged for the Debian trixie base image.
+    "ghcr.io/devcontainers/features/docker-in-docker:2": { "moby": false }
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "ansible.ansible.path": "/home/vscode/.venv/bin/ansible",
+        "ansible.validation.lint.path": "/home/vscode/.venv/bin/ansible-lint",
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.terminal.activateEnvInCurrentTerminal": false,
+        "python.terminal.activateEnvironment": false,
+        "terminal.integrated.env.linux": {
+          "VIRTUAL_ENV_DISABLE_PROMPT": "1"
+        },
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "[terraform]": {
+          "editor.defaultFormatter": "hashicorp.terraform",
+          "editor.formatOnSave": true
+        },
+        "[terraform-vars]": {
+          "editor.defaultFormatter": "hashicorp.terraform",
+          "editor.formatOnSave": true
+        }
+      },
+      "extensions": [
+        "ms-python.python",
+        "hashicorp.terraform",
+        "redhat.ansible",
+        "wholroyd.jinja",
+        "hediet.vscode-drawio",
+        "ms-azuretools.docker",
+        "anthropic.claude-code",
+        "esbenp.prettier-vscode",
+        "ReprEng.csv",
+        // F5: the Aspire AppHost (aspire/README.md)
+        "microsoft-aspire.aspire-vscode",
+        "ms-dotnettools.csharp"
+      ]
+    }
+  },
+  // What the Aspire AppHost runs (aspire/README.md)
+  "forwardPorts": [18888, 3000, 8000, 9090, 3001, 9342, 8001],
+  "portsAttributes": {
+    "18888": { "label": "Aspire dashboard" },
+    "3000": { "label": "GraySpace UI" },
+    "8000": { "label": "GraySpace API (/docs: Swagger)" },
+    "9090": { "label": "Prometheus" },
+    "9342": { "label": "Router metrics simulator" },
+    "8001": { "label": "Docs" }
+  },
+  "mounts": [
+    // Shell history
+    "source=grayspace-dev-history,target=/home/vscode/.history,type=volume",
+    // Claude Code data (sessions, history, todos, etc.)
+    "source=grayspace-claude-data,target=/home/vscode/.claude,type=volume"
+  ],
+  "remoteUser": "vscode"
+}

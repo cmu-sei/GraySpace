@@ -1,0 +1,27 @@
+{
+  "policies": {
+    "DNSOverHTTPS": { "Enabled": false, "Locked": true },
+    "SecurityDevices": { "Add": { "System trust": "/usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so" } },
+    "CaptivePortal": false,
+    "NetworkPrediction": false,
+    "DisableAppUpdate": true,
+    "DisableTelemetry": true,
+    "DisableFirefoxStudies": true,
+    "DisablePocket": true,
+    "DisableProfileImport": true,
+    "DontCheckDefaultBrowser": true,
+    "NoDefaultBookmarks": true,
+    "HardwareAcceleration": false,
+    "SkipTermsOfUse": true,
+    "OverrideFirstRunPage": "",
+    "OverridePostUpdatePage": "",
+    "UserMessaging": {
+      "WhatsNew": false,
+      "ExtensionRecommendations": false,
+      "FeatureRecommendations": false,
+      "MoreFromMozilla": false,
+      "SkipOnboarding": true
+    },
+    "FirefoxHome": { "SponsoredTopSites": false, "SponsoredPocket": false, "Pocket": false, "Snippets": false }
+  }
+}

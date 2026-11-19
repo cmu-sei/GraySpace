@@ -1,0 +1,6 @@
+---
+# The dns role's settings, for BIND (bind.yml) and for Samba's DNS on a domain controller (samba.yml)
+- name: Collect DNS settings
+  ansible.builtin.set_fact:
+    dns_zone: "{{ (slice_role_vars.dns | default({})).zone | default(slice_instance ~ '.internal') }}"
+    dns_site: "{{ slice_hosts[inventory_hostname].site }}"

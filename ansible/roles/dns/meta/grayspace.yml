@@ -1,0 +1,7 @@
+description: >-
+  A site DNS server, authoritative for an internal zone and forwarding everything else to the host's
+  resolver: BIND, or on a domain controller (with ad-dc) Samba's DNS, which holds port 53 there
+os_families: [ubuntu, debian]
+variables:
+  zone:
+    description: The internal zone (default <prefix>.internal); every host of the site gets an A record in it

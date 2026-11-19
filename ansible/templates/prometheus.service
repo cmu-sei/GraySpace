@@ -1,0 +1,16 @@
+[Unit]
+Description=Prometheus Server
+
+[Service]
+# Inside an LXC, Go sees the host's memory, not the container's, so set its limit explicitly
+# (about 75% of the container's 4 GB; terraform/main.tf).
+Environment=GOMEMLIMIT=3GiB
+ExecStart=/opt/prometheus/prometheus \
+  --config.file=/opt/prometheus/prometheus.yml \
+  --storage.tsdb.retention.time=3d \
+  --storage.tsdb.retention.size=2GB
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

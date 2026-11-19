@@ -1,0 +1,169 @@
+---
+# BGP / OSPF Connectivity Smoke Tests
+# Run after main.yml to validate that routing is working correctly.
+# No files are written to routers — only ping commands are executed.
+#
+# What each test validates:
+#   OSPF    — iBGP peer loopbacks are reachable via OSPF (OSPF adjacencies, loopback announcements)
+#   iBGP    — iBGP peer customer-nets are reachable (RR reflection or full-mesh, next-hop-self)
+#   eBGP    — Directly-peered ISP customer-nets are reachable (eBGP session, route import)
+#   Transit — A non-neighbor ISP's customer-net is reachable (full multi-hop BGP path)
+#
+# Usage:
+#   ansible-playbook test_connectivity.yml               # all routers, random targets
+#   ansible-playbook test_connectivity.yml --limit lum-* # scope to one ISP
+#   ansible-playbook test_connectivity.yml -f 20         # increase forks for speed
+
+- name: BGP / OSPF Connectivity Smoke Tests
+  hosts: routers
+  gather_facts: false
+  vars:
+    ansible_ssh_private_key_file: ../.ssh/terraform_key
+
+  tasks:
+
+    - name: Skip routers without a customer-net (no BGP-routable source address)
+      ansible.builtin.meta: end_host
+      when: customer_net is none
+
+    - name: Set ping source IP from customer-net gateway
+      ansible.builtin.set_fact:
+        _source_ip: "{{ customer_net | ansible.utils.next_nth_usable(1) }}"
+
+    # -------------------------------------------------------------------------
+    # Build per-host target lists (no files written, Jinja2 computed in memory)
+    # -------------------------------------------------------------------------
+
+    - name: Identify iBGP and eBGP neighbor lists
+      ansible.builtin.set_fact:
+        _ibgp_peers: "{{ bgp_neighbors | default([]) | selectattr('type', 'eq', 'INTERNAL_LINK') | list }}"
+        _ebgp_peers: "{{ bgp_neighbors | default([]) | rejectattr('type', 'eq', 'INTERNAL_LINK') | list }}"
+
+    # OSPF targets: 2 random iBGP peer loopbacks.
+    # Loopbacks are OSPF-only (not in BGP), so reachability proves OSPF is up.
+    - name: Select OSPF targets — 2 random iBGP peer loopbacks
+      ansible.builtin.set_fact:
+        _ospf_ips: >-
+          {{ (_ibgp_peers | shuffle)[:2]
+             | map(attribute='hostname') | list
+             | map('extract', hostvars) | list
+             | map(attribute='loopback_ip') | list
+             | map('ansible.utils.ipaddr', 'address') | list }}
+
+    # iBGP targets: 1 random same-AS peer customer-net.
+    # Tests that the RR (or full-mesh) is distributing routes and next-hop-self resolves.
+    - name: Select iBGP target — 1 random iBGP peer customer-net
+      ansible.builtin.set_fact:
+        _ibgp_cust_ips: >-
+          {{ ((_ibgp_peers | shuffle)[:5]
+             | map(attribute='hostname') | list
+             | map('extract', hostvars) | list
+             | rejectattr('customer_net', 'none') | list
+             | rejectattr('customer_net', 'eq', 'None') | list
+             | rejectattr('customer_net', 'eq', '') | list
+             | map(attribute='customer_net') | list
+             | map('ansible.utils.next_nth_usable', 1) | list)[:1] }}
+
+    # eBGP targets: 1 random directly-peered ISP customer-net.
+    # Tests that eBGP sessions are established and routes are importable.
+    - name: Select eBGP target — 1 random eBGP peer customer-net
+      ansible.builtin.set_fact:
+        _ebgp_cust_ips: >-
+          {{ ((_ebgp_peers | shuffle)[:5]
+             | map(attribute='hostname') | list
+             | map('extract', hostvars) | list
+             | rejectattr('customer_net', 'none') | list
+             | rejectattr('customer_net', 'eq', 'None') | list
+             | rejectattr('customer_net', 'eq', '') | list
+             | map(attribute='customer_net') | list
+             | map('ansible.utils.next_nth_usable', 1) | list)[:1] }}
+
+    # Transit target: 1 random customer-net from a different AS.
+    # Tests the full BGP path — local AS → one or more transit ASes → remote AS.
+    - name: Select transit target — 1 random non-local-AS customer-net
+      ansible.builtin.set_fact:
+        _transit_ips: >-
+          {{ (groups['routers']
+             | map('extract', hostvars) | list
+             | rejectattr('asn', 'eq', asn) | list
+             | rejectattr('customer_net', 'none') | list
+             | rejectattr('customer_net', 'eq', 'None') | list
+             | rejectattr('customer_net', 'eq', '') | list
+             | shuffle)[:1]
+             | map(attribute='customer_net')
+             | map('ansible.utils.next_nth_usable', 1) | list }}
+
+    # -------------------------------------------------------------------------
+    # Execute pings
+    # -------------------------------------------------------------------------
+
+    - name: "OSPF | Ping iBGP peer loopbacks"
+      ansible.builtin.command:
+        cmd: "ping -c 2 -W 2 -I {{ _source_ip }} {{ item }}"
+      loop: "{{ _ospf_ips }}"
+      register: r_ospf
+      failed_when: false
+      changed_when: false
+      when: _ospf_ips | length > 0
+
+    - name: "iBGP | Ping same-AS peer customer-nets"
+      ansible.builtin.command:
+        cmd: "ping -c 2 -W 2 -I {{ _source_ip }} {{ item }}"
+      loop: "{{ _ibgp_cust_ips }}"
+      register: r_ibgp
+      failed_when: false
+      changed_when: false
+      when: _ibgp_cust_ips | length > 0
+
+    - name: "eBGP | Ping directly-peered ISP customer-nets"
+      ansible.builtin.command:
+        cmd: "ping -c 2 -W 2 -I {{ _source_ip }} {{ item }}"
+      loop: "{{ _ebgp_cust_ips }}"
+      register: r_ebgp
+      failed_when: false
+      changed_when: false
+      when: _ebgp_cust_ips | length > 0
+
+    - name: "Transit | Ping non-neighbor ISP customer-net"
+      ansible.builtin.command:
+        cmd: "ping -c 2 -W 2 -I {{ _source_ip }} {{ item }}"
+      loop: "{{ _transit_ips }}"
+      register: r_transit
+      failed_when: false
+      changed_when: false
+      when: _transit_ips | length > 0
+
+    # -------------------------------------------------------------------------
+    # Summarize and assert
+    # -------------------------------------------------------------------------
+
+    - name: Compute pass counts
+      ansible.builtin.set_fact:
+        _ospf_pass:    "{{ r_ospf.results    | default([]) | selectattr('rc', 'defined') | selectattr('rc', 'eq', 0) | list | length }}"
+        _ospf_total:   "{{ r_ospf.results    | default([]) | selectattr('rc', 'defined') | list | length }}"
+        _ibgp_pass:    "{{ r_ibgp.results    | default([]) | selectattr('rc', 'defined') | selectattr('rc', 'eq', 0) | list | length }}"
+        _ibgp_total:   "{{ r_ibgp.results    | default([]) | selectattr('rc', 'defined') | list | length }}"
+        _ebgp_pass:    "{{ r_ebgp.results    | default([]) | selectattr('rc', 'defined') | selectattr('rc', 'eq', 0) | list | length }}"
+        _ebgp_total:   "{{ r_ebgp.results    | default([]) | selectattr('rc', 'defined') | list | length }}"
+        _transit_pass: "{{ r_transit.results | default([]) | selectattr('rc', 'defined') | selectattr('rc', 'eq', 0) | list | length }}"
+        _transit_total: "{{ r_transit.results | default([]) | selectattr('rc', 'defined') | list | length }}"
+
+    - name: Display results for this router
+      ansible.builtin.debug:
+        msg:
+          - "=== {{ inventory_hostname }} ({{ isp_name | default('?') }} AS{{ asn }}) ==="
+          - "OSPF    loopback : {{ _ospf_pass }}/{{ _ospf_total }}  targets={{ _ospf_ips }}"
+          - "iBGP    cust-net : {{ _ibgp_pass }}/{{ _ibgp_total }}  targets={{ _ibgp_cust_ips }}"
+          - "eBGP    cust-net : {{ _ebgp_pass }}/{{ _ebgp_total }}  targets={{ _ebgp_cust_ips }}"
+          - "Transit cust-net : {{ _transit_pass }}/{{ _transit_total }}  targets={{ _transit_ips }}"
+
+    - name: Assert all tests passed
+      ansible.builtin.assert:
+        that:
+          - _ospf_pass    | int == _ospf_total    | int
+          - _ibgp_pass    | int == _ibgp_total    | int
+          - _ebgp_pass    | int == _ebgp_total    | int
+          - _transit_pass | int == _transit_total | int
+        fail_msg: "Connectivity tests FAILED on {{ inventory_hostname }}"
+        success_msg: "All connectivity tests passed on {{ inventory_hostname }}"
+      when: (_ospf_total | int + _ibgp_total | int + _ebgp_total | int + _transit_total | int) > 0

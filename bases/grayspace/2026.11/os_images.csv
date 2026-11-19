@@ -1,0 +1,2 @@
+name:ID(Image),url:string,type:string
+alpine-3.22,http://download.proxmox.com/images/system/alpine-3.22-default_20250617_amd64.tar.xz,lxc

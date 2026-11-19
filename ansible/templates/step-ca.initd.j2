@@ -1,0 +1,17 @@
+#!/sbin/openrc-run
+
+name="step-ca"
+description="Smallstep Certificate Authority"
+command="/usr/local/bin/step-ca"
+command_args="/etc/step-ca/config/ca.json --password-file /etc/step-ca/secrets/password.txt"
+command_background=true
+pidfile="/run/${RC_SVCNAME}.pid"
+output_log="/var/log/step-ca/step-ca.log"
+error_log="/var/log/step-ca/step-ca.log"
+
+export STEPPATH="/etc/step-ca"
+
+depend() {
+    need net
+    after firewall
+}

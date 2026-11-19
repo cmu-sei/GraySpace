@@ -1,0 +1,87 @@
+---
+# Postfix (SMTP) and Dovecot (IMAP) for one domain, with local mailboxes in Maildir.
+- name: Collect role settings
+  ansible.builtin.set_fact:
+    mail_domain: >-
+      {{ (slice_role_vars.mail | default({})).domain
+         | default(slice_domains | first | default(slice_instance ~ '.internal')) }}
+    mail_accounts: "{{ (slice_role_vars.mail | default({})).users | default(mail_users) }}"
+
+- name: Preseed Postfix
+  ansible.builtin.debconf:
+    name: postfix
+    question: "{{ item.question }}"
+    value: "{{ item.value }}"
+    vtype: "{{ item.vtype }}"
+  loop:
+    - { question: postfix/main_mailer_type, value: Internet Site, vtype: select }
+    - { question: postfix/mailname, value: "{{ mail_domain }}", vtype: string }
+
+# The preseed doesn't reach a Postfix already installed (the GraySpace Ubuntu VM image)
+- name: Name the mail domain
+  ansible.builtin.copy:
+    dest: /etc/mailname
+    content: "{{ mail_domain }}\n"
+    mode: "0644"
+
+- name: Install Postfix and Dovecot
+  ansible.builtin.include_role:
+    name: grayspace-host
+    tasks_from: packages
+  vars:
+    gs_packages: [postfix, dovecot-imapd, dovecot-pop3d]
+
+- name: Configure Postfix
+  ansible.builtin.command:
+    cmd: >-
+      postconf -e
+      myhostname={{ inventory_hostname }}.{{ mail_domain }}
+      mydomain={{ mail_domain }}
+      myorigin={{ mail_domain }}
+      'mydestination=$myhostname, {{ mail_domain }}, localhost'
+      inet_interfaces=all
+      home_mailbox=Maildir/
+      'mynetworks=127.0.0.0/8 {{ mail_segment }}'
+  vars:
+    mail_segment: >-
+      {{ (slice_hosts[inventory_hostname].ip ~ '/' ~ slice_hosts[inventory_hostname].prefixlen) | ansible.utils.ipaddr('network/prefix') }}
+  changed_when: true
+  notify: Restart Postfix
+
+- name: Store mail in Maildir for Dovecot
+  ansible.builtin.copy:
+    dest: /etc/dovecot/conf.d/99-grayspace.conf
+    content: |
+      mail_location = maildir:~/Maildir
+      disable_plaintext_auth = no
+      auth_mechanisms = plain login
+    mode: "0644"
+  notify: Restart Dovecot
+
+- name: Create mailboxes
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    shell: /usr/sbin/nologin
+    create_home: true
+  loop: "{{ mail_accounts }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Set mailbox passwords
+  ansible.builtin.shell: |
+    set -o pipefail
+    echo '{{ item.name }}:{{ item.password }}' | chpasswd
+  args:
+    executable: /bin/bash
+  loop: "{{ mail_accounts }}"
+  loop_control:
+    label: "{{ item.name }}"
+  no_log: true
+  changed_when: true
+
+- name: Start the services
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  loop: [postfix, dovecot]

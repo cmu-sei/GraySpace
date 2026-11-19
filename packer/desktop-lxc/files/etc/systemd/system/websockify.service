@@ -1,0 +1,13 @@
+[Unit]
+Description=WebSocket bridge to the desktop's VNC (:6080, for the web UI's desktop proxy)
+After=x11vnc.service
+Requires=x11vnc.service
+
+[Service]
+User=user
+ExecStart=/usr/bin/websockify 0.0.0.0:6080 localhost:5900
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

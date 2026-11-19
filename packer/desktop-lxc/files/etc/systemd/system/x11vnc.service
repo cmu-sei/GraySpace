@@ -1,0 +1,14 @@
+[Unit]
+Description=VNC for the desktop (localhost:5900, no password; websockify publishes it)
+After=xvfb.service
+BindsTo=xvfb.service
+
+[Service]
+User=user
+ExecStartPre=/bin/sh -c 'until [ -S /tmp/.X11-unix/X0 ]; do sleep 0.2; done'
+ExecStart=/usr/bin/x11vnc -display :0 -forever -shared -rfbport 5900 -localhost -nopw -quiet
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

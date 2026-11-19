@@ -1,0 +1,6 @@
+# What the tests need beyond requirements.txt: rendering Ansible templates, and validating the
+# published OpenAPI document and JSON Schemas.
+-r requirements.txt
+Jinja2==3.1.6
+openapi-spec-validator==0.7.2
+jsonschema==4.25.1

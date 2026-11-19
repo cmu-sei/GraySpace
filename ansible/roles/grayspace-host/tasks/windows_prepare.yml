@@ -1,0 +1,21 @@
+---
+- name: Find the management interface and its gateway
+  ansible.windows.win_powershell:
+    script: |
+      $addr = Get-NetIPAddress -AddressFamily IPv4 | Where-Object IPAddress -eq '{{ ansible_host }}'
+      $route = Get-NetRoute -AddressFamily IPv4 -DestinationPrefix 0.0.0.0/0 -InterfaceIndex $addr.InterfaceIndex -ErrorAction SilentlyContinue |
+        Select-Object -First 1
+      $Ansible.Result = @{ index = $addr.InterfaceIndex; gateway = if ($route) { $route.NextHop } else { '{{ slice_mgmt_gateway }}' } }
+      $Ansible.Changed = $false
+  register: gs_win_mgmt
+
+- name: Record the management interface and gateway
+  ansible.builtin.set_fact:
+    gs_mgmt_interface: "{{ gs_win_mgmt.result.index }}"
+    gs_mgmt_gateway: "{{ gs_win_mgmt.result.gateway }}"
+    gs_mgmt_route_ips: "{{ slice_mgmt_routes | select('match', '^[0-9.]+$') | list }}"
+
+- name: Prefer the management network while packages download
+  ansible.windows.win_powershell:
+    script: |
+      Set-NetIPInterface -InterfaceIndex {{ gs_mgmt_interface }} -InterfaceMetric 1

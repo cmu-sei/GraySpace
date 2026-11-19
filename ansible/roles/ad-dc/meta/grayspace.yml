@@ -1,0 +1,14 @@
+description: A Samba Active Directory domain controller for the site
+os_families: [ubuntu, debian]
+# Samba's sysvol needs extended attributes and ACLs an unprivileged container lacks
+image_types: [vm]
+variables:
+  realm:
+    description: The Kerberos realm / DNS domain of the directory, e.g. corp.meridian-bank.com
+    required: true
+  domain:
+    description: The NetBIOS domain name, e.g. MERIDIAN
+    required: true
+  admin_password:
+    description: Password of the domain Administrator
+    required: true

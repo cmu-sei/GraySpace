@@ -1,0 +1,135 @@
+:START_ID(Router),:END_ID(Location),:TYPE
+lum-sfr,San Francisco,LOCATED_IN
+lum-por,Portland,LOCATED_IN
+lum-kck,Kansas City,LOCATED_IN
+lum-mex,Mexico City,LOCATED_IN
+lum-chi,Chicago,LOCATED_IN
+lum-nyc,New York,LOCATED_IN
+lum-ash,Ashburn,LOCATED_IN
+lum-for,Fortaleza,LOCATED_IN
+lum-lim,Lima,LOCATED_IN
+lum-brs,Brasilia,LOCATED_IN
+lum-lon,London,LOCATED_IN
+lum-fra,Frankfurt,LOCATED_IN
+lum-hel,Helsinki,LOCATED_IN
+lum-mos,Moscow,LOCATED_IN
+lum-cai,Cairo,LOCATED_IN
+lum-dub,Dubai,LOCATED_IN
+lum-dji,Djibouti,LOCATED_IN
+lum-lag,Lagos,LOCATED_IN
+lum-alg,Algiers,LOCATED_IN
+lum-joh,Johannesburg,LOCATED_IN
+lum-mum,Mumbai,LOCATED_IN
+lum-hkg,Hong Kong,LOCATED_IN
+lum-man,Manila,LOCATED_IN
+lum-sin,Singapore,LOCATED_IN
+lum-tok,Tokyo,LOCATED_IN
+lum-seo,Seoul,LOCATED_IN
+are-sfr,San Francisco,LOCATED_IN
+are-lax,Los Angeles,LOCATED_IN
+are-den,Denver,LOCATED_IN
+are-chi,Chicago,LOCATED_IN
+are-ash,Ashburn,LOCATED_IN
+are-for,Fortaleza,LOCATED_IN
+are-bog,Bogota,LOCATED_IN
+are-san,Santiago,LOCATED_IN
+are-lon,London,LOCATED_IN
+are-par,Paris,LOCATED_IN
+are-lis,Lisbon,LOCATED_IN
+are-fra,Frankfurt,LOCATED_IN
+are-hel,Helsinki,LOCATED_IN
+are-mos,Moscow,LOCATED_IN
+are-cai,Cairo,LOCATED_IN
+are-lag,Lagos,LOCATED_IN
+are-dji,Djibouti,LOCATED_IN
+are-dub,Dubai,LOCATED_IN
+are-del,Delhi,LOCATED_IN
+are-mum,Mumbai,LOCATED_IN
+are-che,Chennai,LOCATED_IN
+are-hkg,Hong Kong,LOCATED_IN
+are-seo,Seoul,LOCATED_IN
+are-man,Manila,LOCATED_IN
+are-sin,Singapore,LOCATED_IN
+are-per,Perth,LOCATED_IN
+are-syd,Sydney,LOCATED_IN
+are-ade,Adelaide,LOCATED_IN
+ntt-por,Portland,LOCATED_IN
+ntt-lax,Los Angeles,LOCATED_IN
+ntt-chi,Chicago,LOCATED_IN
+ntt-ash,Ashburn,LOCATED_IN
+ntt-lis,Lisbon,LOCATED_IN
+ntt-san,Santiago,LOCATED_IN
+ntt-lim,Lima,LOCATED_IN
+ntt-brs,Brasilia,LOCATED_IN
+ntt-bai,Buenos Aires,LOCATED_IN
+ntt-cai,Cairo,LOCATED_IN
+ntt-kyv,Kyiv,LOCATED_IN
+ntt-mos,Moscow,LOCATED_IN
+ntt-dji,Djibouti,LOCATED_IN
+ntt-lag,Lagos,LOCATED_IN
+ntt-joh,Johannesburg,LOCATED_IN
+ntt-dub,Dubai,LOCATED_IN
+ntt-del,Delhi,LOCATED_IN
+ntt-che,Chennai,LOCATED_IN
+ntt-krs,Krasnoyarsk,LOCATED_IN
+ntt-hkg,Hong Kong,LOCATED_IN
+ntt-man,Manila,LOCATED_IN
+ntt-sin,Singapore,LOCATED_IN
+ntt-dar,Darwin,LOCATED_IN
+ntt-per,Perth,LOCATED_IN
+ntt-syd,Sydney,LOCATED_IN
+ntt-seo,Seoul,LOCATED_IN
+ntt-tok,Tokyo,LOCATED_IN
+ntt-vla,Vladivostok,LOCATED_IN
+com-por,Portland,LOCATED_IN
+com-sfr,San Francisco,LOCATED_IN
+com-den,Denver,LOCATED_IN
+com-hou,Houston,LOCATED_IN
+com-chi,Chicago,LOCATED_IN
+com-ash,Ashburn,LOCATED_IN
+com-nyc,New York,LOCATED_IN
+rog-van,Vancouver,LOCATED_IN
+rog-edm,Edmonton,LOCATED_IN
+rog-wpg,Winnipeg,LOCATED_IN
+rog-tor,Toronto,LOCATED_IN
+rog-mtl,Montreal,LOCATED_IN
+ctl-bei,Beijing,LOCATED_IN
+ctl-sha,Shanghai,LOCATED_IN
+ctl-hkg,Hong Kong,LOCATED_IN
+ctl-chg,Chengdu,LOCATED_IN
+sin-tok,Tokyo,LOCATED_IN
+sin-hcm,Ho Chi Minh City,LOCATED_IN
+sin-sin,Singapore,LOCATED_IN
+sin-dil,Dili,LOCATED_IN
+sin-per,Perth,LOCATED_IN
+sin-brs,Brisbane,LOCATED_IN
+sin-mel,Melbourne,LOCATED_IN
+liq-alg,Algiers,LOCATED_IN
+liq-abj,Abidjan,LOCATED_IN
+liq-mom,Mombasa,LOCATED_IN
+liq-cpt,Cape Town,LOCATED_IN
+tdc-mad,Madrid,LOCATED_IN
+tdc-cop,Copenhagen,LOCATED_IN
+tdc-pra,Prague,LOCATED_IN
+tdc-war,Warsaw,LOCATED_IN
+tdc-buc,Bucharest,LOCATED_IN
+stc-dam,Damascus,LOCATED_IN
+stc-riy,Riyadh,LOCATED_IN
+stc-teh,Tehran,LOCATED_IN
+stc-dub,Dubai,LOCATED_IN
+bns-del,Delhi,LOCATED_IN
+bns-hyd,Hyderabad,LOCATED_IN
+bns-kol,Kolkata,LOCATED_IN
+sea-brs,Brasilia,LOCATED_IN
+sea-sal,Salvador,LOCATED_IN
+sea-sao,Sao Paulo,LOCATED_IN
+cla-qui,Quito,LOCATED_IN
+cla-car,Caracas,LOCATED_IN
+cla-lap,La Paz,LOCATED_IN
+mts-mos,Moscow,LOCATED_IN
+mts-agb,Ashgabat,LOCATED_IN
+mts-krs,Krasnoyarsk,LOCATED_IN
+mts-vla,Vladivostok,LOCATED_IN
+tel-gua,Guadalajara,LOCATED_IN
+tel-mex,Mexico City,LOCATED_IN
+tel-oax,Oaxaca,LOCATED_IN

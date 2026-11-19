@@ -1,0 +1,16 @@
+[Unit]
+Description=GHOSTS client (GraySpace slice {{ slice_instance }})
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory={{ ghosts_executable | dirname }}
+ExecStart={{ ghosts_executable }}
+# The client is self-contained; this avoids needing ICU on minimal images.
+Environment=DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

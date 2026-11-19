@@ -1,0 +1,59 @@
+#!/bin/bash
+# Proxmox host IP address or hostname
+export TF_VAR_proxmox_host_addr="localhost"
+# Proxmox host port
+export PROXMOX_PORT="8006"
+# Proxmox host IP address or hostname for the Proxmox API endpoint
+export PROXMOX_VE_ENDPOINT="https://${TF_VAR_proxmox_host_addr}:${PROXMOX_PORT}/"
+# Proxmox realm username (use this OR PROXMOX_VE_API_TOKEN, not both)
+export PROXMOX_VE_USERNAME="root@pam"
+# Proxmox realm password (use this OR PROXMOX_VE_API_TOKEN, not both)
+export PROXMOX_VE_PASSWORD="grayspace"
+# Proxmox node to deploy the containers on
+export TF_VAR_proxmox_node="gray-appliance"
+# Proxmox datastore name of the block storage for the deployed containers
+export TF_VAR_proxmox_blockstore="local-lvm"
+# Proxmox datastore name of the file storage for the container templates and the VMs' cloud-init snippets
+export TF_VAR_proxmox_filestore="local"
+# Proxmox bridge for management traffic (DHCP-enabled, used by Ansible and FRR exporter)
+export TF_VAR_proxmox_mgmt_bridge="vmbr1"
+# Proxmox bridge that deployed containers will use to pass vlan tagged traffic out of Proxmox
+export TF_VAR_proxmox_vm_bridge="vmbr2"
+# A unique 3-character prefix for all resource names, used to avoid collisions between deployments
+export TF_VAR_environment_id="app"
+# Where the GraySpace Alpine image (routers, core services, slice edges) comes from, instead of the
+# grayspace-alpine URL in images/images.csv (optional)
+# export TF_VAR_alpine_image_url=""
+# Who fetches it: "upload" (default), this machine, directly, then uploads it to the node over the API;
+# or "download", the node, through the cluster's proxy (datacenter.cfg), as for a public URL
+# export TF_VAR_alpine_image_transfer="upload"
+# root password set on all LXC containers, used for SSH access by Ansible
+export TF_VAR_router_password="grayspace"
+# Enable appliance mode for grayspace-web deployment
+export TF_VAR_grayspace_appliance_mode=true
+
+# --- Set the below values to integrate GraySpace with Crucible
+
+# Configure Crucible with proxmox consoles in terraform using module flag
+export TF_VAR_configure_crucible=false
+# Crucible service account username for the Terraform provider
+export TF_VAR_crucible_username="default"
+# Crucible service account password for the Terraform provider
+export TF_VAR_crucible_password="password@1"
+# Keycloak authorization endpoint where users are redirected to log in
+export TF_VAR_crucible_auth_url="https://crucible.edu/keycloak/realms/crucible/protocol/openid-connect/auth"
+# Keycloak token endpoint where the provider exchanges credentials for access tokens
+export TF_VAR_crucible_token_url="https://crucible.edu/keycloak/realms/crucible/protocol/openid-connect/token"
+# Crucible OAuth client ID used by the Terraform provider
+export TF_VAR_crucible_client_id="fortress_00000000-0000-0000-0000-000000000000_terraform_provider_crucible"
+# OAuth scopes requested by the Crucible Terraform provider
+export TF_VAR_crucible_client_scopes='["vm-api","player-api"]'
+# Crucible VM API base URL for managing virtual machines
+export TF_VAR_crucible_vm_api_url="https://crucible.edu/vm/api"
+# Crucible Player API base URL for managing views and applications
+export TF_VAR_crucible_player_api_url="https://crucible.edu/player/api"
+# Crucible Caster API base URL for managing Terraform workspaces
+export TF_VAR_crucible_caster_api_url="https://crucible.edu/caster/api"
+# Crucible User ID that will be added automatically to a new Crucible view
+export TF_VAR_crucible_user_id="00000000-0000-0000-0000-000000000000"
+

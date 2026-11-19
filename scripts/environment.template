@@ -1,0 +1,93 @@
+#!/bin/bash
+# The Proxmox and Crucible settings below seed the web app's first connections (Admin > Platform) on
+# its first start; after that, deployments take them from there. task and adopted trees still read them.
+# Proxmox host IP address or hostname
+export TF_VAR_proxmox_host_addr="pve-n1.example.com"
+# Proxmox host port
+export PROXMOX_PORT="8006"
+# Proxmox host IP address or hostname for the Proxmox API endpoint
+export PROXMOX_VE_ENDPOINT="https://${TF_VAR_proxmox_host_addr}:${PROXMOX_PORT}/"
+# Proxmox realm username (use this OR PROXMOX_VE_API_TOKEN, not both)
+export PROXMOX_VE_USERNAME="user@pam"
+# Proxmox realm password (use this OR PROXMOX_VE_API_TOKEN, not both)
+export PROXMOX_VE_PASSWORD=""
+# Proxmox API token (format: user@realm!tokenname=token-uuid, use this OR username/password, not both)
+export PROXMOX_VE_API_TOKEN="terraform@pve!terraformtoken=your_token_here"
+# Proxmox host SSH username
+export PROXMOX_VE_SSH_USERNAME="root"
+# Proxmox host SSH password
+export PROXMOX_VE_SSH_PASSWORD=""
+# Proxmox node to deploy the containers on
+export TF_VAR_proxmox_node="pve1"
+# Proxmox datastore name of the block storage for the deployed containers
+export TF_VAR_proxmox_blockstore="local-lvm"
+# Proxmox datastore name of the file storage for the container templates and the VMs' cloud-init snippets
+export TF_VAR_proxmox_filestore="local"
+# Proxmox bridge for management traffic (DHCP-enabled, used by Ansible and FRR exporter)
+export TF_VAR_proxmox_mgmt_bridge="vmbr0"
+# Proxmox bridge that deployed containers will use to pass vlan tagged traffic out of Proxmox
+export TF_VAR_proxmox_vm_bridge="vmbr1"
+# A unique 3-character prefix for all resource names, used to avoid collisions between deployments (at most 4: slice vnet IDs add 4 and Proxmox allows 8)
+export TF_VAR_environment_id="abc"
+# Where the GraySpace Alpine image (routers, core services, slice edges) comes from, instead of the
+# grayspace-alpine URL in images/images.csv (optional)
+# export TF_VAR_alpine_image_url=""
+# Who fetches it, and GraySpace's other images (grayspace-* in images/images.csv) for enclaves:
+# "upload" (default), this machine, directly, then uploads it to the node over the API;
+# or "download", the node, through the cluster's proxy (datacenter.cfg), as for a public URL
+# export TF_VAR_alpine_image_transfer="upload"
+# root password set on all LXC containers, used for SSH access by Ansible
+export TF_VAR_router_password=""
+# Only behind a proxy (task env asks). Unset, guests use this machine's own http_proxy, if any; set
+# empty (""), no proxy at all. A Proxmox connection in Admin > Platform can choose its own.
+# The proxy guests install packages through (Ansible)
+# export TF_VAR_proxy="http://proxy.corp.com:80"
+# Hosts and networks reached without the proxy, comma-separated
+# export TF_VAR_no_proxy="localhost,127.0.0.1,192.168.0.1/24,.corp.com"
+# Bearer token for the GraySpace Terrain API and the web UI's write routes ("generate" makes a random one)
+export GRAYSPACE_API_TOKEN="generate"
+# The web UI's first admin account, created on first start; its one-time password is in the API's log.
+# More accounts: the UI's Admin > Users, or task user:create NAME=<name> ROLE=admin|builder|user
+export GRAYSPACE_BOOTSTRAP_ADMIN="admin"
+# Sign-in sources (local; oidc later) and how long a session lasts unused, in seconds
+#export GRAYSPACE_AUTH_PROVIDERS="local"
+#export GRAYSPACE_SESSION_TTL=43200
+# The header's app switcher (GET /api/apps), in order; apps without a Url are not shown.
+# Unset: Scenario Builder (http://localhost:4310), GraySpace, Chronicle (http://localhost:4320), GHOSTS
+#export GRAYSPACE_APPS='[{"Id":"scenario-builder","Name":"Scenario Builder","Url":"http://localhost:4310"},{"Id":"grayspace","Name":"GraySpace"},{"Id":"chronicle","Name":"Chronicle","Url":"http://localhost:4320"},{"Id":"ghosts","Name":"GHOSTS"}]'
+# Other browser origins allowed to call the GraySpace API, comma-separated (e.g. the GHOSTS UI)
+export GRAYSPACE_CORS_ORIGINS="http://localhost:3000"
+# Configure Crucible with proxmox consoles in terraform using module flag
+export TF_VAR_configure_crucible=false
+# Crucible service account username for the Terraform provider
+export TF_VAR_crucible_username="default"
+# Crucible service account password for the Terraform provider
+export TF_VAR_crucible_password="password@1"
+# Keycloak authorization endpoint where users are redirected to log in
+export TF_VAR_crucible_auth_url="https://crucible.edu/keycloak/realms/crucible/protocol/openid-connect/auth"
+# Keycloak token endpoint where the provider exchanges credentials for access tokens
+export TF_VAR_crucible_token_url="https://crucible.edu/keycloak/realms/crucible/protocol/openid-connect/token"
+# Crucible OAuth client ID used by the Terraform provider
+export TF_VAR_crucible_client_id="fortress_00000000-0000-0000-0000-000000000000_terraform_provider_crucible"
+# OAuth scopes requested by the Crucible Terraform provider
+export TF_VAR_crucible_client_scopes='["vm-api","player-api"]'
+# Crucible VM API base URL for managing virtual machines
+export TF_VAR_crucible_vm_api_url="https://crucible.edu/vm/api"
+# Crucible Player API base URL for managing views and applications
+export TF_VAR_crucible_player_api_url="https://crucible.edu/player/api"
+# Crucible Caster API base URL for managing Terraform workspaces
+export TF_VAR_crucible_caster_api_url="https://crucible.edu/caster/api"
+# Crucible User ID that will be added automatically to a new Crucible view
+export TF_VAR_crucible_user_id="00000000-0000-0000-0000-000000000000"
+# Bastion host used by sshuttle
+export bastion_host="bastion.example.com"
+# Bastion username
+export bastion_username="administrator"
+# GraySpace runs as a container on a Docker host (docs/install.md): report its address as the
+# GraySpace URL
+#export TF_VAR_grayspace_url="http://docker-host.example:8080"
+# Several deployments on one Proxmox cluster (docs/deployments.md): every checkout that deploys to
+# the cluster must share one lock file, since SDN applies are cluster-wide. The control plane sets
+# both of these in its deployments' environment files; a hand-made second checkout needs them too.
+#export GRAYSPACE_LOCK_FILE="/var/lib/grayspace/locks/proxmox.example.lock"
+#export TF_VAR_write_home_ssh_key=false

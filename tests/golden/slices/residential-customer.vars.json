@@ -1,0 +1,61 @@
+{
+  "slice_ca_bundle": "/data/instances/res/ca-bundle.pem",
+  "slice_domains": [],
+  "slice_edges": {
+    "res-home-edge": {
+      "bgp": null,
+      "mgmt_interface": "eth2",
+      "published": [],
+      "resolver": "8.8.8.8",
+      "routed": false,
+      "segments": [
+        {
+          "cidr": "192.168.0.0/24",
+          "gateway": "192.168.0.1",
+          "interface": "eth1",
+          "name": "home-lan"
+        }
+      ],
+      "site": "home",
+      "wans": [
+        {
+          "gateway": "73.158.0.1",
+          "interface": "eth0",
+          "ip": "73.158.0.2",
+          "prefixlen": 24,
+          "router": "com-sfr"
+        }
+      ]
+    }
+  },
+  "slice_hosts": {
+    "res-desktop": {
+      "certificate": null,
+      "gateway": "192.168.0.1",
+      "ip": "192.168.0.10",
+      "labels": {},
+      "mgmt_interface": "eth1",
+      "name": "desktop",
+      "os_family": "ubuntu",
+      "prefixlen": 24,
+      "public_ip": null,
+      "resolver": "8.8.8.8",
+      "roles": [],
+      "segment": "home-lan",
+      "sim_interface": "eth0",
+      "site": "home"
+    }
+  },
+  "slice_instance": "res",
+  "slice_mgmt_routes": [],
+  "slice_role_vars": {},
+  "slice_site_hosts": {
+    "home": [
+      {
+        "hostname": "res-desktop",
+        "ip": "192.168.0.10",
+        "name": "desktop"
+      }
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+---
+# A GHOSTS client that reports to the GHOSTS API under its hostname: Id.Format other
+# than guestinfo makes the client identify by machine name, which on Proxmox is the slice hostname.
+- name: Collect role settings
+  ansible.builtin.set_fact:
+    ghosts: "{{ slice_role_vars['ghosts-client'] }}"
+
+- name: Install on Windows
+  ansible.builtin.include_tasks: windows.yml
+  when: slice_hosts[inventory_hostname].os_family == 'windows'
+
+- name: Install on Linux
+  ansible.builtin.include_tasks: linux.yml
+  when: slice_hosts[inventory_hostname].os_family != 'windows'

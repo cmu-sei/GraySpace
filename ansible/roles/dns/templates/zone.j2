@@ -1,0 +1,8 @@
+; {{ dns_zone }}: hosts of slice site {{ dns_site }}. Written by GraySpace.
+$TTL 300
+@   IN  SOA ns1.{{ dns_zone }}. admin.{{ dns_zone }}. ( {{ ansible_date_time.epoch }} 3600 900 604800 300 )
+@   IN  NS  ns1.{{ dns_zone }}.
+ns1 IN  A   {{ slice_hosts[inventory_hostname].ip }}
+{% for h in slice_site_hosts[dns_site] | default([]) %}
+{{ h.name }} IN A {{ h.ip }}
+{% endfor %}

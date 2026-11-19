@@ -1,0 +1,9 @@
+; Root hints for GraySpace simulated DNS
+; Managed by Ansible — do not edit manually
+;
+; Points resolvers to our simulated root servers
+; instead of the real Internet root servers.
+{% for server in dns_root_hosts %}
+.                               IN  NS  {{ server.hostname }}.root-servers.net.
+{{ server.hostname }}.root-servers.net.  IN  A   {{ server.ip }}
+{% endfor %}

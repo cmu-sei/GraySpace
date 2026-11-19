@@ -1,0 +1,53 @@
+# An office with a mail server and a Windows GHOSTS client. windows-2022 is not shipped:
+# build the template with packer/windows/ and register it first:
+#   curl -X POST -H "Authorization: Bearer $GRAYSPACE_API_TOKEN" $GRAYSPACE/api/v1/images \
+#     -d '{"name": "windows-2022", "type": "vm", "os_family": "windows", "source": "template:9000",
+#          "cores": 2, "memory": 4096, "disk": 40}'
+apiVersion: grayspace/v1
+kind: Slice
+slug: windows-office
+prefix: wo
+description: A small office with a mail server, a directory and a Windows GHOSTS client
+sites:
+  - name: office
+    attach: { isp: Lumen, location: Chicago }
+    segments:
+      - name: of-lan
+hosts:
+  - name: mail
+    segment: of-lan
+    image: grayspace-ubuntu-lxc
+    roles: [mail]
+    publish: true
+  - name: dc
+    segment: of-lan
+    image: grayspace-ubuntu-vm
+    roles: [ad-dc, dns]
+  - name: files
+    segment: of-lan
+    image: grayspace-ubuntu-lxc
+    roles: [file]
+  - name: win
+    segment: of-lan
+    image: windows-2022
+    roles: [ghosts-client]
+    labels: { ghosts.pool: office }
+dns:
+  domains:
+    - { domain: contoso-office.com, hosting_server: dns-ovh }
+  records:
+    - { name: mail.contoso-office.com, host: mail }
+    - { name: contoso-office.com, type: MX, data: "10 mail.contoso-office.com." }
+role_vars:
+  mail:
+    users:
+      - { name: alice, password: grayspace }
+      - { name: bob, password: grayspace }
+  ad-dc:
+    realm: corp.contoso-office.com
+    domain: CONTOSO
+    admin_password: GraySpace-2026!
+  ghosts-client:
+    client_url: http://ghosts.mgmt.example/clients/ghosts-client-windows.zip
+    api_url: http://ghosts.mgmt.example:5000/api
+    api_host: ghosts.mgmt.example

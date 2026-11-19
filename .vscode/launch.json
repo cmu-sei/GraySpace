@@ -1,0 +1,22 @@
+{
+  // F5 runs the Aspire AppHost (aspire/README.md): the API, the UI and the infrastructure they
+  // need, with the Python API under the debugger. Needs the Aspire extension and CLI
+  // (the devcontainer installs both).
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "aspire",
+      "request": "launch",
+      "name": "GraySpace (simulated)",
+      "program": "${workspaceFolder}/aspire/GraySpace.AppHost/GraySpace.AppHost.csproj",
+      "launchProfile": "simulated"
+    },
+    {
+      "type": "aspire",
+      "request": "launch",
+      "name": "GraySpace (deployment)",
+      "program": "${workspaceFolder}/aspire/GraySpace.AppHost/GraySpace.AppHost.csproj",
+      "launchProfile": "deployment"
+    }
+  ]
+}
