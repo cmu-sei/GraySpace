@@ -12,7 +12,7 @@
     "ghcr.io/devcontainers/features/node:2": {},
     // Docker for building and testing container/ (the GraySpace image). Docker CE, not moby,
     // which is not packaged for the Debian trixie base image.
-    "ghcr.io/devcontainers/features/docker-in-docker:2": { "moby": false }
+    "ghcr.io/devcontainers/features/docker-in-docker:4": { "moby": false }
   },
   "customizations": {
     "vscode": {
