@@ -8,7 +8,7 @@ terraform {
   required_providers {
     proxmox = {
       source  = "bpg/proxmox"
-      version = "~>0.114.0"
+      version = "~>0.122.0"
     }
     tls = {
       source  = "hashicorp/tls"
@@ -28,7 +28,7 @@ terraform {
     }
     crucible = {
       source  = "cmu-sei/crucible"
-      version = "~>2.7.1" # 2.6.0+ reuses its Keycloak token (2.5 logged in on every API call)
+      version = "~>2.8.0" # 2.6.0+ reuses its Keycloak token (2.5 logged in on every API call)
     }
   }
   required_version = ">= 1.0"
