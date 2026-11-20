@@ -33,9 +33,10 @@ export TF_VAR_environment_id="abc"
 # grayspace-alpine URL in images/images.csv (optional)
 # export TF_VAR_alpine_image_url=""
 # Who fetches it, and GraySpace's other images (grayspace-* in images/images.csv) for enclaves:
-# "upload" (default), this machine, directly, then uploads it to the node over the API;
-# or "download", the node, through the cluster's proxy (datacenter.cfg), as for a public URL
-# export TF_VAR_alpine_image_transfer="upload"
+# "download" (default), the node, through the cluster's proxy (datacenter.cfg), which must allow
+# github.com and release-assets.githubusercontent.com; or "upload", this machine, directly (no
+# proxy), then uploads it to the node over the API, for a server only this machine reaches
+# export TF_VAR_alpine_image_transfer="download"
 # root password set on all LXC containers, used for SSH access by Ansible
 export TF_VAR_router_password=""
 # Only behind a proxy (task env asks). Unset, guests use this machine's own http_proxy, if any; set

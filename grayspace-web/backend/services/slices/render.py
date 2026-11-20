@@ -35,7 +35,7 @@ class RenderEnv:
     # TF_VAR_alpine_image_url instead of its catalog URL, and TF_VAR_alpine_image_transfer, which
     # the images module follows for GraySpace's other images too (uploaded)
     alpine_image_url: Optional[str] = None
-    alpine_image_transfer: str = "upload"
+    alpine_image_transfer: str = "download"
 
     @classmethod
     def from_env(cls, env: Dict[str, str]) -> "RenderEnv":
@@ -46,7 +46,7 @@ class RenderEnv:
             environment_id=env["TF_VAR_environment_id"],
             filestore=env["TF_VAR_proxmox_filestore"],
             alpine_image_url=env.get("TF_VAR_alpine_image_url") or None,
-            alpine_image_transfer=env.get("TF_VAR_alpine_image_transfer") or "upload",
+            alpine_image_transfer=env.get("TF_VAR_alpine_image_transfer") or "download",
         )
 
 
@@ -78,7 +78,8 @@ def image_volume(env: RenderEnv, image: Image) -> dict:
 
 def uploaded(env: RenderEnv, image: Image) -> bool:
     """GraySpace's own images (packer/, grayspace-* in the catalog) follow the base's Alpine image
-    transfer: until they are public release assets, the node may not reach where they are served."""
+    transfer: uploaded when the base's are (TF_VAR_alpine_image_transfer=upload), for a server the
+    node may not reach; by default the node downloads them from their GitHub release."""
     return (image.origin == "shipped" and image.name.startswith("grayspace-") and image.type != "oci"
             and env.alpine_image_transfer == "upload")
 

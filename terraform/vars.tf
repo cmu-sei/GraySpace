@@ -127,8 +127,8 @@ variable "ubuntu_lxc_image_url" {
 }
 variable "alpine_image_transfer" {
   type        = string
-  default     = "upload"
-  description = "Who fetches the GraySpace images the base uses (Alpine, and Ubuntu LXC for Prometheus): the node (download, through the cluster's proxy) or the machine running Terraform, which uploads them (upload; routers.tf)"
+  default     = "download"
+  description = "Who fetches the GraySpace images the base uses (Alpine, and Ubuntu LXC for Prometheus): the node (download, the default, through the cluster's proxy) or the machine running Terraform, which uploads them (upload, for a server only that machine reaches; routers.tf)"
   validation {
     condition     = contains(["download", "upload"], var.alpine_image_transfer)
     error_message = "alpine_image_transfer is download or upload."

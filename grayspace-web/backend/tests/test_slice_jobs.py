@@ -141,7 +141,7 @@ class Jobs(unittest.TestCase):
         self.assertEqual(sorted(applied["oci_hosts"]), ["ie-news"])
         self.assertIn("GRAYSPACE_TLS_CERT", applied["oci_hosts"]["ie-news"]["env"])  # cert issued before apply
         images = self.checkout.state("images", "default")
-        self.assertEqual(sorted(images["uploads"]), ["grayspace-ubuntu-lxc"])  # GraySpace's own: uploaded by default
+        self.assertEqual((sorted(images["downloads"]), images["uploads"]), (["grayspace-ubuntu-lxc"], {}))  # GraySpace's own: downloaded by default
         self.assertEqual(sorted(images["oci_images"]), ["ghosts-pandora"])
         first_slice_apply = next(i for i, c in enumerate(tf) if c["module"] == "slice" and c["args"][0] == "apply")
         first_images_apply = next(i for i, c in enumerate(tf) if c["module"] == "images" and c["args"][0] == "apply")
@@ -270,7 +270,7 @@ class Jobs(unittest.TestCase):
         self.assertEqual(self.checkout.workspaces(), ["ie", "mb"])
         self.destroy(a)
         images = self.checkout.state("images", "default")
-        self.assertEqual(sorted(images["uploads"]), ["grayspace-ubuntu-lxc"])  # GraySpace's own: uploaded by default
+        self.assertEqual((sorted(images["downloads"]), images["uploads"]), (["grayspace-ubuntu-lxc"], {}))  # GraySpace's own: downloaded by default
         self.assertEqual(images["oci_images"], {})  # Pandora was only ie's
 
     def test_apply_retries_until_converged(self):
