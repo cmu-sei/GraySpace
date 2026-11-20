@@ -4,9 +4,9 @@
 # file name, which carries the image version: a new build is a new file, and the same build from
 # another server keeps its volume ID.
 #
-# alpine_image_transfer chooses who fetches it. "download": the node, through the cluster's proxy
+# alpine_image_transfer chooses who fetches it. "download" (the default): the node, through the cluster's proxy
 # (datacenter.cfg http_proxy, which has no exceptions), so the URL must be reachable that way, as a
-# public release is. "upload": the machine running Terraform, directly (the provider ignores proxy
+# public release is (github.com, redirected to release-assets.githubusercontent.com). "upload": the machine running Terraform, directly (the provider ignores proxy
 # settings), and the provider uploads it to the node over the API, for a server only that machine
 # reaches. The modes name their files differently, so switching creates one before deleting the
 # other; guests keep their template either way (ignore_changes).

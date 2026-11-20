@@ -89,11 +89,11 @@ class Instance(unittest.TestCase):
         self.assertEqual(edge["interfaces"][1], {"bridge": "s000", "address": "192.168.0.1/24", "gateway": None})
         # The base's copy of the GraySpace image (terraform/routers.tf), uploaded by default: no hook
         # script, and no download of the edges' own
-        self.assertEqual(out["edge_template"], "local:vztmpl/abc-base-up-grayspace-alpine-3.24-1.tar.zst")
+        self.assertEqual(out["edge_template"], "local:vztmpl/abc-base-grayspace-alpine-3.24-1.tar.zst")
         self.assertNotIn("edge_hook_script", out)
         host = out["lxc_hosts"]["mb-web01"]
         self.assertEqual((host["bridge"], host["address"], host["gateway"], host["resolver"]), ("s001", "192.168.20.10/24", "192.168.20.1", "8.8.8.8"))
-        self.assertEqual(host["template"], "local:vztmpl/abc-img-up-grayspace-ubuntu-lxc.tar.zst")
+        self.assertEqual(host["template"], "local:vztmpl/abc-img-grayspace-ubuntu-lxc.tar.zst")
         self.assertEqual(out["vnets"], {"s000": "mb hq-lan", "s001": "mb hq-dmz", "s002": "mb br-lan"})
 
     def test_edges_use_the_bases_copy_of_the_image(self):
@@ -104,10 +104,10 @@ class Instance(unittest.TestCase):
             env = render.RenderEnv.from_env({"TF_VAR_environment_id": "abc", "TF_VAR_proxmox_filestore": "local", **env})
             return render.instance_tfvars(alloc, IMAGES, env)["edge_template"]
 
-        self.assertEqual(edge_template(), "local:vztmpl/abc-base-up-grayspace-alpine-3.24-1.tar.zst")
-        self.assertEqual(edge_template(TF_VAR_alpine_image_transfer="download"), "local:vztmpl/abc-base-grayspace-alpine-3.24-1.tar.zst")
+        self.assertEqual(edge_template(), "local:vztmpl/abc-base-grayspace-alpine-3.24-1.tar.zst")
+        self.assertEqual(edge_template(TF_VAR_alpine_image_transfer="upload"), "local:vztmpl/abc-base-up-grayspace-alpine-3.24-1.tar.zst")
         self.assertEqual(edge_template(TF_VAR_alpine_image_url="http://mirror.example/x/grayspace-alpine-3.24-2.tar.zst"),
-                         "local:vztmpl/abc-base-up-grayspace-alpine-3.24-2.tar.zst")
+                         "local:vztmpl/abc-base-grayspace-alpine-3.24-2.tar.zst")
         self.assertNotIn(catalog.EDGE_IMAGE, alloc.images)
 
     def test_the_transfer_default_is_the_bases(self):
@@ -127,7 +127,7 @@ class Instance(unittest.TestCase):
         vms = render.instance_tfvars(alloc, IMAGES, ENV)["vm_hosts"]
         self.assertEqual(vms["wo-win"]["clone_vm_id"], 9000)
         self.assertIsNone(vms["wo-win"]["import_from"])
-        self.assertEqual(vms["wo-dc"]["import_from"], "local:import/abc-img-up-grayspace-ubuntu-vm.qcow2")
+        self.assertEqual(vms["wo-dc"]["import_from"], "local:import/abc-img-grayspace-ubuntu-vm.qcow2")
         self.assertEqual(vms["wo-win"]["os_family"], "windows")
 
     def test_images_need_one_download_each(self):
@@ -135,10 +135,10 @@ class Instance(unittest.TestCase):
         _, b = allocate("windows-office")
         names = sorted(set(a.images) | set(b.images))
         out = render.images_tfvars(ENV, [IMAGES[n] for n in names])
-        self.assertEqual(out["downloads"], {})
-        # GraySpace's own images, uploaded by default; not the template-backed windows-2022, nor the edges' image
-        self.assertEqual(sorted(out["uploads"]), ["grayspace-ubuntu-lxc", "grayspace-ubuntu-vm"])
-        self.assertEqual(out["uploads"]["grayspace-ubuntu-vm"]["content_type"], "import")
+        self.assertEqual(out["uploads"], {})
+        # GraySpace's own images, downloaded by default; not the template-backed windows-2022, nor the edges' image
+        self.assertEqual(sorted(out["downloads"]), ["grayspace-ubuntu-lxc", "grayspace-ubuntu-vm"])
+        self.assertEqual(out["downloads"]["grayspace-ubuntu-vm"]["content_type"], "import")
 
     def test_vm_images_download_as_disk_imports(self):
         out = render.images_tfvars(ENV, [SITE_VM])
@@ -146,18 +146,20 @@ class Instance(unittest.TestCase):
         self.assertEqual(out["downloads"]["site-vm"]["file_name"], "abc-img-site-vm.qcow2")
 
     def test_grayspace_images_follow_the_bases_transfer(self):
-        """Uploaded like the base's Alpine image, under a name of their own; other images download."""
+        """Downloaded by default; with upload, uploaded like the base's Alpine image, under a name of
+        their own, while other images still download."""
         images = [IMAGES["grayspace-desktop"], SITE_VM]
         out = render.images_tfvars(ENV, images)
-        self.assertEqual((sorted(out["uploads"]), sorted(out["downloads"])), (["grayspace-desktop"], ["site-vm"]))
-        self.assertEqual(out["uploads"]["grayspace-desktop"]["file_name"], "abc-img-up-grayspace-desktop.tar.zst")
-        self.assertEqual(render.image_volume(ENV, IMAGES["grayspace-desktop"])["volume_id"], "local:vztmpl/abc-img-up-grayspace-desktop.tar.zst")
-        download = render.RenderEnv("abc", "local", alpine_image_transfer="download")
-        out = render.images_tfvars(download, images)
         self.assertEqual((sorted(out["uploads"]), sorted(out["downloads"])), ([], ["grayspace-desktop", "site-vm"]))
         self.assertEqual(out["downloads"]["grayspace-desktop"]["file_name"], "abc-img-grayspace-desktop.tar.zst")
+        self.assertEqual(render.image_volume(ENV, IMAGES["grayspace-desktop"])["volume_id"], "local:vztmpl/abc-img-grayspace-desktop.tar.zst")
+        upload = render.RenderEnv("abc", "local", alpine_image_transfer="upload")
+        out = render.images_tfvars(upload, images)
+        self.assertEqual((sorted(out["uploads"]), sorted(out["downloads"])), (["grayspace-desktop"], ["site-vm"]))
+        self.assertEqual(out["uploads"]["grayspace-desktop"]["file_name"], "abc-img-up-grayspace-desktop.tar.zst")
+        self.assertEqual(render.image_volume(upload, IMAGES["grayspace-desktop"])["volume_id"], "local:vztmpl/abc-img-up-grayspace-desktop.tar.zst")
         local = IMAGES["grayspace-desktop"].model_copy(update={"origin": "local"})
-        self.assertFalse(render.uploaded(ENV, local))  # a site's own image is served where its node reaches
+        self.assertFalse(render.uploaded(upload, local))  # a site's own image is served where its node reaches
 
 
 class OciTls(unittest.TestCase):

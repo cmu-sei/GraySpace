@@ -176,8 +176,9 @@ The image catalog is `images/images.csv`, separate from base versions; sites add
 `template:<vmid>`. Each image a live instance uses is downloaded once, by `terraform/images/`,
 however many instances use it; images no live instance uses are removed after a destroy. GraySpace's
 own images (`grayspace-*`, built in `packer/`) are uploaded instead when `TF_VAR_alpine_image_transfer`
-is `upload` (the default): the machine running Terraform fetches them, as the base does its Alpine
-image, since the node may not reach where they are served.
+is `upload`: the machine running Terraform fetches them, as the base then does its Alpine image, for
+a server the node may not reach. By default (`download`) the node downloads them from their GitHub
+release like any other image.
 
 `grayspace-desktop` (`packer/desktop-lxc/`) is a desktop in the browser: Fluxbox with desktop icons
 and a panel for Firefox, a terminal, a text editor and a file manager, plus the usual admin and

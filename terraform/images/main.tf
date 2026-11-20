@@ -8,8 +8,8 @@
 # is a Proxmox template (template:<vmid>, volume:<id>) need no download and don't appear here.
 #
 # Downloads are fetched by the node, through the cluster's proxy. Uploads are GraySpace's own images
-# (packer/), served from where the node may not reach, as terraform/routers.tf's alpine_image_transfer
-# describes: the machine running Terraform fetches them directly and uploads them over the API.
+# (packer/) when alpine_image_transfer is "upload" (terraform/routers.tf), for a server the node may
+# not reach: the machine running Terraform fetches them directly and uploads them over the API.
 #
 ################################################################################
 

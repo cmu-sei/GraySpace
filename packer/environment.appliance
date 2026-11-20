@@ -24,9 +24,9 @@ export TF_VAR_environment_id="app"
 # Where the GraySpace Alpine image (routers, core services, slice edges) comes from, instead of the
 # grayspace-alpine URL in images/images.csv (optional)
 # export TF_VAR_alpine_image_url=""
-# Who fetches it: "upload" (default), this machine, directly, then uploads it to the node over the API;
-# or "download", the node, through the cluster's proxy (datacenter.cfg), as for a public URL
-# export TF_VAR_alpine_image_transfer="upload"
+# Who fetches it: "download" (default), the node, through the cluster's proxy (datacenter.cfg);
+# or "upload", this machine, directly (no proxy), then uploads it to the node over the API
+# export TF_VAR_alpine_image_transfer="download"
 # root password set on all LXC containers, used for SSH access by Ansible
 export TF_VAR_router_password="grayspace"
 # Enable appliance mode for grayspace-web deployment
