@@ -235,6 +235,12 @@ a.gs-btn { text-decoration: none; display: inline-block; }
 .gs-form-table td { padding: 3px 4px; vertical-align: top; }
 .gs-x { background: none; border: 0; color: var(--gs-muted); cursor: pointer; font-size: 14px; }
 .gs-x:hover { color: var(--gs-bad); }
+.gs-role-picker { position: relative; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; min-width: 140px; }
+.gs-role-picker .gs-tag { display: inline-flex; align-items: center; gap: 2px; }
+.gs-role-picker .gs-tag .gs-x { font-size: 12px; padding: 0 0 0 2px; line-height: 1; }
+.gs-role-menu { width: 380px; max-height: 320px; overflow: auto; }
+.gs-role-menu button { align-items: flex-start; white-space: normal; }
+.gs-role-menu .gs-muted { font-size: 11.5px; line-height: 1.4; margin-top: 2px; }
 .gs-footer { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
 
 /* Admin */

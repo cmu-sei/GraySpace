@@ -74,7 +74,7 @@ export const PlatformPage: React.FC = () => {
     const t = tests[key];
     if (!t) return null;
     if (t === 'testing') return <span className="gs-pill">testing…</span>;
-    return <span className={`gs-pill ${t.ok ? 'ok' : 'bad'}`}>{t.ok ? 'works' : 'failed'}</span>;
+    return <span className={`gs-pill ${t.ok ? 'ok' : 'bad'}`}>{t.ok ? 'ready' : 'failed'}</span>;
   };
   const saved = (text: string) => {
     setEditing(null);

@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { parse, stringify } from 'yaml';
 import { Capabilities, EnclaveSpec, Host, Site } from '../../types/build';
 import { Tip } from '../../components/Tip';
-import { toList } from './parts';
+import { RolePicker } from './RolePicker';
 import { RoleVariables } from './RoleVariables';
 
 const LABEL = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/;
@@ -125,15 +125,15 @@ const Form: React.FC<{ spec: EnclaveSpec; caps: Capabilities | null; readOnly: b
                   {!images.some((im) => im.name === host.image) && <option>{host.image}</option>}
                 </select>
               </td>
-              <td><input aria-label="Roles" list="gs-roles" disabled={disabled} defaultValue={(host.roles || []).join(', ')} key={(host.roles || []).join(',')}
-                onBlur={(e) => setHost(i, { ...host, roles: toList(e.target.value) })} /></td>
+              <td><RolePicker value={host.roles || []} roles={caps?.roles || []} disabled={disabled}
+                imageType={images.find((im) => im.name === host.image)?.type}
+                onChange={(roles) => setHost(i, { ...host, roles })} /></td>
               <td><input type="checkbox" aria-label="Crucible" disabled={disabled} checked={Boolean(host.crucible)} onChange={(e) => setHost(i, { ...host, crucible: e.target.checked || undefined })} /></td>
               <td>{!disabled && <button className="gs-x" title="Remove the host" onClick={() => onChange({ ...spec, hosts: hosts.filter((_, j) => j !== i) })}>×</button>}</td>
             </tr>
           ))}
         </tbody>
       </table>
-      <datalist id="gs-roles">{(caps?.roles || []).map((r) => <option key={r.name} value={r.name}>{r.description}</option>)}</datalist>
       {!disabled && (
         <button className="gs-btn ghost sm" style={{ marginTop: 6 }}
           onClick={() => onChange({ ...spec, hosts: [...hosts, { name: `host${hosts.length + 1}`, segment: segments[0], image: images.find((im) => im.type === 'lxc')?.name || images[0]?.name || '' }] })}>

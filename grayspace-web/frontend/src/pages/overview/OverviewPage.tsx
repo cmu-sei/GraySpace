@@ -170,7 +170,6 @@ export const OverviewPage: React.FC<{ deployment: Deployment }> = ({ deployment 
           Core {base?.version?.name ? <span className="gs-mono">{base.version.name}</span> : null}
           {base?.version?.scope && <span className="gs-muted" style={{ fontWeight: 400 }}>{base.version.scope}</span>}
           {base && <span className={`gs-pill ${BASE_TONE[base.status]}`}>{base.status.replace('_', ' ')}</span>}
-          <span className="gs-spacer" />
           {base && base.status !== 'not_deployed' && (
             <button className="gs-btn ghost sm" aria-expanded={details} onClick={() => setDetails(!details)}>{details ? 'Hide details' : 'Details'}</button>
           )}

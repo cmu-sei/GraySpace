@@ -145,9 +145,8 @@ describe('the enclave editor', () => {
     // web declares no variables: nothing to show
     expect(screen.queryByRole('button', { name: /Role variables/ })).toBeNull();
     const last = () => changes[changes.length - 1];
-    const roles = screen.getByLabelText('Roles');
-    fireEvent.change(roles, { target: { value: 'web, ad-dc' } });
-    fireEvent.blur(roles);
+    fireEvent.click(screen.getByRole('button', { name: '＋ Role' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'ad-dc' }));
     expect(screen.getByRole('button', { name: /Role variables/ })).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByText('2 required values not set')).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText('ad-dc realm'), { target: { value: 'corp.example.com' } });
@@ -167,9 +166,9 @@ describe('the enclave editor', () => {
     const changes: EnclaveSpec[] = [];
     render(<Harness onChange={(s) => changes.push(s)} />);
     const last = () => changes[changes.length - 1];
-    const roles = screen.getByLabelText('Roles');
-    fireEvent.change(roles, { target: { value: 'file' } });
-    fireEvent.blur(roles);
+    fireEvent.click(screen.getByRole('button', { name: 'Remove web' }));
+    fireEvent.click(screen.getByRole('button', { name: '＋ Role' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'file' }));
     // Nothing required: collapsed
     const toggle = screen.getByRole('button', { name: /Role variables/ });
     expect(toggle).toHaveAttribute('aria-expanded', 'false');

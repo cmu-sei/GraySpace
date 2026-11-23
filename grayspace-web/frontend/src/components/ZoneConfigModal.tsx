@@ -1,7 +1,8 @@
 /**
- * Zone configuration modal for customer interfaces
+ * A customer interface's connection: its network's SDN zone, internal (simple) or external (VLAN)
  */
 import React, { useState, useEffect } from 'react';
+import { Tip } from './Tip';
 import { CustomerInterfaceInfo, ZoneInfo } from '../types';
 import { apiService } from '../services/api';
 
@@ -10,6 +11,9 @@ interface ZoneConfigModalProps {
   interfaceInfo: CustomerInterfaceInfo;
   onClose: () => void;
 }
+
+const CONNECTION_TIP =
+  "Internal: the customer network stays inside the simulation, behind this router. External (VLAN): it is bridged onto a VLAN of the Proxmox node's VM bridge, so machines outside GraySpace reach it. The VLAN must already be set up on the Proxmox platform.";
 
 export const ZoneConfigModal: React.FC<ZoneConfigModalProps> = ({
   hostname,
@@ -47,12 +51,12 @@ export const ZoneConfigModal: React.FC<ZoneConfigModalProps> = ({
 
   const handleApply = async () => {
     if (!selectedZone) {
-      setError('Please select a zone');
+      setError('Choose a connection');
       return;
     }
 
     if (selectedZone === interfaceInfo.zone) {
-      setError('Selected zone is the same as current zone');
+      setError('That is the current connection');
       return;
     }
 
@@ -89,20 +93,21 @@ export const ZoneConfigModal: React.FC<ZoneConfigModalProps> = ({
         setError(result.message);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to change zone');
+      setError(err instanceof Error ? err.message : 'Failed to change the connection');
     } finally {
       setApplying(false);
     }
   };
 
   const zoneTypeLabel = (type: string | null | undefined, vlan?: number | null): string =>
-    type === 'simple' ? 'Isolated' : type === 'vlan' ? (vlan ? `External, VLAN ${vlan}` : 'External (VLAN)') : type || '';
+    type === 'simple' ? 'Internal' : type === 'vlan' ? (vlan ? `External, VLAN ${vlan}` : 'External (VLAN)') : type || '';
   const changing = isVlanZoneSelected && selectedZone !== interfaceInfo.zone;
+  const vlanBridge = zones.find((z) => z.zone_id === selectedZone)?.bridge;
 
   return (
     <div className="gs-modal-bg" onMouseDown={(e) => e.target === e.currentTarget && !applying && onClose()}>
-      <div className="gs-modal" role="dialog" aria-label="Configure zone">
-        <h3>Configure zone <span className="gs-tag">{hostname}</span></h3>
+      <div className="gs-modal" role="dialog" aria-label="Configure connection">
+        <h3>Configure connection <span className="gs-tag">{hostname}</span></h3>
         {loading ? (
           <div className="gs-muted">Loading zones…</div>
         ) : (
@@ -112,7 +117,7 @@ export const ZoneConfigModal: React.FC<ZoneConfigModalProps> = ({
               <dd className="gs-mono">{interfaceInfo.interface_name}</dd>
               <dt>Network</dt>
               <dd className="gs-mono">{interfaceInfo.customer_net || '—'}</dd>
-              <dt>Current zone</dt>
+              <dt>Connection</dt>
               <dd>
                 <span className="gs-mono">{interfaceInfo.zone || 'none'}</span>
                 {interfaceInfo.zone_type && (
@@ -123,7 +128,7 @@ export const ZoneConfigModal: React.FC<ZoneConfigModalProps> = ({
               </dd>
             </dl>
 
-            <div className="gs-field"><label>New zone</label></div>
+            <div className="gs-field"><label>Connect to <Tip text={CONNECTION_TIP} /></label></div>
             {zones.map((zone) => (
               <div
                 key={zone.zone_id}
@@ -161,7 +166,11 @@ export const ZoneConfigModal: React.FC<ZoneConfigModalProps> = ({
                   />
                 </div>
                 <div className="gs-banner warn">
-                  <span>A VLAN zone exposes this customer network to external traffic. The tag must match your physical network.</span>
+                  <span>
+                    This puts the customer network on VLAN {vlanTag || 'n'} of {vlanBridge ? <span className="gs-mono">{vlanBridge}</span> : "the node's VM bridge"},
+                    open to whatever else is on it. The VLAN has to be set up on the Proxmox platform first: the bridge VLAN-aware
+                    and the VLAN carried by the node's uplink and the switch.
+                  </span>
                 </div>
               </>
             )}
