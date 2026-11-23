@@ -228,7 +228,7 @@ export const Workspace: React.FC<{ deployment: Deployment; section: Section; ite
               Preset: <button
                 className="dropdown-trigger"
                 onClick={() => setPresetModalOpen(true)}
-                title={changesSince ? `${changesSince} change${changesSince === 1 ? '' : 's'} since ${presetName ?? 'the base'}, not in a preset` : 'Presets: saved sets of changes to the base'}
+                title={changesSince ? `${changesSince} change${changesSince === 1 ? '' : 's'} since ${presetName ?? 'the core'}, not in a preset` : 'Presets: saved sets of changes to the core'}
               >{presetName ?? 'None'}{changesSince > 0 && <span className="unsaved-indicator">*</span>}</button>
             </span>
             <ISPDropdown />

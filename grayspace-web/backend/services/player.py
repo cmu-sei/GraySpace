@@ -276,7 +276,7 @@ def plan(draft: Draft, stages: List[str]) -> Optional[PlannedPlayer]:
     tfvars = draft_tfvars(draft)
     base = base_guests(tfvars)
     # Without routers there is no base to check against (base_guests always has the management hosts)
-    warnings = [f"The base has no {g.name}" for g in p.guests if g.instance is None and g.teams and tfvars.get("routers") and g.name not in base]
+    warnings = [f"The core has no {g.name}" for g in p.guests if g.instance is None and g.teams and tfvars.get("routers") and g.name not in base]
     count = sum(1 for h in base if teams_for(p, None, h, False))
     for e in draft.enclaves:
         stored = store.get_slice(e.slug, e.version)
@@ -398,7 +398,7 @@ async def migrate_legacy(ctx) -> None:
         data = store.read_json(path) or {}
         if not data.get("crucible_team_id"):
             continue
-        ctx.log(f"Removing {inst.id}'s registrations in the base's old view")
+        ctx.log(f"Removing {inst.id}'s registrations in the core's old view")
         env = stages.tf_env(inst.id)
         await ctx.run(["terraform", "destroy", "-auto-approve", "-input=false", "-refresh=false", "-target=crucible_player_virtual_machine.guest",
                        f"-var-file={path}"], environment.slice_module(), env=env)
@@ -406,7 +406,7 @@ async def migrate_legacy(ctx) -> None:
         store.write_json(path, {k: v for k, v in data.items() if k not in ("crucible_team_id", "crucible_guests")})
     state = environment.base_module() / "terraform.tfstate"
     if has_crucible_state(state):
-        ctx.log("Removing the base's old Player view (modules/crucible)")
+        ctx.log("Removing the core's old Player view (modules/crucible)")
         env = {**stages.tf_env(), "TF_VAR_configure_crucible": "true"}
         from services.base_jobs import _var_file_args
 

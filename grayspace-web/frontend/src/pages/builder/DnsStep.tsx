@@ -17,7 +17,7 @@ export const DnsStep: React.FC<{ b: Builder; readOnly: boolean }> = ({ b, readOn
   return (
     <div>
       <div className="gs-box">
-        <h3>The base's DNS <span className="gs-pill">read-only</span></h3>
+        <h3>The core's DNS <span className="gs-pill">read-only</span></h3>
         <div className="gs-row" style={{ flexWrap: 'wrap', gap: 5 }}>
           <span className="gs-muted">TLDs</span>{(caps?.dns.tlds || []).map((t) => <span key={t} className="gs-tag">.{t}</span>)}
         </div>

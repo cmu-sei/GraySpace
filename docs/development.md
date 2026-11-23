@@ -36,7 +36,7 @@ the devcontainer:
 
 ## Simulated mode
 
-No Proxmox and no routers, but the application behaves as if a base were deployed:
+No Proxmox and no routers, but the application behaves as if a core were deployed:
 
 - **Two simulated deployments**, `dev` (the default, which the UI shows) and `dev2`, each its own
   worker with its own data (`GraySpace:Deployments` in `appsettings.json` changes the list; reach
@@ -45,9 +45,9 @@ No Proxmox and no routers, but the application behaves as if a base were deploye
   lists, and capacity all have content. Starting and stopping guests in the UI works, in
   memory. Nothing can be reached over SSH, so zone contents, certificates, consoles and traffic
   shaping report errors.
-- **Simulated jobs** (`services/dev_jobs.py`): base deploys, configures and destroys, instance
+- **Simulated jobs** (`services/dev_jobs.py`): core deploys, configures and destroys, instance
   creates and destroys, plans and rollouts walk their stages, `DEV_SIMULATION_STAGE_SECONDS` each
-  (1 by default). A base deploy writes the topology's tfvars and a destroy removes them; an
+  (1 by default). A core deploy writes the topology's tfvars and a destroy removes them; an
   instance is validated and allocated for real, so its hosts show on the map. `dev` and `dev2`
   start deployed; a deployment made later (`POST /api/v1/deployments`, or New deployment in the UI)
   starts empty, for the builder to deploy. `DEV_SIMULATION_FAIL=<kind>:<stage>` (e.g.
@@ -74,7 +74,7 @@ fixture of `grayspace/2026.11` (`tests/golden/tfvars-full.json`); `GraySpace:Tfv
 ## Deployment mode
 
 The API against a real deployment, with the settings of `.environment` (`task env`): the Proxmox
-API, the deployed `terraform/terraform.tfvars.json`, the slice data directory the base guard reads,
+API, the deployed `terraform/terraform.tfvars.json`, the slice data directory the core guard reads,
 and the API token. Reach the management network first (`task tunnel`). The dashboard asks for the
 deployment's Prometheus URL (or set `GraySpace:PrometheusUrl`). Slice jobs run from this checkout,
 as the container runs them from its work trees; no local Prometheus or simulator is started. Sign in to the UI
@@ -83,8 +83,8 @@ in the api's log on first start) or an account from `task user:create NAME=<name
 
 ## The slices demo
 
-`task demo` (`scripts/demo_slices.py`) is a narrated walk through slices: the base, a spec, its
-allocation and rendering, findings for a broken spec, and many instances sharing the base. Those
+`task demo` (`scripts/demo_slices.py`) is a narrated walk through slices: the core, a spec, its
+allocation and rendering, findings for a broken spec, and many instances sharing the core. Those
 acts run the backend's code in-process and need nothing running. With the simulated stack up, a
 last act stores the example slices through the API and stages three instances in `aspire/.data`, so
 they appear on the map and under Instances. It also cuts lum-chi off in the router-metrics simulator

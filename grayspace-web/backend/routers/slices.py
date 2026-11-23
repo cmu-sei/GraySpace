@@ -23,8 +23,8 @@ class SliceDetail(SliceSummary):
     """A slice and one of its versions' spec (the latest unless ?version= names one)."""
 
     version: Optional[str] = Field(None, description="The version of `spec`")
-    spec: Optional[SliceSpec] = Field(None, description="Null for the base slice")
-    base: Optional[dict] = Field(None, description="The base slice: the deployed base version")
+    spec: Optional[SliceSpec] = Field(None, description="Null for the `base` slice (the core)")
+    base: Optional[dict] = Field(None, description="The `base` slice: the deployed core version")
 
 
 class PlanRequest(BaseModel):
@@ -65,7 +65,7 @@ async def put_slice(slug: str, spec: SliceSpec = Body(...)):
     """
     Store a spec. A new version is stored whenever the content changes; storing the same content
     again returns the same version (content hash). Returns the findings against the deployed
-    base: a spec with errors is stored, but can't be instantiated until they are resolved.
+    core: a spec with errors is stored, but can't be instantiated until they are resolved.
     """
     _check_slug(slug, spec)
     version, created = store.put_slice(spec)
@@ -77,7 +77,7 @@ async def put_slice(slug: str, spec: SliceSpec = Body(...)):
 async def delete_slice(slug: str):
     """Delete a slice and all its versions. Refused while an instance of it exists."""
     if slug == BASE_SLICE:
-        raise HTTPException(status_code=409, detail="The base can't be deleted")
+        raise HTTPException(status_code=409, detail="The core can't be deleted")
     live = [i.id for i in store.live_instances() if i.slice.slug == slug]
     if live:
         raise HTTPException(status_code=409, detail=f"Enclave '{slug}' has live instances: {', '.join(live)}")
@@ -88,14 +88,14 @@ async def delete_slice(slug: str):
 
 @routes.post("/{slug}/validate", response_model=ValidateResult)
 async def validate_slice(slug: str, spec: SliceSpec = Body(...),
-                         base: Optional[str] = Query(None, description="A shipped base version to check against instead of the deployed one, "
-                                                     "e.g. grayspace/2026.11: for a deployment still being built (its draft's base)"),
-                         scope: Literal["full", "tier1"] = Query("full", description="With base: its scope"),
+                         base: Optional[str] = Query(None, description="A shipped core version to check against instead of the deployed one, "
+                                                     "e.g. grayspace/2026.11: for a deployment still being built (its draft's core)"),
+                         scope: Literal["full", "tier1"] = Query("full", description="With `base`: its scope"),
                          instance: Optional[str] = Query(None, pattern=PREFIX, description="Check it as this instance (a draft's prefix): "
                                                          "with that prefix, and when that instance is live and of this enclave, "
                                                          "what it holds is its own")):
-    """Findings for a spec against the deployed base, live instances and the node's capacity; or,
-    with base, against that shipped version as it would deploy. Nothing is stored."""
+    """Findings for a spec against the deployed core, live instances and the node's capacity; or,
+    with `base`, against that shipped version as it would deploy. Nothing is stored."""
     _check_slug(slug, spec)
     if base:
         try:

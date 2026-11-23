@@ -175,7 +175,7 @@ class ProxmoxCredentials(BaseModel):
 class DeploymentOptions(BaseModel):
     deploy_ghosts: Optional[bool] = Field(
         None, deprecated=True,
-        description="Deprecated (contract 1.25), ignored: the base has no GHOSTS VM. Enclave hosts run GHOSTS clients (the ghosts-client role)")
+        description="Deprecated (contract 1.25), ignored: the core has no GHOSTS VM. Enclave hosts run GHOSTS clients (the ghosts-client role)")
     use_custom_image: Optional[bool] = Field(
         None, deprecated=True,
         description="Deprecated (contract 1.12), ignored: every deployment's Alpine guests use the GraySpace image")
@@ -218,11 +218,11 @@ class WorkerStatus(BaseModel):
 
 
 class BaseSummary(BaseModel):
-    status: str = Field(..., description="The deployed base's status (GET /deployments/{id}/api/v1/base), or unknown when the worker "
+    status: str = Field(..., description="The deployed core's status (GET /deployments/{id}/api/v1/base), or unknown when the worker "
                         "doesn't answer")
     version: Optional[Any] = None
     scope: Optional[str] = Field(None, description="full or tier1, when deployed")
-    routers: Optional[int] = Field(None, description="Routers in the deployed base")
+    routers: Optional[int] = Field(None, description="Routers in the deployed core")
 
 
 class JobBrief(BaseModel):
@@ -244,7 +244,7 @@ class DeploymentSummary(BaseModel):
     instances_live: int = 0
     instances_failed: int = 0
     active_job: Optional[JobBrief] = Field(None, description="The newest queued or running job")
-    last_base_job: Optional[JobBrief] = Field(None, description="The newest base job (deploy, configure, destroy)")
+    last_base_job: Optional[JobBrief] = Field(None, description="The newest core job (deploy, configure, destroy)")
     updated: Optional[str] = Field(None, description="When its newest job changed")
     draft: Optional[DraftState] = None
 

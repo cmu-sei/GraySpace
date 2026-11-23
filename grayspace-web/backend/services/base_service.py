@@ -21,7 +21,7 @@ async def _router_health(expected: List[str]) -> RouterHealth:
     try:
         containers = await asyncio.to_thread(proxmox_client.get_deployment_containers)
     except Exception as e:
-        logger.warning(f"Proxmox unavailable for base health: {e}")
+        logger.warning(f"Proxmox unavailable for core health: {e}")
         containers = []
     # The client returns [] when listing fails, which can't be told apart from nothing deployed.
     if not containers:

@@ -99,7 +99,7 @@ class Slices(Api):
             tier1 = self.client.post("/api/v1/enclaves/meridian-bank/validate?base=grayspace/2026.11&scope=tier1", json=EXAMPLE).json()
             missing = self.client.post("/api/v1/enclaves/meridian-bank/validate?base=nope/1", json=EXAMPLE)
         self.assertFalse(deployed["valid"])
-        self.assertIn("No base is deployed", deployed["findings"][0]["message"])
+        self.assertIn("No core is deployed", deployed["findings"][0]["message"])
         self.assertTrue(shipped["valid"], shipped["findings"])
         self.assertFalse(tier1["valid"])  # Comcast is a Tier 2 ISP
         self.assertEqual(missing.status_code, 404)

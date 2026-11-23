@@ -119,17 +119,17 @@ def main():
     source.add_argument(
         "--base",
         default=DEFAULT_BASE,
-        help=f"Shipped base version to read from bases/. Defaults to {DEFAULT_BASE}",
+        help=f"Shipped core version to read from bases/. Defaults to {DEFAULT_BASE}",
     )
     source.add_argument(
         "--csv-dir",
-        help="Read the topology CSVs from this directory instead of a shipped base version.",
+        help="Read the topology CSVs from this directory instead of a shipped core version.",
     )
     args = parser.parse_args()
     csv_dir = Path(args.csv_dir) if args.csv_dir else ROOT / "bases" / args.base
     if not csv_dir.is_dir():
         shipped = sorted(str(p.relative_to(ROOT / "bases")) for p in (ROOT / "bases").glob("*/*") if p.is_dir())
-        print(f"❌ {csv_dir} does not exist. Shipped base versions: {', '.join(shipped) or 'none'}")
+        print(f"❌ {csv_dir} does not exist. Shipped core versions: {', '.join(shipped) or 'none'}")
         raise SystemExit(1)
 
     print(f"Running with deployment scope: '{args.scope}', topology: {csv_dir}")

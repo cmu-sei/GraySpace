@@ -26,16 +26,16 @@ def stage_title(kind: str, stage: str) -> str:
 
 
 class Wan(BaseModel):
-    """An edge router's WAN on a base router's customer network."""
+    """An edge router's WAN on a core router's customer network."""
 
     router: str
     isp: str
     asn: int
     location: Optional[str]
     customer_net: str
-    bridge: str = Field(..., description="The base vnet (without environment_id), e.g. v332")
+    bridge: str = Field(..., description="The core vnet (without environment_id), e.g. v332")
     ip: str = Field(..., description="The edge's static address on the customer network")
-    gateway: str = Field(..., description="The base router, .1")
+    gateway: str = Field(..., description="The core router, .1")
 
 
 class SegmentAllocation(BaseModel):
@@ -53,8 +53,8 @@ class SiteAllocation(BaseModel):
     segments: List[SegmentAllocation]
     public_prefix: Optional[str] = Field(None, description="Routed sites: the /24 the edge announces")
     asn: Optional[int] = Field(None, description="Routed sites: the edge's private ASN")
-    resolver: str = Field(..., description="Base resolver address of the site: its edge's, and its hosts' unless the site has a domain controller (an ad-dc host)")
-    crucible: bool = Field(False, description="The edge router is registered in the base's Crucible Player view")
+    resolver: str = Field(..., description="Core resolver address of the site: its edge's, and its hosts' unless the site has a domain controller (an ad-dc host)")
+    crucible: bool = Field(False, description="The edge router is registered in the core's Crucible Player view")
 
 
 class HostAllocation(BaseModel):
@@ -66,13 +66,13 @@ class HostAllocation(BaseModel):
     os_family: str
     site: Optional[str] = Field(None, description="Null for internet hosts")
     segment: Optional[str]
-    bridge: str = Field(..., description="Vnet the simulated NIC joins: a slice vnet (s000) or a base customer network (v332)")
+    bridge: str = Field(..., description="Vnet the simulated NIC joins: a slice vnet (s000) or a core customer network (v332)")
     ip: str
     prefixlen: int
     gateway: str
     public_ip: Optional[str] = Field(None, description="Published hosts: the 1:1 NAT address on the WAN. Internet hosts: their own address")
-    router: Optional[str] = Field(None, description="Internet hosts: the base router they're on")
-    resolver: str = Field(..., description="The host's resolver: in a site with a domain controller (an ad-dc host), the DC's address; else, and for the DC itself, the nearest base resolver")
+    router: Optional[str] = Field(None, description="Internet hosts: the core router they're on")
+    resolver: str = Field(..., description="The host's resolver: in a site with a domain controller (an ad-dc host), the DC's address; else, and for the DC itself, the nearest core resolver")
     roles: List[str]
     labels: Dict[str, str]
     env: Dict[str, str]
@@ -80,11 +80,11 @@ class HostAllocation(BaseModel):
     memory: int
     disk: int
     managed: bool = Field(..., description="Reached by Ansible over a management NIC (not OCI)")
-    crucible: bool = Field(False, description="Registered in the base's Crucible Player view")
+    crucible: bool = Field(False, description="Registered in the core's Crucible Player view")
 
 
 class StaticAddress(BaseModel):
-    """A static address on a base customer network, taken from the .2–.19 range."""
+    """A static address on a core customer network, taken from the .2–.19 range."""
 
     router: str
     ip: str
@@ -121,7 +121,7 @@ class ManifestSegment(BaseModel):
 
 class ManifestSite(BaseModel):
     name: str
-    router: str = Field(..., description="The base router of the (first) WAN")
+    router: str = Field(..., description="The core router of the (first) WAN")
     isp: str
     location: Optional[str]
     wan_ip: str
@@ -216,7 +216,7 @@ class LinkConditionApplied(BaseModel):
 
 
 class BaseAttachment(BaseModel):
-    """A BGP neighbor a routed site adds to a base router."""
+    """A BGP neighbor a routed site adds to a core router."""
 
     router: str
     edge: str
@@ -239,7 +239,7 @@ class InstanceRecord(BaseModel):
     records: List[CreatedRecord] = Field(default_factory=list)
     certificates: List[IssuedCertificate] = Field(default_factory=list)
     conditions: List[LinkConditionApplied] = Field(default_factory=list)
-    links_down: List[str] = Field(default_factory=list, description="Base links the instance has taken down")
+    links_down: List[str] = Field(default_factory=list, description="Core links the instance has taken down")
     attachments: List[BaseAttachment] = Field(default_factory=list)
     manifest: Optional[Manifest] = None
     jobs: List[str] = Field(default_factory=list)
@@ -286,7 +286,7 @@ class CreateInstanceRequest(BaseModel):
 class JobRecord(BaseModel):
     id: str
     kind: JobKind
-    target: str = Field(..., description="Instance ID; slice slug for plan jobs; base for base jobs")
+    target: str = Field(..., description="Instance ID; slice slug for plan jobs; `base` for core jobs")
     slice: Optional[SliceRef] = Field(None, description="Deprecated (contract 1.5): the same as `enclave`", deprecated=True)
 
     @computed_field(description="The enclave the job builds, destroys or plans, when it has one")
@@ -306,7 +306,7 @@ class JobRecord(BaseModel):
     resume_from: Optional[str] = Field(None, description="The stage a retried job starts at")
     retry_of: Optional[str] = None
     result: Optional[Dict[str, Any]] = Field(
-        None, description="Plan jobs: allocation preview, plan summary and capacity. Base jobs: the request (version, scope) and the final health. "
+        None, description="Plan jobs: allocation preview, plan summary and capacity. Core jobs: the request (version, scope) and the final health. "
         "Rollouts: the plan they carry out"
     )
     by: Optional[str] = Field(None, description="Who submitted it (the control plane's X-Grayspace-User); null for the service token")

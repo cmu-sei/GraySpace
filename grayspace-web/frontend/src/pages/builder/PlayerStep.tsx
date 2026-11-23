@@ -188,7 +188,7 @@ export const PlayerStep: React.FC<{ b: Builder; readOnly: boolean }> = ({ b, rea
     setTeam(team, { applications: list });
   };
   const sections = [
-    { key: 'base', label: 'Base', groups: shown.filter((g) => !g.scope), scopes: ['base'] },
+    { key: 'base', label: 'Core', groups: shown.filter((g) => !g.scope), scopes: ['base'] },
     { key: 'enclaves', label: 'Enclaves', groups: shown.filter((g) => g.scope), scopes: groups.filter((g) => g.scope).map((g) => g.scope!) },
   ].filter((sec) => sec.groups.length);
   // A rule's box: ticked when every scope's rule has the team; half when some resources have it anyway
@@ -299,7 +299,7 @@ export const PlayerStep: React.FC<{ b: Builder; readOnly: boolean }> = ({ b, rea
                     <tr className="gs-section-row">
                       <td><button className="gs-btn ghost sm" aria-expanded={secOpen} onClick={() => setOpen({ ...open, [sec.key]: !secOpen })}>{secOpen ? '▾' : '▸'}</button>{' '}
                         <b>{sec.label}</b> <span className="gs-muted">{secRows.length}</span>
-                        <Tip text={sec.key === 'base' ? 'Ticking a team here gives it every base resource.' : 'Ticking a team here gives it every enclave, and the ones added later.'} /></td>
+                        <Tip text={sec.key === 'base' ? 'Ticking a team here gives it every core resource.' : 'Ticking a team here gives it every enclave, and the ones added later.'} /></td>
                       {teamNames.map((t) => ruleBox(`${sec.label}: all to ${t}`, sec.scopes, secRows, t))}
                     </tr>
                     {secOpen && sec.groups.map((g) => {

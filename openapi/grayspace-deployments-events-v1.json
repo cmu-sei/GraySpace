@@ -6,7 +6,7 @@
     "BaseSummary": {
       "properties": {
         "status": {
-          "description": "The deployed base's status (GET /deployments/{id}/api/v1/base), or unknown when the worker doesn't answer",
+          "description": "The deployed core's status (GET /deployments/{id}/api/v1/base), or unknown when the worker doesn't answer",
           "title": "Status",
           "type": "string"
         },
@@ -43,7 +43,7 @@
             }
           ],
           "default": null,
-          "description": "Routers in the deployed base",
+          "description": "Routers in the deployed core",
           "title": "Routers"
         }
       },
@@ -206,7 +206,7 @@
           ],
           "default": null,
           "deprecated": true,
-          "description": "Deprecated (contract 1.25), ignored: the base has no GHOSTS VM. Enclave hosts run GHOSTS clients (the ghosts-client role)",
+          "description": "Deprecated (contract 1.25), ignored: the core has no GHOSTS VM. Enclave hosts run GHOSTS clients (the ghosts-client role)",
           "title": "Deploy Ghosts"
         },
         "use_custom_image": {
@@ -288,7 +288,7 @@
             }
           ],
           "default": null,
-          "description": "The newest base job (deploy, configure, destroy)"
+          "description": "The newest core job (deploy, configure, destroy)"
         },
         "updated": {
           "anyOf": [

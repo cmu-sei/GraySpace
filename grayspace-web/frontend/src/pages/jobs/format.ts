@@ -9,9 +9,9 @@ export const STATE_TONE: Record<string, string> = { queued: '', running: 'info',
 
 export const KIND_LABELS: Record<string, string> = {
   rollout: 'Deploy',
-  deploy_base: 'Deploy base',
-  configure_base: 'Configure base',
-  destroy_base: 'Destroy base',
+  deploy_base: 'Deploy core',
+  configure_base: 'Configure core',
+  destroy_base: 'Destroy core',
   create_instance: 'Create instance',
   destroy_instance: 'Destroy instance',
   plan_slice: 'Plan enclave',

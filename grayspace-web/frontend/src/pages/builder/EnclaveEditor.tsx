@@ -60,7 +60,7 @@ const Form: React.FC<{ spec: EnclaveSpec; caps: Capabilities | null; readOnly: b
           <input id="enc-description" disabled={disabled} value={spec.description || ''} onChange={(e) => onChange({ ...spec, description: e.target.value })} />
         </div>
       </div>
-      <div className="gs-muted" style={{ margin: '8px 0 4px' }}>Sites: an edge router connected to the base, and the networks behind it</div>
+      <div className="gs-muted" style={{ margin: '8px 0 4px' }}>Sites: an edge router connected to the core, and the networks behind it</div>
       <table className="gs-table gs-form-table">
         <thead><tr><th>Site</th><th>ISP</th><th>Location</th><th>Routed <Tip text="Public addresses, peered with the ISP over BGP. Unticked: private addresses behind NAT." /></th><th>Segments <Tip text="The networks behind the edge router. A new one is a name, or name=CIDR." /></th><th /></tr></thead>
         <tbody>

@@ -101,7 +101,7 @@
       "type": "object"
     },
     "GuestUpdate": {
-      "description": "A base guest's Proxmox status changed: a router or core service of /base/inventory.\nRouters also get a feature.update with the same status, for the map.",
+      "description": "A core guest's Proxmox status changed: a router or core service of /base/inventory.\nRouters also get a feature.update with the same status, for the map.",
       "properties": {
         "type": {
           "const": "guest.update",
@@ -116,7 +116,7 @@
           "type": "string"
         },
         "kind": {
-          "description": "client is deprecated (contract 1.18): base clients were retired, and none comes",
+          "description": "client is deprecated (contract 1.18): core clients were retired, and none comes",
           "enum": [
             "router",
             "client",

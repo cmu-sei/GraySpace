@@ -27,7 +27,7 @@ export const CertificatesStep: React.FC<{ b: Builder; readOnly: boolean; live: b
   return (
     <div>
       <div className="gs-box">
-        <h3>The base's CAs <span className="gs-pill">read-only</span><span className="gs-spacer" />
+        <h3>The core's CAs <span className="gs-pill">read-only</span><span className="gs-spacer" />
           {live && <button className="gs-btn ghost sm" onClick={download}>Download the CA bundle</button>}</h3>
         <div className="gs-row" style={{ flexWrap: 'wrap', gap: 5 }}>
           {cas.map((c) => <span key={c.hostname} className="gs-tag">{c.name} · {c.hostname}</span>)}

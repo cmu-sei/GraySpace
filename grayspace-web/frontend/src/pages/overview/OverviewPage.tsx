@@ -75,7 +75,7 @@ const DestroyModal: React.FC<{ deployment: Deployment; instances: number; onClos
         <h3>Destroy {deployment.id}?</h3>
         <p>
           This destroys {instances > 0 ? <>its {instances} enclave instance{instances === 1 ? '' : 's'}, then </> : null}
-          the base: every router and core service on Proxmox. The deployment, its draft and its enclave library stay.
+          the core: every router and core service on Proxmox. The deployment, its draft and its enclave library stay.
         </p>
         <div className="gs-field">
           <label htmlFor="confirm-id">Type <b className="gs-mono">{deployment.id}</b> to confirm</label>
@@ -167,7 +167,7 @@ export const OverviewPage: React.FC<{ deployment: Deployment }> = ({ deployment 
       {error && <div className="gs-banner bad">{error}</div>}
       <div className="gs-box">
         <h3>
-          Base {base?.version?.name ? <span className="gs-mono">{base.version.name}</span> : null}
+          Core {base?.version?.name ? <span className="gs-mono">{base.version.name}</span> : null}
           {base?.version?.scope && <span className="gs-muted" style={{ fontWeight: 400 }}>{base.version.scope}</span>}
           {base && <span className={`gs-pill ${BASE_TONE[base.status]}`}>{base.status.replace('_', ' ')}</span>}
           <span className="gs-spacer" />

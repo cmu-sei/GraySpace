@@ -40,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 KIND = "rollout"
 TARGET = "deployment"
-STAGE_TITLES[KIND] = {"base": "Deploy the base", "preset": "Apply the base preset", "destroy:*": "Destroy enclave {}",
+STAGE_TITLES[KIND] = {"base": "Deploy the core", "preset": "Apply the core preset", "destroy:*": "Destroy enclave {}",
                       "create:*": "Create enclave {}",
                       "preset:*": "Apply the preset to enclave {} (removed)", "player": "Update the Player view"}
 
@@ -147,7 +147,7 @@ def plan(draft: Optional[Draft] = None) -> DeployPlan:
     if draft.base is None:
         base = PlannedBase(action="none", deployed=deployed)
         if deployed is None and draft.enclaves:
-            problems.append("Nothing is deployed: choose a base version")
+            problems.append("Nothing is deployed: choose a core version")
     else:
         if base_versions.resolve(draft.base.version) is None:
             problems.append(base_versions.not_shipped(draft.base.version))

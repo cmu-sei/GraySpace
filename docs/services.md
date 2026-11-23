@@ -134,5 +134,5 @@ The desktop runs as the user `user`, who has passwordless sudo.
 Desktop hosts have a **Desktop** button next to Console in the web app's Enclaves page. It opens an
 in-browser noVNC session connected to the host's VNC server.
 
-Base versions up to `grayspace/2026.10` had a desktop client (`lum-fluxbox`); base clients were
+Core versions up to `grayspace/2026.10` had a desktop client (`lum-fluxbox`); the core's clients were
 retired with that version.

@@ -183,7 +183,7 @@ async def node_lock(ctx: JobContext):
                 break
             except BlockingIOError:
                 if not waited:
-                    ctx.log(f"Waiting for the node lock ({path}): a base apply, destroy, configure or another job holds it")
+                    ctx.log(f"Waiting for the node lock ({path}): a core apply, destroy, configure or another job holds it")
                     ctx.attempt("waiting for the node lock")
                     waited = True
                 ctx.check_cancel()

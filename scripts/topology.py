@@ -127,7 +127,7 @@ def load(csv_dir):
         raise LoadError([f"{csv_dir}: missing {f}" for f in missing])
     retired = [f for f in RETIRED_FILES if (csv_dir / f).is_file()]
     if retired:
-        raise LoadError([f"{csv_dir}: {f} is no longer read: base clients were retired, and hosts on the "
+        raise LoadError([f"{csv_dir}: {f} is no longer read: core clients were retired, and hosts on the "
                          "simulated internet are enclaves (docs/slices.md)" for f in retired])
 
     for filename, label in NODE_FILES:

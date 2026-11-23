@@ -130,7 +130,7 @@ class BeforeTheBase(test_rollout.Simulated):
         found = player.plan(Draft(base=DraftBase(version=VERSION, scope="full"),
                                   player=view(guests=[PlayerGuest(name="lum-chi", teams=["Blue"]), PlayerGuest(name="nowhere", teams=["Blue"])])),
                             ["base"])
-        self.assertEqual((found.warnings, found.guests), (["The base has no nowhere"], 1))
+        self.assertEqual((found.warnings, found.guests), (["The core has no nowhere"], 1))
 
     def test_a_draft_from_before_grafana_the_clients_and_ghosts_were_removed_drops_them_quietly(self):
         old = view(guests=[PlayerGuest(name="grafana", teams=["Blue"]), PlayerGuest(name="lum-fluxbox", teams=["Blue"]),

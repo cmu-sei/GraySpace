@@ -57,9 +57,9 @@ class Actions(test_slice_api.Api):
         that has one names it among its problems."""
         r = self.post("client.move", "lum-svc", router=ROUTER)
         self.assertEqual(r.status_code, 422)
-        self.assertIn("isn't a base action", r.json()["detail"])
+        self.assertIn("isn't a core action", r.json()["detail"])
         found = base_changes.problems([PresetAction(action="client.move", target="lum-svc", params={"router": ROUTER})], TFVARS)
-        self.assertEqual(found, ["client.move lum-svc: base clients were retired (contract 1.18)"])
+        self.assertEqual(found, ["client.move lum-svc: core clients were retired (contract 1.18)"])
 
     def test_a_preset_checks_what_the_route_checks(self):
         self.proxmox.get_container_by_hostname.return_value = None

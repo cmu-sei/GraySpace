@@ -85,7 +85,7 @@ async def cancel_job(job_id: str):
 
 @router.post("/{job_id}/retry", response_model=JobAccepted, status_code=202, dependencies=[Depends(require_base_jobs)])
 async def retry_job(job_id: str):
-    """Run a failed or cancelled job again. Creates and base jobs resume at the stage that failed; destroys and plans start over, which is safe because every stage is idempotent."""
+    """Run a failed or cancelled job again. Creates and core jobs resume at the stage that failed; destroys and plans start over, which is safe because every stage is idempotent."""
     job = _job(job_id)
     if job.state not in ("failed", "cancelled"):
         raise HTTPException(status_code=409, detail=f"Job {job_id} is {job.state}; only failed or cancelled jobs can be retried")
@@ -105,7 +105,7 @@ async def retry_job(job_id: str):
     if job.kind in base_jobs.KIND_NAMES:
         active = base_jobs.active_base_job()
         if active:
-            raise HTTPException(status_code=409, detail=f"Base job {active.id} ({active.kind}) is {active.state}")
+            raise HTTPException(status_code=409, detail=f"Core job {active.id} ({active.kind}) is {active.state}")
         retry = new_job(job.kind, job.target, job.stages, resume_from=job.stage, retry_of=job.id, result=job.result)
         runner.submit(retry)
         return JobAccepted(job=retry)

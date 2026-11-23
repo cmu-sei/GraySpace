@@ -48,7 +48,7 @@ class SpecModel(BaseModel):
 
 
 class Attach(SpecModel):
-    """Where something joins the base: an ISP and/or location, or an exact router."""
+    """Where something joins the core: an ISP and/or location, or an exact router."""
 
     isp: Optional[str] = Field(None, description="ISP name, e.g. Lumen")
     location: Optional[str] = Field(None, description="Location name, e.g. Chicago")
@@ -80,19 +80,19 @@ class Segment(SpecModel):
 
 
 class Site(SpecModel):
-    """An enterprise site: an edge router on the base and the segments behind it."""
+    """An enterprise site: an edge router on the core and the segments behind it."""
 
     name: str = Field(..., pattern=LABEL, max_length=24)
     attach: Union[Attach, List[Attach]] = Field(
-        ..., description="Where the edge's WAN joins the base. A list dual-homes the site (routed sites only)"
+        ..., description="Where the edge's WAN joins the core. A list dual-homes the site (routed sites only)"
     )
     routed: bool = Field(
         False,
-        description="false: the edge NATs the site behind one address on a base customer network. "
-        "true: the site gets a public /24 from the ISP's block and the edge peers with the base over eBGP",
+        description="false: the edge NATs the site behind one address on a core customer network. "
+        "true: the site gets a public /24 from the ISP's block and the edge peers with the core over eBGP",
     )
     segments: List[Segment] = Field(..., min_length=1)
-    crucible: bool = Field(False, description="Register the site's edge router in the base's Crucible Player view")
+    crucible: bool = Field(False, description="Register the site's edge router in the core's Crucible Player view")
 
     @field_validator("attach")
     @classmethod
@@ -113,13 +113,13 @@ class Size(SpecModel):
 
 
 class Host(SpecModel):
-    """A host in a site segment, or an internet host placed on the base itself."""
+    """A host in a site segment, or an internet host placed on the core itself."""
 
     name: str = Field(..., pattern=LABEL, max_length=40)
     count: Optional[int] = Field(None, ge=1, le=500, description="Make this many hosts, named <name>-01 …")
     segment: Optional[str] = Field(None, description="The site segment the host joins")
     internet: Optional[Attach] = Field(
-        None, description="Place the host directly on a base router's customer network, outside any site"
+        None, description="Place the host directly on a core router's customer network, outside any site"
     )
     image: str = Field(..., description="An image from /capabilities")
     roles: List[str] = Field(default_factory=list, description="Roles from /capabilities")
@@ -128,7 +128,7 @@ class Host(SpecModel):
     env: Dict[str, str] = Field(default_factory=dict, description="Environment variables for OCI images")
     publish: bool = Field(False, description="Give a site host a public address on its site's WAN (1:1 NAT)")
     crucible: bool = Field(
-        False, description="Register the host (every copy, with count) in the base's Crucible Player view, for participants to see"
+        False, description="Register the host (every copy, with count) in the core's Crucible Player view, for participants to see"
     )
 
     @model_validator(mode="after")
@@ -147,8 +147,8 @@ class Host(SpecModel):
 
 
 class DnsDomain(SpecModel):
-    domain: str = Field(..., pattern=DOMAIN, max_length=253, description="e.g. meridian-bank.com; its TLD must be in the base")
-    hosting_server: str = Field(..., description="A base hosting DNS server, e.g. dns-cloudflare")
+    domain: str = Field(..., pattern=DOMAIN, max_length=253, description="e.g. meridian-bank.com; its TLD must be in the core")
+    hosting_server: str = Field(..., description="A core hosting DNS server, e.g. dns-cloudflare")
 
 
 class DnsRecord(SpecModel):
@@ -179,7 +179,7 @@ class Dns(SpecModel):
 class Tls(SpecModel):
     host: str = Field(..., description="The slice host that serves the certificate")
     names: List[str] = Field(..., min_length=1, description="Names on the certificate")
-    ca: str = Field(..., description="A base CA, e.g. ca-graytrust")
+    ca: str = Field(..., description="A core CA, e.g. ca-graytrust")
 
     @field_validator("names")
     @classmethod
@@ -193,7 +193,7 @@ class Tls(SpecModel):
 
 
 class LinkCondition(SpecModel):
-    """Conditions on a base link, applied while the instance exists."""
+    """Conditions on a core link, applied while the instance exists."""
 
     latency_ms: Optional[float] = Field(None, ge=0, le=10000)
     jitter_ms: Optional[float] = Field(None, ge=0, le=5000)
@@ -206,7 +206,7 @@ class Conditions(SpecModel):
 
 
 class SliceSpec(SpecModel):
-    """A named, versioned addition to the base."""
+    """A named, versioned addition to the core."""
 
     apiVersion: Literal["grayspace/v1"]
     kind: Literal["Slice", "Enclave"] = Field(

@@ -230,7 +230,7 @@ def customer_net(world, router_name, highlight=()):
     used = world.static_use(router_name)
     static = world.ctx.static_range(router_name)
     out(f"  {bold(router_name)} {dim(f'({r.isp} AS{r.asn}, {r.location})')}   customer network {cyan(r.customer_net)} on vnet {r.customer_bridge}")
-    out(f"    {'.1':<6} {r.hostname:<20} {dim('the base router, gateway for everything below')}")
+    out(f"    {'.1':<6} {r.hostname:<20} {dim('the core router, gateway for everything below')}")
     for ip in static:
         use = used.get(ip)
         if not use or use == "base":
@@ -248,7 +248,7 @@ def customer_net(world, router_name, highlight=()):
 
 
 def act_base(world):
-    act("The internet you already have", f"A shipped base: {world.tfvars.get('base', {}).get('name', 'the deployed base')}, "
+    act("The internet you already have", f"A shipped core: {world.tfvars.get('base', {}).get('name', 'the deployed core')}, "
         "deployed by task deploy, fixed while slices run")
     routers = world.ctx.routers.values()
     isps = Counter(r.isp for r in routers)
@@ -299,13 +299,13 @@ def act_allocate(world):
         f"https://www.meridian-bank.com from {spec.tls[0].ca}")
     out(f"  {magenta('mb-ws-01')} … {magenta('mb-ws-40')}, {magenta('mb-br-ws-01')} … {magenta('mb-br-ws-05')}  "
         + ", ".join(f"pool {k}: {v}" for k, v in pools.items()))
-    out(f"  resolver {alloc.sites[0].resolver} (the base resolver nearest Chicago)   {capacity_line(alloc)}")
+    out(f"  resolver {alloc.sites[0].resolver} (the core resolver nearest Chicago)   {capacity_line(alloc)}")
     out()
     world.instances.append(world.record(spec, alloc))
     customer_net(world, "lum-chi", highlight=("mb",))
     out()
     say("Lumen in Chicago resolved to lum-chi, the router with the most free addresses that matches. The HQ edge "
-        "took .2, the published web server .3. Nothing in the base changes: lum-chi already routes that network.")
+        "took .2, the published web server .3. Nothing in the core changes: lum-chi already routes that network.")
     pause()
     return spec, alloc
 
@@ -372,7 +372,7 @@ def act_mistakes(world):
 
 
 def act_tenants(world):
-    act("Many tenants, one internet", "Instances share the base: addresses, ASNs, prefixes, hostnames and DNS names are allocated across all of them")
+    act("Many tenants, one internet", "Instances share the core: addresses, ASNs, prefixes, hostnames and DNS names are allocated across all of them")
     for name in ("routed-campus", "information-environment"):
         spec = load_spec(read_example(name))
         alloc, findings = world.resolve(spec)
@@ -514,7 +514,7 @@ def act_live(world, api, caps, data_dir: Path, metrics_url):
     from services.slices import manifest, stages, store
 
     act("Live: the Terrain API and the map", f"The simulated stack at {api.url}: every guest reports as running, nothing is reachable over SSH")
-    out(f"  base {bold(caps['base']['name'])} ({caps['base']['scope']})   {len(caps['images'])} images   {len(caps['roles'])} roles   "
+    out(f"  core {bold(caps['base']['name'])} ({caps['base']['scope']})   {len(caps['images'])} images   {len(caps['roles'])} roles   "
         f"{len(caps['isps'])} ISPs   jobs: {yellow('no')} {dim('(simulated)')}")
     out()
     clean(api, data_dir, quiet=True)
@@ -556,7 +556,7 @@ def act_live(world, api, caps, data_dir: Path, metrics_url):
         real = {"validate": f"POST /validate: {len(val['findings'])} findings",
                 "allocate": f"{len(alloc.static_addresses)} static addresses, {len(alloc.vnets)} vnet{'s' if len(alloc.vnets) != 1 else ''}"
                             + (f", {', '.join(alloc.public_prefixes)}" if alloc.public_prefixes else ""),
-                "render": f"Terraform input for {len(alloc.sites) + len(alloc.hosts)} guests (certificates need the base CAs)",
+                "render": f"Terraform input for {len(alloc.sites) + len(alloc.hosts)} guests (certificates need the core CAs)",
                 "ready": "manifest"}
         for stage in stages.CREATE_STAGES:
             if stage in real:
@@ -626,7 +626,7 @@ def finale(world):
     out(f"  {bold('Fifty lines')} of YAML became an enterprise on the simulated internet:")
     out("    sites, addresses, vnets, NAT, BGP, DNS and certificates.")
     out(f"  {bold('Mistakes')} came back as findings with fixes, before anything was built.")
-    out(f"  {bold('Tenants')} shared the base without colliding, and the allocator said where the next one fits.")
+    out(f"  {bold('Tenants')} shared the core without colliding, and the allocator said where the next one fits.")
     out(f"  {bold('The same code')} runs behind task slice:*, the Terrain API, the web UI and GHOSTS.")
     out()
     out(f"  On a deployment:  {cyan('task slice:up SLICE=examples/slices/meridian-bank.yaml')}")
@@ -663,7 +663,7 @@ def main():
     out()
     out(bold("  G R A Y S P A C E   ·   slices"))
     out(dim("  An enterprise on the simulated internet, from a spec. Nothing below needs Proxmox."))
-    out(dim(f"  Base: {tfvars_path().relative_to(ROOT)}   Live act: {'yes, ' + args.api if caps else 'no: ' + why_not}"))
+    out(dim(f"  Core: {tfvars_path().relative_to(ROOT)}   Live act: {'yes, ' + args.api if caps else 'no: ' + why_not}"))
     pause(1.5)
 
     world = World()

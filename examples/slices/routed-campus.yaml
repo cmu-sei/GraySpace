@@ -1,5 +1,5 @@
 # A routed, dual-homed site: the site gets a public /24 from Lumen's block, and its edge
-# peers over eBGP (private ASN) with a Lumen and an Arelion router in Chicago. Cutting either base
+# peers over eBGP (private ASN) with a Lumen and an Arelion router in Chicago. Cutting either core
 # link fails traffic over to the other.
 apiVersion: grayspace/v1
 kind: Slice

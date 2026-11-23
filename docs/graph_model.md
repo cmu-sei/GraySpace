@@ -1,6 +1,6 @@
 # GraySpace Graph Data Model
 
-The project's network topology, ISP data, and geographic information are defined in CSVs. Each shipped base version is a directory under `bases/`, e.g. `bases/grayspace/2026.11`. They describe a graph of nodes and relationships, and `task parse` reads them directly (`scripts/topology.py`) to generate `terraform/terraform.tfvars.json`. No database is involved.
+The project's network topology, ISP data, and geographic information are defined in CSVs. Each shipped core version is a directory under `bases/`, e.g. `bases/grayspace/2026.11`. They describe a graph of nodes and relationships, and `task parse` reads them directly (`scripts/topology.py`) to generate `terraform/terraform.tfvars.json`. No database is involved.
 
 The CSVs use the neo4j-admin header format, which declares each column's name and type: `hostname:ID(Router)` is a node ID, `:START_ID(Router)` and `:END_ID(Location)` are the two ends of a relationship, and `asn:int`, `latitude:FLOAT` and `roles:string[]` are typed properties. Array columns are split on `;`, so a value such as `"0,10"` is a single element. Empty fields mean the property is absent.
 
@@ -8,7 +8,7 @@ The files are kept in a canonical form: UTF-8 without a byte-order mark, LF line
 
 Loading validates the files: a relationship that names an unknown node, a duplicate ID, or a value that doesn't match its column type fails `task parse` with every problem listed.
 
-A base version has no hosts of its own besides its DNS servers and CAs: what attaches to it is an [enclave](slices.md). Base versions up to `grayspace/2026.10` also had clients (`clients.csv`, `client_of.csv`); they were retired with that version, and a directory that still has those files fails to load.
+A core version has no hosts of its own besides its DNS servers and CAs: what attaches to it is an [enclave](slices.md). Core versions up to `grayspace/2026.10` also had clients (`clients.csv`, `client_of.csv`); they were retired with that version, and a directory that still has those files fails to load.
 
 ## Nodes
 

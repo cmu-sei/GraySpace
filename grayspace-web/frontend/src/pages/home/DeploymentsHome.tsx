@@ -43,7 +43,7 @@ const Card: React.FC<{ d: Deployment; username?: string; admin: boolean }> = ({ 
         <span className={`gs-pill ${tone}`}>{state === 'deploying' ? '⟳ ' : ''}{label}</span>
       </div>
       <div className="gs-muted" style={{ margin: '6px 0' }}>
-        {d.base?.version?.name || 'no base yet'}{d.base?.scope ? ` · ${d.base.scope}` : ''}{d.proxmox.node ? ` · ${d.proxmox.node}` : ''}
+        {d.base?.version?.name || 'no core yet'}{d.base?.scope ? ` · ${d.base.scope}` : ''}{d.proxmox.node ? ` · ${d.proxmox.node}` : ''}
       </div>
       <div className="gs-row" style={{ flexWrap: 'wrap', gap: 5 }}>
         {d.base?.routers ? <span className="gs-tag">{d.base.routers} routers</span> : null}

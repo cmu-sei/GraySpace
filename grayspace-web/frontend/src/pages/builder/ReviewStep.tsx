@@ -77,7 +77,7 @@ export const ReviewStep: React.FC<{ b: Builder; deploymentId: string; canBuild: 
   // The plan is the worker's answer now; the deployments list can lag a rollout that just ended
   const live = plan ? Boolean(plan.base.deployed) : listedLive;
   const creates = plan?.instances.filter((i) => i.action === 'create' || i.action === 'replace').length ?? 0;
-  const label = live ? 'Apply changes' : `Deploy the base${creates ? ` and ${creates} enclave${creates === 1 ? '' : 's'}` : ''}`;
+  const label = live ? 'Apply changes' : `Deploy the core${creates ? ` and ${creates} enclave${creates === 1 ? '' : 's'}` : ''}`;
   const cap = plan?.capacity;
   // A failed rollout carries out the plan of the draft it deployed: once the draft has changed, retrying it
   // can't help, so it isn't shown (it stays in Jobs). Only failures someone can act on are.
@@ -95,7 +95,7 @@ export const ReviewStep: React.FC<{ b: Builder; deploymentId: string; canBuild: 
               <tbody>
                 <tr>
                   <td style={{ width: 110 }}><span className={`gs-pill ${ACTION[plan.base.action][0]}`}>{ACTION[plan.base.action][1]}</span></td>
-                  <td>Base {plan.base.version || plan.base.deployed?.name}{(plan.base.scope || plan.base.deployed?.scope) ? ` · ${plan.base.scope || plan.base.deployed?.scope}` : ''}</td>
+                  <td>Core {plan.base.version || plan.base.deployed?.name}{(plan.base.scope || plan.base.deployed?.scope) ? ` · ${plan.base.scope || plan.base.deployed?.scope}` : ''}</td>
                   <td className="gs-muted">
                     {plan.base.action === 'update' && plan.base.deployed ? `from ${plan.base.deployed.name} · ${plan.base.deployed.scope}` : plan.base.action !== 'none' && !plan.base.configure ? 'without configure' : ''}
                     {plan.stages.includes('preset') && <div>apply preset {plan.base.preset}{plan.base.active_preset && plan.base.active_preset !== plan.base.preset ? ` (now ${plan.base.active_preset})` : ''}</div>}

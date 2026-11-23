@@ -87,7 +87,7 @@ class Taken:
             t.asns |= set(a.asns)
         t.domains |= {d for d in overlay_domains}
         for link in overlay_links:
-            t.links.setdefault(link, "the base overlay (the web UI's changes or a base preset)")
+            t.links.setdefault(link, "the core overlay (the web UI's changes or a core preset)")
         return t
 
 
@@ -198,7 +198,7 @@ class Resolver:
         if att.router:
             r = ctx.routers.get(att.router)
             if r is None:
-                self.error("UNKNOWN_ROUTER", f"{path}.router", f"No router '{att.router}' in the deployed base",
+                self.error("UNKNOWN_ROUTER", f"{path}.router", f"No router '{att.router}' in the deployed core",
                            self._alternative(None, att.isp, att.location, need))
                 return None
             if (att.isp and r.isp != att.isp) or (att.location and r.location != att.location):
@@ -219,10 +219,10 @@ class Resolver:
         isps = {r.isp for r in ctx.routers.values()}
         locations = {r.location for r in ctx.routers.values()}
         if att.isp and att.isp not in isps:
-            self.error("UNKNOWN_ROUTER", f"{path}.isp", f"No ISP '{att.isp}' in the deployed base", None)
+            self.error("UNKNOWN_ROUTER", f"{path}.isp", f"No ISP '{att.isp}' in the deployed core", None)
             return None
         if att.location and att.location not in locations:
-            self.error("UNKNOWN_ROUTER", f"{path}.location", f"No routers in '{att.location}' in the deployed base",
+            self.error("UNKNOWN_ROUTER", f"{path}.location", f"No routers in '{att.location}' in the deployed core",
                        self._alternative(None, att.isp, None, need))
             return None
         candidates = [r for r in ctx.routers.values() if (not att.isp or r.isp == att.isp) and (not att.location or r.location == att.location) and r.hostname not in avoid]
@@ -233,7 +233,7 @@ class Resolver:
             return None
         usable = [r for r in candidates if self._usable(r)]
         if not usable:
-            self.error("NO_CUSTOMER_NET", path, f"No {att.isp or ''} router in {att.location or 'the base'} has a customer network".replace("  ", " "),
+            self.error("NO_CUSTOMER_NET", path, f"No {att.isp or ''} router in {att.location or 'the core'} has a customer network".replace("  ", " "),
                        self._alternative(candidates[0], att.isp, att.location, need, exclude={r.hostname for r in candidates}))
             return None
         best = max(usable, key=lambda r: (self._free_count(r.hostname), r.hostname))
@@ -415,7 +415,7 @@ class Resolver:
                             continue
                         clash = self._conflicts(net, base_nets)
                         if clash:
-                            self.error("CIDR_OVERLAP", f"{spath}.cidr", f"{net} overlaps {clash}, which the base uses")
+                            self.error("CIDR_OVERLAP", f"{spath}.cidr", f"{net} overlaps {clash}, which the core uses")
                             continue
                         clash = self._conflicts(net, assigned_nets + [n for n, p in explicit if p != f"{spath}.cidr"])
                         if clash:
@@ -433,7 +433,7 @@ class Resolver:
             alloc = SiteAllocation(name=site.name, routed=site.routed, edge=edge, wans=wans, segments=segments,
                                    public_prefix=public_prefix, asn=asn, resolver=resolver.ip if resolver else "", crucible=site.crucible)
             if resolver is None:
-                self.error("CAPACITY", path, "The deployed base has no DNS resolver for the site's hosts")
+                self.error("CAPACITY", path, "The deployed core has no DNS resolver for the site's hosts")
             sites.append(alloc)
             site_index[site.name] = alloc
 
@@ -567,7 +567,7 @@ class Resolver:
             domains[dom.domain] = dom
             tld = dom.domain.rsplit(".", 1)[-1]
             if tld not in ctx.tlds:
-                self.error("UNKNOWN_TLD", f"{path}.domain", f"The base has no TLD server for .{tld}; TLDs: {', '.join(sorted(ctx.tlds))}")
+                self.error("UNKNOWN_TLD", f"{path}.domain", f"The core has no TLD server for .{tld}; TLDs: {', '.join(sorted(ctx.tlds))}")
             if dom.hosting_server not in ctx.hosting:
                 self.error("UNKNOWN_HOSTING_SERVER", f"{path}.hosting_server", f"No hosting DNS server '{dom.hosting_server}'",
                            sorted(ctx.hosting)[0] if ctx.hosting else None)
@@ -600,7 +600,7 @@ class Resolver:
                                f"{h.name} already has a certificate (tls[{tls_hosts[h.hostname]}]); put every name on one entry")
                 tls_hosts[h.hostname] = t
             if tls.ca not in ctx.cas:
-                self.error("UNKNOWN_CA", f"{path}.ca", f"No CA '{tls.ca}' in the deployed base", sorted(ctx.cas)[0] if ctx.cas else None)
+                self.error("UNKNOWN_CA", f"{path}.ca", f"No CA '{tls.ca}' in the deployed core", sorted(ctx.cas)[0] if ctx.cas else None)
             if h is not None:
                 image = self.images.get(h.image)
                 if h.type == "oci" and (image is None or "tls-kestrel" not in image.features):

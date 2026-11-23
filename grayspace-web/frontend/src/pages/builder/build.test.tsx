@@ -52,7 +52,7 @@ afterEach(() => apiService.setDeployment(null));
 
 describe('the readiness checks', () => {
   const checks = [
-    { name: 'jobs', status: 'ok', message: 'This GraySpace can run base jobs' },
+    { name: 'jobs', status: 'ok', message: 'This GraySpace can run core jobs' },
     { name: 'version', status: 'ok', message: 'grayspace/2026.11 at full scope' },
     { name: 'proxmox', status: 'ok', message: "Node 'pve' answers" },
     { name: 'bridges', status: 'error', message: "Bridge 'vmbr9' doesn't exist" },
@@ -60,7 +60,7 @@ describe('the readiness checks', () => {
 
   it('are one line per group, opened to see each check; the server only when something is wrong', () => {
     render(<ReadinessChecks preflight={{ ready: false, version: 'grayspace/2026.11', scope: 'full', checks: [...checks] }} />);
-    expect(screen.getByText('Base version')).toBeInTheDocument();
+    expect(screen.getByText('Core version')).toBeInTheDocument();
     expect(screen.getByText("Bridge 'vmbr9' doesn't exist")).toBeInTheDocument();
     expect(screen.queryByText('GraySpace server')).not.toBeInTheDocument();
     expect(screen.queryByText("Node 'pve' answers")).not.toBeInTheDocument();
@@ -260,10 +260,10 @@ describe('the builder', () => {
   it('deploys from Review as one rollout', async () => {
     const calls = serve((url, init) => (url.endsWith('/api/v1/deploy') && init?.method === 'POST'
       ? { status: 202, body: { instance: null, job: { id: 'r1', kind: 'rollout', target: 'deployment', state: 'queued', stages: ['base', 'create:mb'], stage: null, created: new Date().toISOString(), children: [], stage_titles: {} } } }
-      : url.endsWith('/api/v1/jobs/r1') ? { body: { id: 'r1', kind: 'rollout', target: 'deployment', state: 'running', stages: ['base', 'create:mb'], stage: 'base', created: new Date().toISOString(), started: new Date().toISOString(), children: [], result: { children: {} }, stage_titles: { base: 'Deploy or update the base', 'create:mb': 'Create instance mb' } } }
+      : url.endsWith('/api/v1/jobs/r1') ? { body: { id: 'r1', kind: 'rollout', target: 'deployment', state: 'running', stages: ['base', 'create:mb'], stage: 'base', created: new Date().toISOString(), started: new Date().toISOString(), children: [], result: { children: {} }, stage_titles: { base: 'Deploy or update the core', 'create:mb': 'Create instance mb' } } }
         : undefined));
     wizard('review');
-    const button = await screen.findByRole('button', { name: 'Deploy the base and 1 enclave' });
+    const button = await screen.findByRole('button', { name: 'Deploy the core and 1 enclave' });
     await act(async () => { fireEvent.click(button); });
     await waitFor(() => expect(calls.some((c) => c.url.endsWith('/api/v1/deploy') && c.init?.method === 'POST')).toBe(true));
     expect(await screen.findByText('Create instance mb')).toBeInTheDocument();

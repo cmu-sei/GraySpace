@@ -50,7 +50,7 @@ class Simulated(unittest.TestCase):
         with patch("services.topology_service.topology_service.tfvars_data", {}):
             available, why = environment.jobs_available()
         self.assertFalse(available)
-        self.assertIn("deploy the base first", why)
+        self.assertIn("deploy the core first", why)
 
     def test_off_by_default(self):
         self.assertFalse(type(settings)(_env_file=None).dev_simulate_deployment)

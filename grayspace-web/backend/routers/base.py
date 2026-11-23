@@ -1,4 +1,4 @@
-"""The deployed base: version, health, inventory and DNS, and its
+"""The deployed core: version, health, inventory and DNS, and its
 lifecycle as jobs: preflight, deploy, configure, destroy."""
 from typing import List, Optional
 
@@ -30,7 +30,7 @@ router = APIRouter(prefix="/api/v1/base", tags=["base"], dependencies=[Depends(r
 @router.get("", response_model=DeployedBase)
 async def get_base():
     """
-    The deployed base version and its health.
+    The deployed core version and its health.
 
     The version comes from the `base` block that `task parse` writes into terraform.tfvars.json.
     Health compares the routers in the tfvars with what Proxmox reports as running, and counts
@@ -42,8 +42,8 @@ async def get_base():
 @router.get("/inventory", response_model=Inventory)
 async def get_inventory():
     """
-    What the deployed base consists of: ISPs; routers with their interfaces and addresses; links
-    with both ends' addresses and their state; clients (the hosts the base places on customer
+    What the deployed core consists of: ISPs; routers with their interfaces and addresses; links
+    with both ends' addresses and their state; clients (the hosts the core places on customer
     networks) and core services (DNS servers and CAs) with their addresses. Read from the deployed
     tfvars, so only what the deployment scope built. Status is Proxmox's, link state comes from
     Prometheus. Slice instances are not included: GET /instances/{id} returns each one's manifest.
@@ -58,8 +58,8 @@ async def get_inventory():
 async def get_dns():
     """
     Every zone the simulated DNS serves and its records (all but the SOA), with the resolvers.
-    Each zone and record has an origin: base (the root and TLD zones task configure writes),
-    overlay (domains and records created in the web UI or by a base preset) or instance (created by a
+    Each zone and record has an origin: `base` (the root and TLD zones task configure writes),
+    `overlay` (domains and records created in the web UI or by a core preset) or `instance` (created by a
     slice instance, named in `instance`). Delegations sit in their TLD zone with the origin of the
     domain they delegate.
     """
@@ -70,7 +70,7 @@ async def get_dns():
 @router.get("/versions", response_model=List[BaseVersion])
 async def list_base_versions():
     """
-    Shipped base versions under bases/, with a summary of each and which one is deployed.
+    Shipped core versions under bases/, with a summary of each and which one is deployed.
 
     A version whose CSVs fail to load is listed with its problems instead of a summary.
     """
@@ -80,12 +80,12 @@ async def list_base_versions():
 @router.get("/versions/{name:path}", response_model=BaseVersionDetail)
 async def get_base_version(name: str):
     """
-    A base version and its topology snapshot: ISPs, locations, routers (with ISP and location)
+    A core version and its topology snapshot: ISPs, locations, routers (with ISP and location)
     and links. Version names contain a slash, e.g. /api/v1/base/versions/grayspace/2026.11.
     """
     version = base_versions.get_version(name)
     if version is None:
-        raise HTTPException(status_code=404, detail=f"No shipped base version '{name}'")
+        raise HTTPException(status_code=404, detail=f"No shipped core version '{name}'")
     return version
 
 
@@ -95,7 +95,7 @@ async def get_base_version(name: str):
 def _no_active_base_job():
     active = base_jobs.active_base_job()
     if active:
-        raise HTTPException(status_code=409, detail=f"Base job {active.id} ({active.kind}) is {active.state}; wait for it or cancel it")
+        raise HTTPException(status_code=409, detail=f"Core job {active.id} ({active.kind}) is {active.state}; wait for it or cancel it")
 
 
 def _gateway(value: Optional[str]) -> Optional[str]:
@@ -106,10 +106,10 @@ def _gateway(value: Optional[str]) -> Optional[str]:
 
 
 @router.get("/preflight", response_model=Preflight)
-async def get_preflight(version: Optional[str] = Query(None, description="Base version to check; the deployed one by default"),
+async def get_preflight(version: Optional[str] = Query(None, description="Core version to check; the deployed one by default"),
                         scope: Optional[str] = Query(None, pattern="^(full|tier1)$", description="full or tier1; the deployed scope, else full")):
     """
-    Whether this site can deploy the base version at the scope: the settings, the Proxmox API and
+    Whether this site can deploy the core version at the scope: the settings, the Proxmox API and
     node, storages (and their content types), bridges, SDN, SSH to the Proxmox host, capacity, and
     live instances that a version change would break. A deploy is refused while any check is an
     error, and runs these again as its first stage.
@@ -118,11 +118,11 @@ async def get_preflight(version: Optional[str] = Query(None, description="Base v
 
 
 @router.post("/deploy", response_model=JobAccepted, status_code=202, dependencies=[Depends(require_base_jobs)],
-             responses={409: {"description": "Another base job is queued or running, or live instances would break"},
+             responses={409: {"description": "Another core job is queued or running, or live instances would break"},
                         422: {"description": "Preflight failed; detail.checks lists the errors"}})
 async def deploy_base(request: DeployBaseRequest = Body(DeployBaseRequest())):
     """
-    Deploy or update the base: preflight, parse, the guards, Terraform until converged, Ansible,
+    Deploy or update the core: preflight, parse, the guards, Terraform until converged, Ansible,
     then a health check that waits for routers and BGP. Returns a job; poll GET /jobs/{id} or follow
     /events, then GET /base. Deploying the deployed version again changes nothing. Without a
     version, the deployed one is redeployed; with nothing deployed, a version is required.
@@ -141,9 +141,9 @@ async def deploy_base(request: DeployBaseRequest = Body(DeployBaseRequest())):
 
 
 @router.post("/configure", response_model=JobAccepted, status_code=202, dependencies=[Depends(require_base_jobs)],
-             responses={409: {"description": "Nothing is deployed, or another base job is queued or running"}})
+             responses={409: {"description": "Nothing is deployed, or another core job is queued or running"}})
 async def configure_base(request: ConfigureBaseRequest = Body(ConfigureBaseRequest())):
-    """Run Ansible on the deployed base again (task configure), then the health check. Returns a job."""
+    """Run Ansible on the deployed core again (task configure), then the health check. Returns a job."""
     _no_active_base_job()
     if not topology_service.tfvars_data:
         raise HTTPException(status_code=409, detail="Nothing is deployed; POST /api/v1/base/deploy first")
@@ -156,10 +156,10 @@ async def configure_base(request: ConfigureBaseRequest = Body(ConfigureBaseReque
                responses={409: {"description": "Live instances exist (pass destroy_instances=true), or another job is active"}})
 async def destroy_base(destroy_instances: bool = Query(False, description="Destroy every live slice instance first")):
     """
-    Destroy the base (task destroy). Refused while slice instances are live, unless
+    Destroy the core (task destroy). Refused while slice instances are live, unless
     destroy_instances is true: then each live instance's destroy job is queued first, and the
-    base's destroy job last, which refuses to run if any instance is still live. Returns the jobs
-    in the order they run; the last is the base's.
+    core's destroy job last, which refuses to run if any instance is still live. Returns the jobs
+    in the order they run; the last is the core's.
     """
     _no_active_base_job()
     live = store.live_instances()

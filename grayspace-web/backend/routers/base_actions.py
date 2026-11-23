@@ -32,6 +32,6 @@ async def act(action: PresetAction) -> Any:
 
 @router.post("/actions")
 async def apply_base_action(action: PresetAction = Body(...)):
-    """One runtime change to the base, tracked like the web UI's (GET /changes) and undone by Reset
+    """One runtime change to the core, tracked like the web UI's (GET /changes) and undone by Reset
     changes. Returns what the matching web UI route returns."""
     return await act(action)

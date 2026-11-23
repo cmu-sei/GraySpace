@@ -98,9 +98,9 @@ async def get_roles():
 
 
 @router.get("/guests", response_model=Guests)
-async def get_guests(version: Optional[str] = Query(None, description="The draft's base version; the deployed one's guests when unset"),
+async def get_guests(version: Optional[str] = Query(None, description="The draft's core version; the deployed one's guests when unset"),
                      scope: Optional[str] = Query(None)):
-    """The VMs the Player step can assign: the base version's guests (the deployed tfvars, or the
+    """The VMs the Player step can assign: the core version's guests (the deployed tfvars, or the
     version's when it isn't deployed) and the saved draft's enclaves' sites and hosts."""
     from services import rollout
 

@@ -73,7 +73,7 @@ def _owner(link_id: str, instance_id: str) -> Optional[str]:
     from services.mutation_tracker import mutation_tracker
 
     if any(canonical(k) == link_id for k in mutation_tracker.traffic_configs):
-        return "the base overlay"
+        return "the core overlay"
     for inst in store.live_instances():
         if inst.id != instance_id and _held_by(inst, link_id):
             return f"instance {inst.id}"
