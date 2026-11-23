@@ -262,7 +262,7 @@ export const InterfacesTab: React.FC<InterfacesTabProps> = ({ hostname }) => {
                         backgroundColor: iface.zone_type === 'simple' ? '#2ecc71' : '#e74c3c',
                       }}
                     >
-                      {iface.zone_type === 'simple' ? 'Isolated' : `VLAN ${iface.vlan_tag}`}
+                      {iface.zone_type === 'simple' ? 'Internal' : `VLAN ${iface.vlan_tag}`}
                     </span>
                   )}
                 </div>
@@ -288,7 +288,7 @@ export const InterfacesTab: React.FC<InterfacesTabProps> = ({ hostname }) => {
                     className="configure-zone-button"
                     onClick={() => setSelectedCustomerInterface(iface)}
                   >
-                    Configure Zone
+                    Configure connection
                   </button>
                 </div>
               </div>

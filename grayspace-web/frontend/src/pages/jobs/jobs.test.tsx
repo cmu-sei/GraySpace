@@ -124,7 +124,7 @@ describe('a job', () => {
     const writeText = jest.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
     renderDetail(job({ state: 'failed', stage: 'allocate', error: 'No free /24 left' }), true);
-    const copy = await screen.findByRole('button', { name: 'Copy details for your admin' });
+    const copy = await screen.findByRole('button', { name: 'Copy debug info' });
     await act(async () => { fireEvent.click(copy); });
     expect(writeText.mock.calls[0][0]).toContain('Error: No free /24 left');
     expect(writeText.mock.calls[0][0]).toContain('State: Failed: Allocate addresses');
@@ -136,7 +136,7 @@ describe('a job', () => {
     Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true });
     const exec = execCommand(true);
     renderDetail(job({ state: 'failed', stage: 'allocate', error: 'No free /24 left' }), true);
-    const copy = await screen.findByRole('button', { name: 'Copy details for your admin' });
+    const copy = await screen.findByRole('button', { name: 'Copy debug info' });
     await act(async () => { fireEvent.click(copy); });
     expect(exec).toHaveBeenCalledWith('copy');
     expect(screen.getByRole('button', { name: 'Copied' })).toBeInTheDocument();
@@ -146,7 +146,7 @@ describe('a job', () => {
     secure(false);
     execCommand(false);
     renderDetail(job({ state: 'failed', stage: 'allocate', error: 'No free /24 left' }), true);
-    const copy = await screen.findByRole('button', { name: 'Copy details for your admin' });
+    const copy = await screen.findByRole('button', { name: 'Copy debug info' });
     await act(async () => { fireEvent.click(copy); });
     const box = screen.getByLabelText('Text to copy') as HTMLTextAreaElement;
     expect(box.value).toContain('Error: No free /24 left');

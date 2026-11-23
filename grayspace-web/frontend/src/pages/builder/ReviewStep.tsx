@@ -134,7 +134,7 @@ export const ReviewStep: React.FC<{ b: Builder; deploymentId: string; canBuild: 
                 {running ? 'Deploying…' : busy ? 'Starting…' : label}
               </button>
             ) : <span className="gs-muted">Deploying needs build access.</span>}
-            {canBuild && <Tip text="Builds everything in one job. If a step fails, retry to continue from there." />}
+            {canBuild && <Tip text="Applies the plan above. A failed deploy can be retried from the failed step." />}
             {plan && !plan.changes && !b.dirty && <span className="gs-muted">Nothing to change.</span>}
           </div>
         </div>

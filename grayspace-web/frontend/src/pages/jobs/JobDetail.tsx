@@ -194,7 +194,7 @@ export const JobDetail: React.FC<{ deploymentId: string; jobId: string; canBuild
             {job.error}
             {(job.state === 'failed' || job.state === 'cancelled') && (
               <div style={{ marginTop: 6 }}>
-                <CopyButton text={() => failureReport(deploymentId, job, log)} label="Copy details for your admin" />
+                <CopyButton text={() => failureReport(deploymentId, job, log)} label="Copy debug info" />
               </div>
             )}
           </div>
