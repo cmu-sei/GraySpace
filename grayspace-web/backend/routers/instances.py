@@ -42,7 +42,7 @@ async def list_instances(all: bool = Query(False, description="Include destroyed
 
 
 @router.post("", response_model=JobAccepted, status_code=202, dependencies=[Depends(require_jobs)],
-             responses={422: {"description": "The spec has errors against the deployed base; detail.findings lists them"}})
+             responses={422: {"description": "The spec has errors against the deployed core; detail.findings lists them"}})
 async def create_instance(request: CreateInstanceRequest = Body(...)):
     """
     Create an instance of a stored slice version (the latest unless one is pinned). The instance ID
@@ -113,7 +113,7 @@ async def destroy_instance(instance_id: str):
 async def act(instance_id: str, request: instance_actions.ActionRequest = Body(...)):
     """
     A runtime action on a ready instance: link.condition, link.clear, link.down, link.up
-    on base links; dns.record.set and dns.record.delete within the instance's domains; host.start and
+    on core links; dns.record.set and dns.record.delete within the instance's domains; host.start and
     host.stop; reset, which undoes the instance's actions. Owned by the instance: Reset changes
     (POST /changes/discard) leaves them, reset and destroy undo them.
     """

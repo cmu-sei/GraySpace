@@ -4,15 +4,15 @@ from pydantic import BaseModel, Field
 
 
 class BaseVersionRef(BaseModel):
-    """The base version a deployment's tfvars were generated from."""
+    """The core version a deployment's tfvars were generated from."""
 
-    name: Optional[str] = Field(..., description="Shipped base version, e.g. grayspace/2026.11. Null when the CSVs came from another directory")
-    csv_sha256: str = Field(..., description="sha256 of the base version's CSVs; identifies the version's content")
+    name: Optional[str] = Field(..., description="Shipped core version, e.g. grayspace/2026.11. Null when the CSVs came from another directory")
+    csv_sha256: str = Field(..., description="sha256 of the core version's CSVs; identifies the version's content")
     scope: str = Field(..., description="Deployment scope: full or tier1")
 
 
 class RouterHealth(BaseModel):
-    """Routers in the deployed base, as Proxmox sees them."""
+    """Routers in the deployed core, as Proxmox sees them."""
 
     expected: int = Field(..., description="Routers in the deployed tfvars")
     running: Optional[int] = Field(..., description="Expected routers Proxmox reports as running. Null when Proxmox is unavailable")
@@ -34,11 +34,11 @@ class BgpHealth(BaseModel):
 
 
 class DeployedBase(BaseModel):
-    """The deployed base version and its health."""
+    """The deployed core version and its health."""
 
     version: Optional[BaseVersionRef] = Field(..., description="Null when the tfvars predate version recording; re-run task parse")
     status: Literal["not_deployed", "healthy", "degraded", "unknown"] = Field(
-        ..., description="not_deployed: no base tfvars (nothing deployed, or destroyed). healthy: every router running and every BGP session up. "
+        ..., description="not_deployed: no core tfvars (nothing deployed, or destroyed). healthy: every router running and every BGP session up. "
         "unknown: Proxmox or Prometheus gave no answer"
     )
     routers: RouterHealth
@@ -51,11 +51,11 @@ class VersionSummary(BaseModel):
     routers: int
     links: int
     core_services: int
-    clients: int = Field(0, description="Deprecated (contract 1.18): base clients were retired; always 0", deprecated=True)
+    clients: int = Field(0, description="Deprecated (contract 1.18): core clients were retired; always 0", deprecated=True)
 
 
 class BaseVersion(BaseModel):
-    """A shipped base version under bases/."""
+    """A shipped core version under bases/."""
 
     name: str = Field(..., description="e.g. grayspace/2026.11")
     csv_sha256: Optional[str] = Field(..., description="Null when the version fails to load")
@@ -95,7 +95,7 @@ class SnapshotLink(BaseModel):
 
 
 class BaseVersionDetail(BaseVersion):
-    """A base version and its topology snapshot: what slice compatibility is checked against."""
+    """A core version and its topology snapshot: what slice compatibility is checked against."""
 
     isps: List[SnapshotIsp] = Field(default_factory=list)
     locations: List[SnapshotLocation] = Field(default_factory=list)
@@ -111,7 +111,7 @@ def _status():
 
 class InventoryInterface(BaseModel):
     name: str = Field(..., description="eth0, eth1, … in the order Terraform creates them")
-    bridge: str = Field(..., description="The base vnet (without environment_id), e.g. v213")
+    bridge: str = Field(..., description="The core vnet (without environment_id), e.g. v213")
     ip: str
     prefix_len: Optional[int]
     ospf_area: Optional[str] = Field(..., description="Null on the customer network")
@@ -144,19 +144,19 @@ class InventoryLink(BaseModel):
     source_ip: Optional[str]
     target_interface: str
     target_ip: Optional[str]
-    latency_ms: Optional[float] = Field(..., description="The latency the base sets on the link (tc), from the distance")
+    latency_ms: Optional[float] = Field(..., description="The latency the core sets on the link (tc), from the distance")
     state: str = Field(..., description="up, down or unknown: BGP, OSPF and interface state from Prometheus")
 
 
 class InventoryClient(BaseModel):
-    """Deprecated (contract 1.18): a host the base placed on a router's customer network (clients.csv). Base
+    """Deprecated (contract 1.18): a host the core placed on a router's customer network (clients.csv). Core
     clients were retired; hosts on the simulated internet are enclaves."""
 
     hostname: str
     type: Literal["lxc", "vm", "oci"]
     category: Optional[str] = Field(..., description="e.g. social, other")
     feature: Optional[str] = Field(..., description="desktop, ubuntu-desktop or null (/capabilities host_features)")
-    image: Optional[str] = Field(..., description="The image source the base deployed")
+    image: Optional[str] = Field(..., description="The image source the core deployed")
     ip: Optional[str] = Field(..., description="Null when the client takes a DHCP lease, e.g. after a move")
     subnet: Optional[str]
     router: Optional[str]
@@ -166,7 +166,7 @@ class InventoryClient(BaseModel):
 
 
 class InventoryCoreService(BaseModel):
-    """A DNS server or CA the base hosts on a router (core_dns.csv, core_ca.csv)."""
+    """A DNS server or CA the core hosts on a router (core_dns.csv, core_ca.csv)."""
 
     hostname: str
     role: str = Field(..., description="root-dns, tld, hosting, resolver or ca")
@@ -181,14 +181,14 @@ class InventoryCoreService(BaseModel):
 
 
 class Inventory(BaseModel):
-    """The deployed base: what Terraform built from the tfvars (the scope applied), with live state."""
+    """The deployed core: what Terraform built from the tfvars (the scope applied), with live state."""
 
     version: Optional[BaseVersionRef]
     customer_dhcp_start: int = Field(..., description="Customer networks lease from this host number; below it are static addresses")
     isps: List[SnapshotIsp]
     routers: List[InventoryRouter]
     links: List[InventoryLink]
-    clients: List[InventoryClient] = Field(default_factory=list, description="Deprecated (contract 1.18): base clients "
+    clients: List[InventoryClient] = Field(default_factory=list, description="Deprecated (contract 1.18): core clients "
                                            "were retired; always empty", deprecated=True)
     core_services: List[InventoryCoreService]
 
@@ -196,8 +196,8 @@ class Inventory(BaseModel):
 # --- GET /api/v1/base/dns: every zone and record the simulated DNS serves ---
 
 Origin = Literal["base", "overlay", "instance"]
-ORIGIN_DESCRIPTION = ("base: written by task configure. overlay: created at runtime in the web UI or by a base preset; "
-                      "quick reset removes it. instance: created by a slice instance; destroying it removes it")
+ORIGIN_DESCRIPTION = ("`base`: written by task configure. `overlay`: created at runtime in the web UI or by a core preset; "
+                      "quick reset removes it. `instance`: created by a slice instance; destroying it removes it")
 
 
 class DnsRecord(BaseModel):
@@ -224,18 +224,18 @@ class DnsZone(BaseModel):
 
 
 class DnsView(BaseModel):
-    """The simulated DNS: the zones the base's root, TLD and hosting servers serve, and resolvers."""
+    """The simulated DNS: the zones the core's root, TLD and hosting servers serve, and resolvers."""
 
     resolvers: List[DnsZoneServer] = Field(..., description="Recursive resolvers hosts can use")
     zones: List[DnsZone]
 
 
 class DeployBaseRequest(BaseModel):
-    """What to deploy. Omitted fields keep the deployed base's."""
+    """What to deploy. Omitted fields keep the deployed core's."""
 
     model_config = {"json_schema_extra": {"examples": [{"version": "grayspace/2026.11", "scope": "tier1"}]}}
 
-    version: Optional[str] = Field(None, description="Shipped base version, e.g. grayspace/2026.11. Required when nothing is deployed")
+    version: Optional[str] = Field(None, description="Shipped core version, e.g. grayspace/2026.11. Required when nothing is deployed")
     scope: Optional[Literal["full", "tier1"]] = Field(None, description="Deployment scope; full when nothing is deployed")
     configure: bool = Field(True, description="Run Ansible after the apply. False stops after Terraform")
     mgmt_gateway: Optional[str] = Field(
@@ -254,7 +254,7 @@ class PreflightCheck(BaseModel):
 
 
 class Preflight(BaseModel):
-    """Whether this site can deploy a base. ready is false when any check is an error."""
+    """Whether this site can deploy a core. ready is false when any check is an error."""
 
     ready: bool
     version: Optional[str] = None

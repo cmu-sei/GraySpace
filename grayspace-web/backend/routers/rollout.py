@@ -22,7 +22,7 @@ async def get_draft():
     return rollout.get_draft()
 
 
-@router.put("/draft", response_model=Draft, responses={422: {"description": "An unknown base version or enclave, or a prefix used twice"}})
+@router.put("/draft", response_model=Draft, responses={422: {"description": "An unknown core version or enclave, or a prefix used twice"}})
 async def put_draft(body: DraftUpdate):
     """Save what the deployment should have. Nothing changes until POST /deploy."""
     try:
@@ -33,7 +33,7 @@ async def put_draft(body: DraftUpdate):
 
 @router.get("/deploy/plan", response_model=DeployPlan)
 async def get_plan():
-    """What POST /deploy would do: instances to destroy, the base to deploy or update, instances to
+    """What POST /deploy would do: instances to destroy, the core to deploy or update, instances to
     create, and the node's capacity now. problems lists what stops it."""
     from services.capabilities import capacity
 
@@ -43,9 +43,9 @@ async def get_plan():
 
 
 @router.post("/deploy", response_model=JobAccepted, status_code=202, dependencies=[Depends(require_base_jobs)],
-             responses={409: {"description": "Nothing to change, a base job or rollout is active, or the plan has problems"}})
+             responses={409: {"description": "Nothing to change, a core job or rollout is active, or the plan has problems"}})
 async def deploy():
-    """Queue a rollout: destroys, then the base, then creates, each a child job, stopping at the first
+    """Queue a rollout: destroys, then the core, then creates, each a child job, stopping at the first
     that fails. Poll GET /jobs/{id} (its children, and GET /jobs?parent={id}); retry it to resume."""
     active = base_jobs.active_base_job()
     if active:

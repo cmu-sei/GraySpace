@@ -64,7 +64,7 @@ def problems(actions: List[PresetAction], tfvars: Dict) -> List[str]:
             if len(ends) != 2 or not set(ends) <= routers or not _bridges(tfvars, ends[0]) & _bridges(tfvars, ends[1]):
                 found.append(f"No link {a.target}")
         elif a.action == "client.move":
-            found.append(f"client.move {a.target}: base clients were retired (contract 1.18)")
+            found.append(f"client.move {a.target}: core clients were retired (contract 1.18)")
         elif a.action == "interface.zone":
             if (a.target or "").split(":", 1)[0] not in hosts:
                 found.append(f"No host for {a.target}")
@@ -79,7 +79,7 @@ async def apply(a: PresetAction) -> Any:
     and presets alike. Returns the route's response; ChangeError says why the change wasn't made."""
     handler = HANDLERS.get(a.action)
     if handler is None:
-        raise ChangeError(422, f"{a.action} isn't a base action ({', '.join(HANDLERS)})")
+        raise ChangeError(422, f"{a.action} isn't a core action ({', '.join(HANDLERS)})")
     return await handler(a)
 
 

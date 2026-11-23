@@ -5,7 +5,7 @@
   "$defs": {
     "Attach": {
       "additionalProperties": false,
-      "description": "Where something joins the base: an ISP and/or location, or an exact router.",
+      "description": "Where something joins the core: an ISP and/or location, or an exact router.",
       "properties": {
         "isp": {
           "anyOf": [
@@ -90,14 +90,14 @@
       "additionalProperties": false,
       "properties": {
         "domain": {
-          "description": "e.g. meridian-bank.com; its TLD must be in the base",
+          "description": "e.g. meridian-bank.com; its TLD must be in the core",
           "maxLength": 253,
           "pattern": "^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,63}$",
           "title": "Domain",
           "type": "string"
         },
         "hosting_server": {
-          "description": "A base hosting DNS server, e.g. dns-cloudflare",
+          "description": "A core hosting DNS server, e.g. dns-cloudflare",
           "title": "Hosting Server",
           "type": "string"
         }
@@ -172,7 +172,7 @@
     },
     "Host": {
       "additionalProperties": false,
-      "description": "A host in a site segment, or an internet host placed on the base itself.",
+      "description": "A host in a site segment, or an internet host placed on the core itself.",
       "properties": {
         "name": {
           "maxLength": 40,
@@ -218,7 +218,7 @@
             }
           ],
           "default": null,
-          "description": "Place the host directly on a base router's customer network, outside any site"
+          "description": "Place the host directly on a core router's customer network, outside any site"
         },
         "image": {
           "description": "An image from /capabilities",
@@ -269,7 +269,7 @@
         },
         "crucible": {
           "default": false,
-          "description": "Register the host (every copy, with count) in the base's Crucible Player view, for participants to see",
+          "description": "Register the host (every copy, with count) in the core's Crucible Player view, for participants to see",
           "title": "Crucible",
           "type": "boolean"
         }
@@ -283,7 +283,7 @@
     },
     "LinkCondition": {
       "additionalProperties": false,
-      "description": "Conditions on a base link, applied while the instance exists.",
+      "description": "Conditions on a core link, applied while the instance exists.",
       "properties": {
         "latency_ms": {
           "anyOf": [
@@ -376,7 +376,7 @@
     },
     "Site": {
       "additionalProperties": false,
-      "description": "An enterprise site: an edge router on the base and the segments behind it.",
+      "description": "An enterprise site: an edge router on the core and the segments behind it.",
       "properties": {
         "name": {
           "maxLength": 24,
@@ -396,12 +396,12 @@
               "type": "array"
             }
           ],
-          "description": "Where the edge's WAN joins the base. A list dual-homes the site (routed sites only)",
+          "description": "Where the edge's WAN joins the core. A list dual-homes the site (routed sites only)",
           "title": "Attach"
         },
         "routed": {
           "default": false,
-          "description": "false: the edge NATs the site behind one address on a base customer network. true: the site gets a public /24 from the ISP's block and the edge peers with the base over eBGP",
+          "description": "false: the edge NATs the site behind one address on a core customer network. true: the site gets a public /24 from the ISP's block and the edge peers with the core over eBGP",
           "title": "Routed",
           "type": "boolean"
         },
@@ -415,7 +415,7 @@
         },
         "crucible": {
           "default": false,
-          "description": "Register the site's edge router in the base's Crucible Player view",
+          "description": "Register the site's edge router in the core's Crucible Player view",
           "title": "Crucible",
           "type": "boolean"
         }
@@ -478,7 +478,7 @@
           "type": "array"
         },
         "ca": {
-          "description": "A base CA, e.g. ca-graytrust",
+          "description": "A core CA, e.g. ca-graytrust",
           "title": "Ca",
           "type": "string"
         }
@@ -493,7 +493,7 @@
     }
   },
   "additionalProperties": false,
-  "description": "A named, versioned addition to the base.",
+  "description": "A named, versioned addition to the core.",
   "properties": {
     "apiVersion": {
       "const": "grayspace/v1",

@@ -33,8 +33,8 @@ async def _await(coro):
 
 
 @router.get("/base/presets", response_model=List[PresetSummary])
-async def list_base_presets(base: Optional[str] = Query(None, description="A base version; the deployed one by default")):
-    """The base version's presets, saved from any deployment on it. problems lists the targets this
+async def list_base_presets(base: Optional[str] = Query(None, description="A core version; the deployed one by default")):
+    """The core version's presets, saved from any deployment on it. problems lists the targets this
     deployment doesn't have (applying skips them)."""
     return _call(presets.list_base, base)
 
@@ -42,7 +42,7 @@ async def list_base_presets(base: Optional[str] = Query(None, description="A bas
 @router.post("/base/presets", response_model=Preset)
 async def save_base_preset(request: SavePresetRequest):
     """Save the tracked changes (GET /changes, the active preset's included) as a preset of the
-    deployed base version, for every deployment on it. It becomes the active preset."""
+    deployed core version, for every deployment on it. It becomes the active preset."""
     return _call(presets.save_base, request.name, request.description)
 
 
@@ -53,7 +53,7 @@ async def get_base_preset(name: str, base: Optional[str] = Query(None)):
 
 @router.put("/base/presets/{name}", response_model=Preset)
 async def put_base_preset(name: str, preset: Preset = Body(...)):
-    """Store a preset as given, e.g. one downloaded from another server, under its own base version."""
+    """Store a preset as given, e.g. one downloaded from another server, under its own core version."""
     if preset.name != name:
         raise HTTPException(422, f"The preset is named '{preset.name}', not '{name}'")
     return _call(presets.put_base, preset)
@@ -61,12 +61,12 @@ async def put_base_preset(name: str, preset: Preset = Body(...)):
 
 @router.delete("/base/presets/{name}", status_code=204)
 async def delete_base_preset(name: str, base: Optional[str] = Query(None)):
-    """Delete it for every deployment on the version. Where it is active its changes stay, as changes on the base."""
+    """Delete it for every deployment on the version. Where it is active its changes stay, as changes on the core."""
     _call(presets.delete_base, name, base)
 
 
 @router.post("/base/presets/{name}/apply", response_model=ApplyPresetResult)
 async def apply_base_preset(name: str):
-    """Undo every tracked change, then apply the preset; "none" stops at the base as deployed."""
+    """Undo every tracked change, then apply the preset; "none" stops at the core as deployed."""
     return await _await(presets.apply_base(None if name == NONE else name))
 

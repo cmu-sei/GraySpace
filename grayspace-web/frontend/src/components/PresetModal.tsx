@@ -76,7 +76,7 @@ export const PresetModal: React.FC<Props> = ({ onClose, onChanged, canOperate, c
   const active = changes?.preset ?? null;
   const since = changes?.changes ?? [];
   const willReset = (target: string) =>
-    !since.length || window.confirm(`Applying ${target} first resets the ${since.length} change${since.length === 1 ? '' : 's'} made since ${active ?? 'the base'}. Go on?`);
+    !since.length || window.confirm(`Applying ${target} first resets the ${since.length} change${since.length === 1 ? '' : 's'} made since ${active ?? 'the core'}. Go on?`);
 
   const apply = (preset: string | null) => {
     if (!willReset(preset ?? 'no preset')) return;
@@ -110,8 +110,8 @@ export const PresetModal: React.FC<Props> = ({ onClose, onChanged, canOperate, c
         <h3 className="gs-row">Presets{changes?.base && <span className="gs-muted" style={{ fontWeight: 400 }}>· {changes.base}</span>}<span className="gs-spacer" />
           <button className="gs-btn ghost sm" onClick={onClose} aria-label="Close">✕</button></h3>
         <div className="gs-muted" style={{ marginBottom: 10 }}>
-          A preset is a saved set of changes to the base: link conditions, interface zones, DNS domains and records.
-          It belongs to the base version, so every deployment on {changes?.base ?? 'it'} can apply it. Enclaves have their own, on their page.
+          A preset is a saved set of changes to the core: link conditions, interface zones, DNS domains and records.
+          It belongs to the core version, so every deployment on {changes?.base ?? 'it'} can apply it. Enclaves have their own, on their page.
         </div>
         {error && <div className="gs-banner bad">{error}</div>}
         {result && (
@@ -125,16 +125,16 @@ export const PresetModal: React.FC<Props> = ({ onClose, onChanged, canOperate, c
 
         <div className="gs-box">
           <h3 className="gs-row">
-            Active: {active ? <span className="gs-mono">{active}</span> : <span>none <span className="gs-muted" style={{ fontWeight: 400 }}>(the base as deployed)</span></span>}
+            Active: {active ? <span className="gs-mono">{active}</span> : <span>none <span className="gs-muted" style={{ fontWeight: 400 }}>(the core as deployed)</span></span>}
             <span className="gs-spacer" />
             {canOperate && (
-              <button className="gs-btn ghost sm" disabled={Boolean(busy) || !since.length} title={`Undo the changes since ${active ?? 'the base'}`}
-                onClick={() => window.confirm(`Undo the ${since.length} change${since.length === 1 ? '' : 's'} since ${active ?? 'the base'}?`) && run('discard', () => apiService.discardChanges())}>
+              <button className="gs-btn ghost sm" disabled={Boolean(busy) || !since.length} title={`Undo the changes since ${active ?? 'the core'}`}
+                onClick={() => window.confirm(`Undo the ${since.length} change${since.length === 1 ? '' : 's'} since ${active ?? 'the core'}?`) && run('discard', () => apiService.discardChanges())}>
                 {busy === 'discard' ? 'Resetting…' : 'Reset changes'}
               </button>
             )}
           </h3>
-          {since.length === 0 ? <div className="gs-muted">No changes since {active ?? 'the base'}.</div> : (
+          {since.length === 0 ? <div className="gs-muted">No changes since {active ?? 'the core'}.</div> : (
             <table className="gs-table">
               <tbody>{since.map((c) => (
                 <tr key={`${c.kind}-${c.key}`}>
@@ -159,7 +159,7 @@ export const PresetModal: React.FC<Props> = ({ onClose, onChanged, canOperate, c
               </button>
             </div>
             <div className="gs-muted" style={{ fontSize: 11, marginTop: 4 }}>
-              Saves every change on the base{active ? `, ${active}'s included` : ''}. It becomes the active preset.
+              Saves every change on the core{active ? `, ${active}'s included` : ''}. It becomes the active preset.
             </div>
           </div>
         )}
@@ -171,11 +171,11 @@ export const PresetModal: React.FC<Props> = ({ onClose, onChanged, canOperate, c
               <input ref={upload} type="file" accept=".json,application/json" style={{ display: 'none' }} onChange={onUpload} aria-label="Upload a preset" />
             </>}
           </h3>
-          {!changes?.base ? <div className="gs-muted">No base version is deployed: presets belong to one.</div> : (
+          {!changes?.base ? <div className="gs-muted">No core version is deployed: presets belong to one.</div> : (
             <table className="gs-table">
               <tbody>
                 <tr>
-                  <td><b>None</b>{active === null && <span className="gs-pill info" style={{ marginLeft: 6 }}>active</span>}<div className="gs-muted" style={{ fontSize: 11 }}>The base as deployed, no changes</div></td>
+                  <td><b>None</b>{active === null && <span className="gs-pill info" style={{ marginLeft: 6 }}>active</span>}<div className="gs-muted" style={{ fontSize: 11 }}>The core as deployed, no changes</div></td>
                   <td />
                   <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                     {canOperate && <button className="gs-btn ghost sm" disabled={Boolean(busy) || (active === null && !since.length)} onClick={() => apply(null)}>

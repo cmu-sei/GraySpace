@@ -197,7 +197,7 @@ tasks:
 
   slice:validate:
     aliases: [enclave:validate]
-    desc: Validate a slice spec against the deployed base, or a shipped one with BASE= (SLICE=examples/slices/<name>.yaml)
+    desc: Validate a slice spec against the deployed core, or a shipped one with BASE= (SLICE=examples/slices/<name>.yaml)
     dir: grayspace-web/backend
     requires:
       vars: [SLICE]

@@ -34,7 +34,7 @@ DESTROY_STAGES = ["guard", "player", "destroy", "refresh"]
 KIND_NAMES = ("deploy_base", "configure_base", "destroy_base")
 TITLES = {
     "preflight": "Check the platform",
-    "parse": "Prepare the base",
+    "parse": "Prepare the core",
     "guard": "Check the enclaves are not affected",
     "init": "Prepare the build",
     "apply": "Create the routers and services",
@@ -113,7 +113,7 @@ async def stage_apply(ctx: JobContext):
 
     # The base module's view from before terraform/player/ goes first: refreshing it panics
     await player.migrate_legacy(ctx)
-    await converge(ctx, environment.base_module(), _var_file_args(), what="base apply")
+    await converge(ctx, environment.base_module(), _var_file_args(), what="core apply")
 
 
 async def stage_configure(ctx: JobContext, request: Dict):
@@ -167,7 +167,7 @@ async def refresh(ctx: Optional[JobContext] = None, destroyed: bool = False):
         from services.mutation_tracker import mutation_tracker
 
         mutation_tracker.clear()
-        log("Cleared the overlay's tracked changes: the base they applied to is gone")
+        log("Cleared the overlay's tracked changes: the core they applied to is gone")
 
 
 async def stage_check(ctx: JobContext, request: Dict):
@@ -190,7 +190,7 @@ async def stage_check(ctx: JobContext, request: Dict):
     if not r.running:
         raise StageError(f"No router is running ({health.status}); see the log, then retry the job")
     if health.status != "healthy":
-        ctx.log(f"WARNING: the base is {health.status} after {settings.base_check_timeout}s: "
+        ctx.log(f"WARNING: the core is {health.status} after {settings.base_check_timeout}s: "
                 f"not running {r.not_running[:10]}, BGP not established {len(b.not_established)}")
     else:
         ctx.log(f"Healthy: {r.running}/{r.expected} routers, {b.established}/{b.total} BGP sessions")
@@ -249,7 +249,7 @@ async def stage_destroy(ctx: JobContext):
             break
         ctx.log(f"{len(out.split())} resources remain")
     else:
-        raise StageError(f"The base still has resources after {attempts} destroy attempts; see the log, then retry the job")
+        raise StageError(f"The core still has resources after {attempts} destroy attempts; see the log, then retry the job")
     # Nothing is deployed now: GET /base reports not_deployed until the next deploy parses again.
     if tfvars_path().exists():
         tfvars_path().unlink()

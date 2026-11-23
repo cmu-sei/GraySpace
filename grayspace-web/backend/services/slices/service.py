@@ -40,7 +40,7 @@ def plan_settings() -> plan.Settings:
 
 def resolve(spec: SliceSpec, prefix: Optional[str] = None, exclude: Optional[str] = None) -> Tuple[Optional[Allocation], List[Finding]]:
     if not tfvars().get("routers"):
-        return None, [Finding(code="INVALID_SPEC", severity="error", path="", message="No base is deployed: the tfvars have no routers (run task parse)")]
+        return None, [Finding(code="INVALID_SPEC", severity="error", path="", message="No core is deployed: the tfvars have no routers (run task parse)")]
     return plan.resolve(spec, context(), catalog.images(), catalog.roles(), taken(exclude), plan_settings(), prefix)
 
 
@@ -80,7 +80,7 @@ def shipped_tfvars(version: str, scope: str) -> dict:
 
     found = next((v for v in base_versions.list_versions() if v.name == version), None)
     if found is None:
-        raise ValueError(f"No shipped base version '{version}'")
+        raise ValueError(f"No shipped core version '{version}'")
     key = (version, scope, found.csv_sha256)
     if key not in _shipped:
         with tempfile.TemporaryDirectory() as tmp:

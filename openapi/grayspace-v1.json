@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "GraySpace Terrain API",
-    "description": "What the simulated internet offers and how it is doing, and the enclaves built at its edge: the\ndeployed base version, its inventory (routers, links and core services with their addresses and status)\nand DNS (every zone and record), shipped versions and their snapshots, capabilities, attachment points, enclaves,\ninstances and their manifests, jobs, images and roles, the CA bundle and the map layer. The base itself is deployed,\nconfigured and destroyed through the API too.\n\nOne GraySpace runs several deployments, each a base and the enclaves on it. `GET /api/v1/deployments` lists them;\nevery other route is a deployment's, under its base URL `/deployments/{deployment}` (so the base is\n`/deployments/abc/api/v1/base`). Without the prefix, a route reaches the default deployment: that alias is\ndeprecated. A client such as GHOSTS takes the deployment's base URL as its GraySpace address.\n\nEvery route needs a bearer token, sent as `Authorization: Bearer <token>`: the server's service token\n(`GRAYSPACE_API_TOKEN`), which may do everything, or a person's session token from `POST /api/v1/auth/login`.\nA person sees only the deployments they own or are a member of (others are 404), and may only do what their\naccess there allows (403 otherwise): `GET /api/v1/me` gives their role, and each deployment's `my_access`\nwhat they may do in it.\nLive updates come over the deployment's `/api/v1/events` websocket (`grayspace-events-v1.json`); deployments\nbeing created, changed and removed over `/api/v1/deployments/events` (`grayspace-deployments-events-v1.json`).\n\n**From nothing deployed to a base and a slice** (paths relative to the deployment's base URL):\n\n0. `POST /api/v1/deployments` with `{\"id\": \"abd\"}` (at the server's root), unless the deployment exists. It runs on the\n   default Proxmox connection; `placement` chooses another, or another node (`GET /api/v1/platform`).\n1. `GET /api/v1/base/preflight?version=grayspace/2026.11&scope=tier1`: is the site ready? Fix every `error`.\n2. `POST /api/v1/base/deploy` with `{\"version\": \"grayspace/2026.11\", \"scope\": \"tier1\"}`: returns a job.\n3. `GET /api/v1/jobs/{id}` (or its streamed `/log`, or `/events`) until it succeeds; then `GET /api/v1/base` is `healthy`.\n4. `PUT /api/v1/enclaves/{slug}` with an enclave spec (`grayspace-enclave-v1.json`); fix any error findings.\n5. `POST /api/v1/instances` with `{\"enclave\": \"<slug>\"}`: returns a job; when it succeeds, `GET /api/v1/instances/{id}` is the manifest.\n\nOr in one job: `PUT /api/v1/draft` with the base and the enclave instances the deployment should have\n(`{\"base\": {\"version\": \"grayspace/2026.11\", \"scope\": \"tier1\"}, \"enclaves\": [{\"slug\": \"<slug>\", \"prefix\": \"bk\"}]}`),\n`GET /api/v1/deploy/plan` to see what would change, then `POST /api/v1/deploy`: a rollout job that destroys what the\ndraft no longer has, deploys or updates the base, and creates the instances, each as a child job (`GET /api/v1/jobs?parent={id}`).\nChange the draft and deploy again to change the deployment. Since 1.8 the draft's base may name a\npreset (`preset`), a saved set of runtime changes the rollout applies once the base is built. Since 1.10\nthe draft's `player` is the deployment's Crucible Player view: its applications, teams, and which base and enclave VMs\neach team sees (`GET /api/v1/player/guests`); the rollout applies it last, in its `player` stage.\nSince 1.11 a Proxmox connection may set `apply_parallelism` and `plan_parallelism`, Terraform's parallelism for the\ndeployments placed on it (applies and destroys: how many guests are created at once; plans).\nSince 1.12 a deployment's `options.use_custom_image` is deprecated and ignored: every deployment's Alpine guests use\nthe GraySpace image.\nSince 1.13 the base has no `grafana` guest (the web app has the dashboards): `GET /api/v1/player/guests` no longer\nlists it, and a draft's Player guest that names it is dropped (since 1.17 without a warning, when the draft is read or saved).\nSince 1.14 `GET /api/v1/player` has the view's `url` in Player's UI.\nSince 1.15 the draft's `player.assign` gives every guest of the base or of an enclave instance to teams; `player.guests`\nlists the guests whose teams differ.\nSince 1.16 `GET /api/v1/base/preview` is a shipped version's map before it is deployed, and a Crucible connection may\nset `player_url`, Player's UI when it isn't the Player API URL without /api.\nSince 1.18 the base has no clients: a base version is ISPs, routers, links, DNS servers and CAs, and hosts on the\nsimulated internet are enclaves (`grayspace/2026.11`; `grayspace/2026.10` is retired). The inventory's `clients`, a\nversion summary's `clients` and the capabilities' `host_features` are deprecated and always empty or 0, `guest.update`\nno longer comes for a `client`, and `client.move` is no longer a base action (a preset that has one lists it in its\n`problems`), and a draft's Player guest that names one is dropped without a warning. An image with the `desktop`\nfeature (`grayspace-desktop`) is a desktop in the browser.\nSince 1.19 enclaves have no presets: an enclave is what its spec builds, and a variant is another enclave. The routes\n`/api/v1/enclaves/{slug}/presets` and `/api/v1/instances/{id}/presets` are gone, a draft's `enclaves[].preset` is\ndeprecated and ignored, an instance and a planned instance no longer have `preset` and `active_preset`, and the plan has\nno `preset:<id>` stages. An instance's actions are live changes its reset undoes. Base presets are unchanged.\nSince 1.20 `POST /api/v1/enclaves/{slug}/validate` takes `instance`, a draft's prefix, to check the spec as that\ninstance: when it is live and built from the enclave, its prefix, DNS names and links are its own, not conflicts.\nSince 1.21 a role can name the image types it runs on (`image_types`, e.g. `[vm]` for `ad-dc`), and a host whose image\nis another type gets `INCOMPATIBLE_ROLE`.\nSince 1.22 a rollout resumes only while the draft is the one it deployed: after the draft changes, retrying it is refused\n(409; deploy instead), and `GET /api/v1/deploy/plan` has `resumable_rollout`, the last rollout when it can still be\nretried. A destroyed instance is no longer managed by the draft, however it was destroyed.\nSince 1.23 a Proxmox connection chooses the proxy its deployments' guests install packages through (`proxy_mode`: `site`,\nthe site file's, by default; `none`; or `custom`, with `proxy` and `no_proxy`).\nSince 1.24 the hosts of a site with a domain controller (an `ad-dc` host) use it as their resolver (an allocated host's\n`resolver`); the DC keeps the base resolver, its DNS's forwarder. A site's `resolver` is still the base's.\nSince 1.25 the base has no GHOSTS VM: enclave hosts run GHOSTS clients (the `ghosts-client` role), which report to a\nGHOSTS server outside the simulated internet. A deployment's `options.deploy_ghosts` is deprecated and ignored,\n`GET /api/v1/player/guests` no longer lists `ghosts`, a draft's Player guest that names it is dropped without a warning,\nand the base preflight has no `ghosts-vm` check.\n\nTear down in reverse: `DELETE /api/v1/instances/{id}`, then `DELETE /api/v1/base`. Long-running work is always a\njob: poll it, read its log, cancel it, or retry it from the stage that failed.",
+    "description": "What the simulated internet offers and how it is doing, and the enclaves built at its edge: the\ndeployed core version, its inventory (routers, links and core services with their addresses and status)\nand DNS (every zone and record), shipped versions and their snapshots, capabilities, attachment points, enclaves,\ninstances and their manifests, jobs, images and roles, the CA bundle and the map layer. The core itself is deployed,\nconfigured and destroyed through the API too.\n\nOne GraySpace runs several deployments, each a core and the enclaves on it. `GET /api/v1/deployments` lists them;\nevery other route is a deployment's, under its base URL `/deployments/{deployment}` (so the core is\n`/deployments/abc/api/v1/base`). Without the prefix, a route reaches the default deployment: that alias is\ndeprecated. A client such as GHOSTS takes the deployment's base URL as its GraySpace address.\n\nEvery route needs a bearer token, sent as `Authorization: Bearer <token>`: the server's service token\n(`GRAYSPACE_API_TOKEN`), which may do everything, or a person's session token from `POST /api/v1/auth/login`.\nA person sees only the deployments they own or are a member of (others are 404), and may only do what their\naccess there allows (403 otherwise): `GET /api/v1/me` gives their role, and each deployment's `my_access`\nwhat they may do in it.\nLive updates come over the deployment's `/api/v1/events` websocket (`grayspace-events-v1.json`); deployments\nbeing created, changed and removed over `/api/v1/deployments/events` (`grayspace-deployments-events-v1.json`).\n\n**From nothing deployed to a core and a slice** (paths relative to the deployment's base URL):\n\n0. `POST /api/v1/deployments` with `{\"id\": \"abd\"}` (at the server's root), unless the deployment exists. It runs on the\n   default Proxmox connection; `placement` chooses another, or another node (`GET /api/v1/platform`).\n1. `GET /api/v1/base/preflight?version=grayspace/2026.11&scope=tier1`: is the site ready? Fix every `error`.\n2. `POST /api/v1/base/deploy` with `{\"version\": \"grayspace/2026.11\", \"scope\": \"tier1\"}`: returns a job.\n3. `GET /api/v1/jobs/{id}` (or its streamed `/log`, or `/events`) until it succeeds; then `GET /api/v1/base` is `healthy`.\n4. `PUT /api/v1/enclaves/{slug}` with an enclave spec (`grayspace-enclave-v1.json`); fix any error findings.\n5. `POST /api/v1/instances` with `{\"enclave\": \"<slug>\"}`: returns a job; when it succeeds, `GET /api/v1/instances/{id}` is the manifest.\n\nOr in one job: `PUT /api/v1/draft` with the core and the enclave instances the deployment should have\n(`{\"base\": {\"version\": \"grayspace/2026.11\", \"scope\": \"tier1\"}, \"enclaves\": [{\"slug\": \"<slug>\", \"prefix\": \"bk\"}]}`),\n`GET /api/v1/deploy/plan` to see what would change, then `POST /api/v1/deploy`: a rollout job that destroys what the\ndraft no longer has, deploys or updates the core, and creates the instances, each as a child job (`GET /api/v1/jobs?parent={id}`).\nChange the draft and deploy again to change the deployment. Since 1.8 the draft's core may name a\npreset (`preset`), a saved set of runtime changes the rollout applies once the core is built. Since 1.10\nthe draft's `player` is the deployment's Crucible Player view: its applications, teams, and which core and enclave VMs\neach team sees (`GET /api/v1/player/guests`); the rollout applies it last, in its `player` stage.\nSince 1.11 a Proxmox connection may set `apply_parallelism` and `plan_parallelism`, Terraform's parallelism for the\ndeployments placed on it (applies and destroys: how many guests are created at once; plans).\nSince 1.12 a deployment's `options.use_custom_image` is deprecated and ignored: every deployment's Alpine guests use\nthe GraySpace image.\nSince 1.13 the core has no `grafana` guest (the web app has the dashboards): `GET /api/v1/player/guests` no longer\nlists it, and a draft's Player guest that names it is dropped (since 1.17 without a warning, when the draft is read or saved).\nSince 1.14 `GET /api/v1/player` has the view's `url` in Player's UI.\nSince 1.15 the draft's `player.assign` gives every guest of the core or of an enclave instance to teams; `player.guests`\nlists the guests whose teams differ.\nSince 1.16 `GET /api/v1/base/preview` is a shipped version's map before it is deployed, and a Crucible connection may\nset `player_url`, Player's UI when it isn't the Player API URL without /api.\nSince 1.18 the core has no clients: a core version is ISPs, routers, links, DNS servers and CAs, and hosts on the\nsimulated internet are enclaves (`grayspace/2026.11`; `grayspace/2026.10` is retired). The inventory's `clients`, a\nversion summary's `clients` and the capabilities' `host_features` are deprecated and always empty or 0, `guest.update`\nno longer comes for a `client`, and `client.move` is no longer a core action (a preset that has one lists it in its\n`problems`), and a draft's Player guest that names one is dropped without a warning. An image with the `desktop`\nfeature (`grayspace-desktop`) is a desktop in the browser.\nSince 1.19 enclaves have no presets: an enclave is what its spec builds, and a variant is another enclave. The routes\n`/api/v1/enclaves/{slug}/presets` and `/api/v1/instances/{id}/presets` are gone, a draft's `enclaves[].preset` is\ndeprecated and ignored, an instance and a planned instance no longer have `preset` and `active_preset`, and the plan has\nno `preset:<id>` stages. An instance's actions are live changes its reset undoes. Core presets are unchanged.\nSince 1.20 `POST /api/v1/enclaves/{slug}/validate` takes `instance`, a draft's prefix, to check the spec as that\ninstance: when it is live and built from the enclave, its prefix, DNS names and links are its own, not conflicts.\nSince 1.21 a role can name the image types it runs on (`image_types`, e.g. `[vm]` for `ad-dc`), and a host whose image\nis another type gets `INCOMPATIBLE_ROLE`.\nSince 1.22 a rollout resumes only while the draft is the one it deployed: after the draft changes, retrying it is refused\n(409; deploy instead), and `GET /api/v1/deploy/plan` has `resumable_rollout`, the last rollout when it can still be\nretried. A destroyed instance is no longer managed by the draft, however it was destroyed.\nSince 1.23 a Proxmox connection chooses the proxy its deployments' guests install packages through (`proxy_mode`: `site`,\nthe site file's, by default; `none`; or `custom`, with `proxy` and `no_proxy`).\nSince 1.24 the hosts of a site with a domain controller (an `ad-dc` host) use it as their resolver (an allocated host's\n`resolver`); the DC keeps the core resolver, its DNS's forwarder. A site's `resolver` is still the core's.\nSince 1.25 the core has no GHOSTS VM: enclave hosts run GHOSTS clients (the `ghosts-client` role), which report to a\nGHOSTS server outside the simulated internet. A deployment's `options.deploy_ghosts` is deprecated and ignored,\n`GET /api/v1/player/guests` no longer lists `ghosts`, a draft's Player guest that names it is dropped without a warning,\nand the core preflight has no `ghosts-vm` check.\n\nTear down in reverse: `DELETE /api/v1/instances/{id}`, then `DELETE /api/v1/base`. Long-running work is always a\njob: poll it, read its log, cancel it, or retry it from the stage that failed.",
     "version": "1.25.0"
   },
   "servers": [
@@ -28,7 +28,7 @@
           "base"
         ],
         "summary": "Get Base",
-        "description": "The deployed base version and its health.\n\nThe version comes from the `base` block that `task parse` writes into terraform.tfvars.json.\nHealth compares the routers in the tfvars with what Proxmox reports as running, and counts\nBGP sessions up across all routers from Prometheus.",
+        "description": "The deployed core version and its health.\n\nThe version comes from the `base` block that `task parse` writes into terraform.tfvars.json.\nHealth compares the routers in the tfvars with what Proxmox reports as running, and counts\nBGP sessions up across all routers from Prometheus.",
         "operationId": "get_base_api_v1_base_get",
         "security": [
           {
@@ -53,7 +53,7 @@
           "base"
         ],
         "summary": "Destroy Base",
-        "description": "Destroy the base (task destroy). Refused while slice instances are live, unless\ndestroy_instances is true: then each live instance's destroy job is queued first, and the\nbase's destroy job last, which refuses to run if any instance is still live. Returns the jobs\nin the order they run; the last is the base's.",
+        "description": "Destroy the core (task destroy). Refused while slice instances are live, unless\ndestroy_instances is true: then each live instance's destroy job is queued first, and the\ncore's destroy job last, which refuses to run if any instance is still live. Returns the jobs\nin the order they run; the last is the core's.",
         "operationId": "destroy_base_api_v1_base_delete",
         "security": [
           {
@@ -111,7 +111,7 @@
           "base"
         ],
         "summary": "Get Inventory",
-        "description": "What the deployed base consists of: ISPs; routers with their interfaces and addresses; links\nwith both ends' addresses and their state; clients (the hosts the base places on customer\nnetworks) and core services (DNS servers and CAs) with their addresses. Read from the deployed\ntfvars, so only what the deployment scope built. Status is Proxmox's, link state comes from\nPrometheus. Slice instances are not included: GET /instances/{id} returns each one's manifest.",
+        "description": "What the deployed core consists of: ISPs; routers with their interfaces and addresses; links\nwith both ends' addresses and their state; clients (the hosts the core places on customer\nnetworks) and core services (DNS servers and CAs) with their addresses. Read from the deployed\ntfvars, so only what the deployment scope built. Status is Proxmox's, link state comes from\nPrometheus. Slice instances are not included: GET /instances/{id} returns each one's manifest.",
         "operationId": "get_inventory_api_v1_base_inventory_get",
         "responses": {
           "200": {
@@ -138,7 +138,7 @@
           "base"
         ],
         "summary": "Get Dns",
-        "description": "Every zone the simulated DNS serves and its records (all but the SOA), with the resolvers.\nEach zone and record has an origin: base (the root and TLD zones task configure writes),\noverlay (domains and records created in the web UI or by a base preset) or instance (created by a\nslice instance, named in `instance`). Delegations sit in their TLD zone with the origin of the\ndomain they delegate.",
+        "description": "Every zone the simulated DNS serves and its records (all but the SOA), with the resolvers.\nEach zone and record has an origin: `base` (the root and TLD zones task configure writes),\n`overlay` (domains and records created in the web UI or by a core preset) or `instance` (created by a\nslice instance, named in `instance`). Delegations sit in their TLD zone with the origin of the\ndomain they delegate.",
         "operationId": "get_dns_api_v1_base_dns_get",
         "responses": {
           "200": {
@@ -165,7 +165,7 @@
           "base"
         ],
         "summary": "List Base Versions",
-        "description": "Shipped base versions under bases/, with a summary of each and which one is deployed.\n\nA version whose CSVs fail to load is listed with its problems instead of a summary.",
+        "description": "Shipped core versions under bases/, with a summary of each and which one is deployed.\n\nA version whose CSVs fail to load is listed with its problems instead of a summary.",
         "operationId": "list_base_versions_api_v1_base_versions_get",
         "responses": {
           "200": {
@@ -196,7 +196,7 @@
           "base"
         ],
         "summary": "Get Base Version",
-        "description": "A base version and its topology snapshot: ISPs, locations, routers (with ISP and location)\nand links. Version names contain a slash, e.g. /api/v1/base/versions/grayspace/2026.11.",
+        "description": "A core version and its topology snapshot: ISPs, locations, routers (with ISP and location)\nand links. Version names contain a slash, e.g. /api/v1/base/versions/grayspace/2026.11.",
         "operationId": "get_base_version_api_v1_base_versions__name__get",
         "security": [
           {
@@ -244,7 +244,7 @@
           "base"
         ],
         "summary": "Get Preflight",
-        "description": "Whether this site can deploy the base version at the scope: the settings, the Proxmox API and\nnode, storages (and their content types), bridges, SDN, SSH to the Proxmox host, capacity, and\nlive instances that a version change would break. A deploy is refused while any check is an\nerror, and runs these again as its first stage.",
+        "description": "Whether this site can deploy the core version at the scope: the settings, the Proxmox API and\nnode, storages (and their content types), bridges, SDN, SSH to the Proxmox host, capacity, and\nlive instances that a version change would break. A deploy is refused while any check is an\nerror, and runs these again as its first stage.",
         "operationId": "get_preflight_api_v1_base_preflight_get",
         "security": [
           {
@@ -265,10 +265,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Base version to check; the deployed one by default",
+              "description": "Core version to check; the deployed one by default",
               "title": "Version"
             },
-            "description": "Base version to check; the deployed one by default"
+            "description": "Core version to check; the deployed one by default"
           },
           {
             "name": "scope",
@@ -320,7 +320,7 @@
           "base"
         ],
         "summary": "Deploy Base",
-        "description": "Deploy or update the base: preflight, parse, the guards, Terraform until converged, Ansible,\nthen a health check that waits for routers and BGP. Returns a job; poll GET /jobs/{id} or follow\n/events, then GET /base. Deploying the deployed version again changes nothing. Without a\nversion, the deployed one is redeployed; with nothing deployed, a version is required.",
+        "description": "Deploy or update the core: preflight, parse, the guards, Terraform until converged, Ansible,\nthen a health check that waits for routers and BGP. Returns a job; poll GET /jobs/{id} or follow\n/events, then GET /base. Deploying the deployed version again changes nothing. Without a\nversion, the deployed one is redeployed; with nothing deployed, a version is required.",
         "operationId": "deploy_base_api_v1_base_deploy_post",
         "requestBody": {
           "content": {
@@ -346,7 +346,7 @@
             }
           },
           "409": {
-            "description": "Another base job is queued or running, or live instances would break"
+            "description": "Another core job is queued or running, or live instances would break"
           },
           "422": {
             "description": "Preflight failed; detail.checks lists the errors"
@@ -365,7 +365,7 @@
           "base"
         ],
         "summary": "Configure Base",
-        "description": "Run Ansible on the deployed base again (task configure), then the health check. Returns a job.",
+        "description": "Run Ansible on the deployed core again (task configure), then the health check. Returns a job.",
         "operationId": "configure_base_api_v1_base_configure_post",
         "requestBody": {
           "content": {
@@ -389,7 +389,7 @@
             }
           },
           "409": {
-            "description": "Nothing is deployed, or another base job is queued or running"
+            "description": "Nothing is deployed, or another core job is queued or running"
           },
           "422": {
             "description": "Validation Error",
@@ -464,7 +464,7 @@
             }
           },
           "422": {
-            "description": "An unknown base version or enclave, or a prefix used twice"
+            "description": "An unknown core version or enclave, or a prefix used twice"
           }
         },
         "security": [
@@ -480,7 +480,7 @@
           "rollout"
         ],
         "summary": "Get Plan",
-        "description": "What POST /deploy would do: instances to destroy, the base to deploy or update, instances to\ncreate, and the node's capacity now. problems lists what stops it.",
+        "description": "What POST /deploy would do: instances to destroy, the core to deploy or update, instances to\ncreate, and the node's capacity now. problems lists what stops it.",
         "operationId": "get_plan_api_v1_deploy_plan_get",
         "responses": {
           "200": {
@@ -507,7 +507,7 @@
           "rollout"
         ],
         "summary": "Deploy",
-        "description": "Queue a rollout: destroys, then the base, then creates, each a child job, stopping at the first\nthat fails. Poll GET /jobs/{id} (its children, and GET /jobs?parent={id}); retry it to resume.",
+        "description": "Queue a rollout: destroys, then the core, then creates, each a child job, stopping at the first\nthat fails. Poll GET /jobs/{id} (its children, and GET /jobs?parent={id}); retry it to resume.",
         "operationId": "deploy_api_v1_deploy_post",
         "responses": {
           "202": {
@@ -521,7 +521,7 @@
             }
           },
           "409": {
-            "description": "Nothing to change, a base job or rollout is active, or the plan has problems"
+            "description": "Nothing to change, a core job or rollout is active, or the plan has problems"
           }
         },
         "security": [
@@ -629,7 +629,7 @@
           "player"
         ],
         "summary": "Get Guests",
-        "description": "The VMs the Player step can assign: the base version's guests (the deployed tfvars, or the\nversion's when it isn't deployed) and the saved draft's enclaves' sites and hosts.",
+        "description": "The VMs the Player step can assign: the core version's guests (the deployed tfvars, or the\nversion's when it isn't deployed) and the saved draft's enclaves' sites and hosts.",
         "operationId": "get_guests_api_v1_player_guests_get",
         "security": [
           {
@@ -650,10 +650,10 @@
                   "type": "null"
                 }
               ],
-              "description": "The draft's base version; the deployed one's guests when unset",
+              "description": "The draft's core version; the deployed one's guests when unset",
               "title": "Version"
             },
-            "description": "The draft's base version; the deployed one's guests when unset"
+            "description": "The draft's core version; the deployed one's guests when unset"
           },
           {
             "name": "scope",
@@ -702,7 +702,7 @@
           "capabilities"
         ],
         "summary": "Get Capabilities",
-        "description": "What a slice can use on a base version: the image catalog and roles, the slice features this\nGraySpace builds, whether it can run jobs, the management subnet and slice pool, DNS (TLDs,\nhosting servers, resolvers), CAs, ISPs and their locations, and the Proxmox node's capacity\n(CPU, memory and the block storage).",
+        "description": "What a slice can use on a core version: the image catalog and roles, the slice features this\nGraySpace builds, whether it can run jobs, the management subnet and slice pool, DNS (TLDs,\nhosting servers, resolvers), CAs, ISPs and their locations, and the Proxmox node's capacity\n(CPU, memory and the block storage).",
         "operationId": "get_capabilities_api_v1_capabilities_get",
         "security": [
           {
@@ -723,10 +723,10 @@
                   "type": "null"
                 }
               ],
-              "description": "A shipped base version; defaults to the deployed one",
+              "description": "A shipped core version; defaults to the deployed one",
               "title": "Version"
             },
-            "description": "A shipped base version; defaults to the deployed one"
+            "description": "A shipped core version; defaults to the deployed one"
           },
           {
             "name": "scope",
@@ -838,10 +838,10 @@
                   "type": "null"
                 }
               ],
-              "description": "A shipped base version; defaults to the deployed one",
+              "description": "A shipped core version; defaults to the deployed one",
               "title": "Version"
             },
-            "description": "A shipped base version; defaults to the deployed one"
+            "description": "A shipped core version; defaults to the deployed one"
           },
           {
             "name": "scope",
@@ -994,7 +994,7 @@
           "enclaves"
         ],
         "summary": "Put Slice",
-        "description": "Store a spec. A new version is stored whenever the content changes; storing the same content\nagain returns the same version (content hash). Returns the findings against the deployed\nbase: a spec with errors is stored, but can't be instantiated until they are resolved.",
+        "description": "Store a spec. A new version is stored whenever the content changes; storing the same content\nagain returns the same version (content hash). Returns the findings against the deployed\ncore: a spec with errors is stored, but can't be instantiated until they are resolved.",
         "operationId": "put_slice_api_v1_enclaves__slug__put",
         "security": [
           {
@@ -1091,7 +1091,7 @@
           "enclaves"
         ],
         "summary": "Validate Slice",
-        "description": "Findings for a spec against the deployed base, live instances and the node's capacity; or,\nwith base, against that shipped version as it would deploy. Nothing is stored.",
+        "description": "Findings for a spec against the deployed core, live instances and the node's capacity; or,\nwith `base`, against that shipped version as it would deploy. Nothing is stored.",
         "operationId": "validate_slice_api_v1_enclaves__slug__validate_post",
         "security": [
           {
@@ -1121,10 +1121,10 @@
                   "type": "null"
                 }
               ],
-              "description": "A shipped base version to check against instead of the deployed one, e.g. grayspace/2026.11: for a deployment still being built (its draft's base)",
+              "description": "A shipped core version to check against instead of the deployed one, e.g. grayspace/2026.11: for a deployment still being built (its draft's core)",
               "title": "Base"
             },
-            "description": "A shipped base version to check against instead of the deployed one, e.g. grayspace/2026.11: for a deployment still being built (its draft's base)"
+            "description": "A shipped core version to check against instead of the deployed one, e.g. grayspace/2026.11: for a deployment still being built (its draft's core)"
           },
           {
             "name": "scope",
@@ -1136,11 +1136,11 @@
                 "tier1"
               ],
               "type": "string",
-              "description": "With base: its scope",
+              "description": "With `base`: its scope",
               "default": "full",
               "title": "Scope"
             },
-            "description": "With base: its scope"
+            "description": "With `base`: its scope"
           },
           {
             "name": "instance",
@@ -1355,7 +1355,7 @@
           "slices (deprecated)"
         ],
         "summary": "Put Slice",
-        "description": "Store a spec. A new version is stored whenever the content changes; storing the same content\nagain returns the same version (content hash). Returns the findings against the deployed\nbase: a spec with errors is stored, but can't be instantiated until they are resolved.",
+        "description": "Store a spec. A new version is stored whenever the content changes; storing the same content\nagain returns the same version (content hash). Returns the findings against the deployed\ncore: a spec with errors is stored, but can't be instantiated until they are resolved.",
         "operationId": "put_slice_api_v1_slices__slug__put",
         "deprecated": true,
         "security": [
@@ -1454,7 +1454,7 @@
           "slices (deprecated)"
         ],
         "summary": "Validate Slice",
-        "description": "Findings for a spec against the deployed base, live instances and the node's capacity; or,\nwith base, against that shipped version as it would deploy. Nothing is stored.",
+        "description": "Findings for a spec against the deployed core, live instances and the node's capacity; or,\nwith `base`, against that shipped version as it would deploy. Nothing is stored.",
         "operationId": "validate_slice_api_v1_slices__slug__validate_post",
         "deprecated": true,
         "security": [
@@ -1485,10 +1485,10 @@
                   "type": "null"
                 }
               ],
-              "description": "A shipped base version to check against instead of the deployed one, e.g. grayspace/2026.11: for a deployment still being built (its draft's base)",
+              "description": "A shipped core version to check against instead of the deployed one, e.g. grayspace/2026.11: for a deployment still being built (its draft's core)",
               "title": "Base"
             },
-            "description": "A shipped base version to check against instead of the deployed one, e.g. grayspace/2026.11: for a deployment still being built (its draft's base)"
+            "description": "A shipped core version to check against instead of the deployed one, e.g. grayspace/2026.11: for a deployment still being built (its draft's core)"
           },
           {
             "name": "scope",
@@ -1500,11 +1500,11 @@
                 "tier1"
               ],
               "type": "string",
-              "description": "With base: its scope",
+              "description": "With `base`: its scope",
               "default": "full",
               "title": "Scope"
             },
-            "description": "With base: its scope"
+            "description": "With `base`: its scope"
           },
           {
             "name": "instance",
@@ -1705,7 +1705,7 @@
             }
           },
           "422": {
-            "description": "The spec has errors against the deployed base; detail.findings lists them"
+            "description": "The spec has errors against the deployed core; detail.findings lists them"
           }
         }
       }
@@ -1810,7 +1810,7 @@
           "instances"
         ],
         "summary": "Act",
-        "description": "A runtime action on a ready instance: link.condition, link.clear, link.down, link.up\non base links; dns.record.set and dns.record.delete within the instance's domains; host.start and\nhost.stop; reset, which undoes the instance's actions. Owned by the instance: Reset changes\n(POST /changes/discard) leaves them, reset and destroy undo them.",
+        "description": "A runtime action on a ready instance: link.condition, link.clear, link.down, link.up\non core links; dns.record.set and dns.record.delete within the instance's domains; host.start and\nhost.stop; reset, which undoes the instance's actions. Owned by the instance: Reset changes\n(POST /changes/discard) leaves them, reset and destroy undo them.",
         "operationId": "act_api_v1_instances__instance_id__actions_post",
         "security": [
           {
@@ -2168,7 +2168,7 @@
           "jobs"
         ],
         "summary": "Retry Job",
-        "description": "Run a failed or cancelled job again. Creates and base jobs resume at the stage that failed; destroys and plans start over, which is safe because every stage is idempotent.",
+        "description": "Run a failed or cancelled job again. Creates and core jobs resume at the stage that failed; destroys and plans start over, which is safe because every stage is idempotent.",
         "operationId": "retry_job_api_v1_jobs__job_id__retry_post",
         "security": [
           {
@@ -2364,7 +2364,7 @@
           "map"
         ],
         "summary": "Get Base Preview",
-        "description": "The map of a shipped base version as it would deploy, before it is: GET /map's routers and links\nfor that version and scope, with no state (every status and link state unknown) and no enclaves.\nFor comparing versions in the builder.",
+        "description": "The map of a shipped core version as it would deploy, before it is: GET /map's routers and links\nfor that version and scope, with no state (every status and link state unknown) and no enclaves.\nFor comparing versions in the builder.",
         "operationId": "get_base_preview_api_v1_base_preview_get",
         "security": [
           {
@@ -2378,10 +2378,10 @@
             "required": true,
             "schema": {
               "type": "string",
-              "description": "A shipped base version, e.g. grayspace/2026.11",
+              "description": "A shipped core version, e.g. grayspace/2026.11",
               "title": "Version"
             },
-            "description": "A shipped base version, e.g. grayspace/2026.11"
+            "description": "A shipped core version, e.g. grayspace/2026.11"
           },
           {
             "name": "scope",
@@ -2488,7 +2488,7 @@
           "ca"
         ],
         "summary": "Get Ca Bundle",
-        "description": "The root certificates of every deployed base CA, for hosts outside GraySpace (such as GHOSTS) that must trust them.",
+        "description": "The root certificates of every deployed core CA, for hosts outside GraySpace (such as GHOSTS) that must trust them.",
         "operationId": "get_ca_bundle_api_v1_ca_bundle_get",
         "responses": {
           "200": {
@@ -2545,7 +2545,7 @@
           "deployments"
         ],
         "summary": "Create Deployment",
-        "description": "Create a deployment: its directory, environment file and work tree, and start its worker.\nYou become its owner. Its Terrain API is then at /deployments/{id}/api/v1; deploy its base with\nPOST /deployments/{id}/api/v1/base/deploy.",
+        "description": "Create a deployment: its directory, environment file and work tree, and start its worker.\nYou become its owner. Its Terrain API is then at /deployments/{id}/api/v1; deploy its core with\nPOST /deployments/{id}/api/v1/base/deploy.",
         "operationId": "create_deployment_api_v1_deployments_post",
         "requestBody": {
           "content": {
@@ -4226,7 +4226,7 @@
           "free_addresses": {
             "type": "integer",
             "title": "Free Addresses",
-            "description": "Addresses in the block not used by any link, loopback or network in the base"
+            "description": "Addresses in the block not used by any link, loopback or network in the core"
           },
           "largest_free_prefix": {
             "anyOf": [
@@ -4355,7 +4355,7 @@
         "additionalProperties": false,
         "type": "object",
         "title": "Attach",
-        "description": "Where something joins the base: an ISP and/or location, or an exact router."
+        "description": "Where something joins the core: an ISP and/or location, or an exact router."
       },
       "AttachmentPoint": {
         "properties": {
@@ -4419,7 +4419,7 @@
           "free_static_addresses": {
             "type": "integer",
             "title": "Free Static Addresses",
-            "description": "Free static addresses on the customer network (.2 up to the DHCP start), less the base's and live instances'. A site takes one, plus one per published host"
+            "description": "Free static addresses on the customer network (.2 up to the DHCP start), less the core's and live instances'. A site takes one, plus one per published host"
           },
           "address_space": {
             "$ref": "#/components/schemas/AddressSpace",
@@ -4507,7 +4507,7 @@
           "status": {
             "type": "string",
             "title": "Status",
-            "description": "The deployed base's status (GET /deployments/{id}/api/v1/base), or unknown when the worker doesn't answer"
+            "description": "The deployed core's status (GET /deployments/{id}/api/v1/base), or unknown when the worker doesn't answer"
           },
           "version": {
             "anyOf": [
@@ -4540,7 +4540,7 @@
               }
             ],
             "title": "Routers",
-            "description": "Routers in the deployed base"
+            "description": "Routers in the deployed core"
           }
         },
         "type": "object",
@@ -4601,7 +4601,7 @@
           "summary"
         ],
         "title": "BaseVersion",
-        "description": "A shipped base version under bases/."
+        "description": "A shipped core version under bases/."
       },
       "BaseVersionDetail": {
         "properties": {
@@ -4683,7 +4683,7 @@
           "summary"
         ],
         "title": "BaseVersionDetail",
-        "description": "A base version and its topology snapshot: what slice compatibility is checked against."
+        "description": "A core version and its topology snapshot: what slice compatibility is checked against."
       },
       "BaseVersionRef": {
         "properties": {
@@ -4697,12 +4697,12 @@
               }
             ],
             "title": "Name",
-            "description": "Shipped base version, e.g. grayspace/2026.11. Null when the CSVs came from another directory"
+            "description": "Shipped core version, e.g. grayspace/2026.11. Null when the CSVs came from another directory"
           },
           "csv_sha256": {
             "type": "string",
             "title": "Csv Sha256",
-            "description": "sha256 of the base version's CSVs; identifies the version's content"
+            "description": "sha256 of the core version's CSVs; identifies the version's content"
           },
           "scope": {
             "type": "string",
@@ -4717,7 +4717,7 @@
           "scope"
         ],
         "title": "BaseVersionRef",
-        "description": "The base version a deployment's tfvars were generated from."
+        "description": "The core version a deployment's tfvars were generated from."
       },
       "BgpHealth": {
         "properties": {
@@ -4812,7 +4812,7 @@
             },
             "type": "array",
             "title": "Host Features",
-            "description": "Deprecated (contract 1.18): features of base clients, which were retired; always empty. An enclave image's are its `features`",
+            "description": "Deprecated (contract 1.18): features of core clients, which were retired; always empty. An enclave image's are its `features`",
             "deprecated": true
           },
           "enclave_features": {
@@ -4835,7 +4835,7 @@
           "jobs": {
             "type": "boolean",
             "title": "Jobs",
-            "description": "Whether this GraySpace can run slice jobs (plan, create and destroy instances). False where there is no GraySpace checkout or no deployed base"
+            "description": "Whether this GraySpace can run slice jobs (plan, create and destroy instances). False where there is no GraySpace checkout or no deployed core"
           },
           "jobs_unavailable_reason": {
             "anyOf": [
@@ -4851,7 +4851,7 @@
           "base_jobs": {
             "type": "boolean",
             "title": "Base Jobs",
-            "description": "Whether this GraySpace can deploy, configure and destroy the base",
+            "description": "Whether this GraySpace can deploy, configure and destroy the core",
             "default": false
           },
           "crucible": {
@@ -4933,7 +4933,7 @@
           "capacity"
         ],
         "title": "Capabilities",
-        "description": "What a slice can use on a base version."
+        "description": "What a slice can use on a core version."
       },
       "CertificateAuthority": {
         "properties": {
@@ -5871,7 +5871,7 @@
               }
             ],
             "title": "Version",
-            "description": "Shipped base version, e.g. grayspace/2026.11. Required when nothing is deployed"
+            "description": "Shipped core version, e.g. grayspace/2026.11. Required when nothing is deployed"
           },
           "scope": {
             "anyOf": [
@@ -5910,7 +5910,7 @@
         },
         "type": "object",
         "title": "DeployBaseRequest",
-        "description": "What to deploy. Omitted fields keep the deployed base's.",
+        "description": "What to deploy. Omitted fields keep the deployed core's.",
         "examples": [
           {
             "scope": "tier1",
@@ -5952,7 +5952,7 @@
             },
             "type": "array",
             "title": "Stages",
-            "description": "The rollout's stages, in order: destroys, the base and its preset (preset), creates, then the Player view (player); a view being removed goes first"
+            "description": "The rollout's stages, in order: destroys, the core (base) and its preset (preset), creates, then the Player view (player); a view being removed goes first"
           },
           "changes": {
             "type": "boolean",
@@ -6025,7 +6025,7 @@
               "unknown"
             ],
             "title": "Status",
-            "description": "not_deployed: no base tfvars (nothing deployed, or destroyed). healthy: every router running and every BGP session up. unknown: Proxmox or Prometheus gave no answer"
+            "description": "not_deployed: no core tfvars (nothing deployed, or destroyed). healthy: every router running and every BGP session up. unknown: Proxmox or Prometheus gave no answer"
           },
           "routers": {
             "$ref": "#/components/schemas/RouterHealth"
@@ -6042,7 +6042,7 @@
           "bgp"
         ],
         "title": "DeployedBase",
-        "description": "The deployed base version and its health."
+        "description": "The deployed core version and its health."
       },
       "Deployment": {
         "properties": {
@@ -6341,7 +6341,7 @@
               }
             ],
             "title": "Deploy Ghosts",
-            "description": "Deprecated (contract 1.25), ignored: the base has no GHOSTS VM. Enclave hosts run GHOSTS clients (the ghosts-client role)",
+            "description": "Deprecated (contract 1.25), ignored: the core has no GHOSTS VM. Enclave hosts run GHOSTS clients (the ghosts-client role)",
             "deprecated": true
           },
           "use_custom_image": {
@@ -6417,7 +6417,7 @@
                 "type": "null"
               }
             ],
-            "description": "The newest base job (deploy, configure, destroy)"
+            "description": "The newest core job (deploy, configure, destroy)"
           },
           "updated": {
             "anyOf": [
@@ -6597,7 +6597,7 @@
             },
             "type": "array",
             "title": "Tlds",
-            "description": "Top-level domains served by the base's TLD servers"
+            "description": "Top-level domains served by the core's TLD servers"
           },
           "hosting": {
             "items": {
@@ -6630,12 +6630,12 @@
             "maxLength": 253,
             "pattern": "^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,63}$",
             "title": "Domain",
-            "description": "e.g. meridian-bank.com; its TLD must be in the base"
+            "description": "e.g. meridian-bank.com; its TLD must be in the core"
           },
           "hosting_server": {
             "type": "string",
             "title": "Hosting Server",
-            "description": "A base hosting DNS server, e.g. dns-cloudflare"
+            "description": "A core hosting DNS server, e.g. dns-cloudflare"
           }
         },
         "additionalProperties": false,
@@ -6766,7 +6766,7 @@
           "zones"
         ],
         "title": "DnsView",
-        "description": "The simulated DNS: the zones the base's root, TLD and hosting servers serve, and resolvers."
+        "description": "The simulated DNS: the zones the core's root, TLD and hosting servers serve, and resolvers."
       },
       "DnsZone": {
         "properties": {
@@ -6800,7 +6800,7 @@
               "instance"
             ],
             "title": "Origin",
-            "description": "base: written by task configure. overlay: created at runtime in the web UI or by a base preset; quick reset removes it. instance: created by a slice instance; destroying it removes it"
+            "description": "`base`: written by task configure. `overlay`: created at runtime in the web UI or by a core preset; quick reset removes it. `instance`: created by a slice instance; destroying it removes it"
           },
           "instance": {
             "anyOf": [
@@ -6868,7 +6868,7 @@
                 "type": "null"
               }
             ],
-            "description": "Null: keep the deployed base, or deploy none"
+            "description": "Null: keep the deployed core, or deploy none"
           },
           "enclaves": {
             "items": {
@@ -6926,7 +6926,7 @@
           "version": {
             "type": "string",
             "title": "Version",
-            "description": "A shipped base version, e.g. grayspace/2026.11 (GET /base/versions)"
+            "description": "A shipped core version, e.g. grayspace/2026.11 (GET /base/versions)"
           },
           "scope": {
             "type": "string",
@@ -6953,7 +6953,7 @@
               }
             ],
             "title": "Preset",
-            "description": "A base preset of the version (GET /base/presets?base=), applied after the base; null leaves the runtime changes as they are"
+            "description": "A core preset of the version (GET /base/presets?base=), applied after the core; null leaves the runtime changes as they are"
           }
         },
         "type": "object",
@@ -7060,7 +7060,7 @@
             },
             "type": "array",
             "title": "Assign",
-            "description": "Teams for every guest of the base or of an enclave instance. A guest in guests has the teams it names instead; an enclave's crucible: true hints add the default team"
+            "description": "Teams for every guest of the core or of an enclave instance. A guest in guests has the teams it names instead; an enclave's crucible: true hints add the default team"
           },
           "guests": {
             "items": {
@@ -7115,7 +7115,7 @@
                 "type": "null"
               }
             ],
-            "description": "Null: keep the deployed base, or deploy none"
+            "description": "Null: keep the deployed core, or deploy none"
           },
           "enclaves": {
             "items": {
@@ -7344,7 +7344,7 @@
                 "type": "null"
               }
             ],
-            "description": "Place the host directly on a base router's customer network, outside any site"
+            "description": "Place the host directly on a core router's customer network, outside any site"
           },
           "image": {
             "type": "string",
@@ -7395,7 +7395,7 @@
           "crucible": {
             "type": "boolean",
             "title": "Crucible",
-            "description": "Register the host (every copy, with count) in the base's Crucible Player view, for participants to see",
+            "description": "Register the host (every copy, with count) in the core's Crucible Player view, for participants to see",
             "default": false
           }
         },
@@ -7406,7 +7406,7 @@
           "image"
         ],
         "title": "Host",
-        "description": "A host in a site segment, or an internet host placed on the base itself."
+        "description": "A host in a site segment, or an internet host placed on the core itself."
       },
       "HostFeature": {
         "properties": {
@@ -7780,7 +7780,7 @@
             },
             "type": "array",
             "title": "Clients",
-            "description": "Deprecated (contract 1.18): base clients were retired; always empty",
+            "description": "Deprecated (contract 1.18): core clients were retired; always empty",
             "deprecated": true
           },
           "core_services": {
@@ -7801,7 +7801,7 @@
           "core_services"
         ],
         "title": "Inventory",
-        "description": "The deployed base: what Terraform built from the tfvars (the scope applied), with live state."
+        "description": "The deployed core: what Terraform built from the tfvars (the scope applied), with live state."
       },
       "InventoryClient": {
         "properties": {
@@ -7852,7 +7852,7 @@
               }
             ],
             "title": "Image",
-            "description": "The image source the base deployed"
+            "description": "The image source the core deployed"
           },
           "ip": {
             "anyOf": [
@@ -7938,7 +7938,7 @@
           "status"
         ],
         "title": "InventoryClient",
-        "description": "Deprecated (contract 1.18): a host the base placed on a router's customer network (clients.csv). Base\nclients were retired; hosts on the simulated internet are enclaves."
+        "description": "Deprecated (contract 1.18): a host the core placed on a router's customer network (clients.csv). Core\nclients were retired; hosts on the simulated internet are enclaves."
       },
       "InventoryCoreService": {
         "properties": {
@@ -8051,7 +8051,7 @@
           "status"
         ],
         "title": "InventoryCoreService",
-        "description": "A DNS server or CA the base hosts on a router (core_dns.csv, core_ca.csv)."
+        "description": "A DNS server or CA the core hosts on a router (core_dns.csv, core_ca.csv)."
       },
       "InventoryInterface": {
         "properties": {
@@ -8063,7 +8063,7 @@
           "bridge": {
             "type": "string",
             "title": "Bridge",
-            "description": "The base vnet (without environment_id), e.g. v213"
+            "description": "The core vnet (without environment_id), e.g. v213"
           },
           "ip": {
             "type": "string",
@@ -8178,7 +8178,7 @@
               }
             ],
             "title": "Latency Ms",
-            "description": "The latency the base sets on the link (tc), from the distance"
+            "description": "The latency the core sets on the link (tc), from the distance"
           },
           "state": {
             "type": "string",
@@ -8485,7 +8485,7 @@
           "target": {
             "type": "string",
             "title": "Target",
-            "description": "Instance ID; slice slug for plan jobs; base for base jobs"
+            "description": "Instance ID; slice slug for plan jobs; `base` for core jobs"
           },
           "slice": {
             "anyOf": [
@@ -8615,7 +8615,7 @@
               }
             ],
             "title": "Result",
-            "description": "Plan jobs: allocation preview, plan summary and capacity. Base jobs: the request (version, scope) and the final health. Rollouts: the plan they carry out"
+            "description": "Plan jobs: allocation preview, plan summary and capacity. Core jobs: the request (version, scope) and the final health. Rollouts: the plan they carry out"
           },
           "by": {
             "anyOf": [
@@ -8770,7 +8770,7 @@
         "additionalProperties": false,
         "type": "object",
         "title": "LinkCondition",
-        "description": "Conditions on a base link, applied while the instance exists."
+        "description": "Conditions on a core link, applied while the instance exists."
       },
       "LoginRequest": {
         "properties": {
@@ -9012,7 +9012,7 @@
           "router": {
             "type": "string",
             "title": "Router",
-            "description": "The base router of the (first) WAN"
+            "description": "The core router of the (first) WAN"
           },
           "isp": {
             "type": "string",
@@ -9451,7 +9451,7 @@
               }
             ],
             "title": "Preset",
-            "description": "The base preset the rollout applies"
+            "description": "The core preset the rollout applies"
           },
           "active_preset": {
             "anyOf": [
@@ -9463,7 +9463,7 @@
               }
             ],
             "title": "Active Preset",
-            "description": "The base preset applied now"
+            "description": "The core preset applied now"
           }
         },
         "type": "object",
@@ -9711,12 +9711,12 @@
               }
             ],
             "title": "Instance",
-            "description": "An enclave instance of the draft (its prefix); null for a base guest"
+            "description": "An enclave instance of the draft (its prefix); null for a core guest"
           },
           "name": {
             "type": "string",
             "title": "Name",
-            "description": "A base hostname (lum-chi, prometheus), or an enclave host or site as its spec names it; a counted host is every copy"
+            "description": "A core hostname (lum-chi, prometheus), or an enclave host or site as its spec names it; a counted host is every copy"
           },
           "site": {
             "type": "boolean",
@@ -9746,7 +9746,7 @@
             "type": "string",
             "pattern": "^(base|enclave:[a-z][a-z0-9]{0,7})$",
             "title": "Scope",
-            "description": "base, or enclave:<prefix> (a draft enclave instance)"
+            "description": "base (the core's guests), or enclave:<prefix> (a draft enclave instance)"
           },
           "teams": {
             "items": {
@@ -9761,7 +9761,7 @@
           "scope"
         ],
         "title": "PlayerRule",
-        "description": "Teams for a whole part of the deployment: every base guest, or every site and host of an enclave instance."
+        "description": "Teams for a whole part of the deployment: every core guest, or every site and host of an enclave instance."
       },
       "PlayerTeam": {
         "properties": {
@@ -9872,7 +9872,7 @@
           "checks"
         ],
         "title": "Preflight",
-        "description": "Whether this site can deploy a base. ready is false when any check is an error."
+        "description": "Whether this site can deploy a core. ready is false when any check is an error."
       },
       "PreflightCheck": {
         "properties": {
@@ -10602,7 +10602,7 @@
           "running"
         ],
         "title": "RouterHealth",
-        "description": "Routers in the deployed base, as Proxmox sees them."
+        "description": "Routers in the deployed core, as Proxmox sees them."
       },
       "Segment": {
         "properties": {
@@ -10698,12 +10698,12 @@
               }
             ],
             "title": "Attach",
-            "description": "Where the edge's WAN joins the base. A list dual-homes the site (routed sites only)"
+            "description": "Where the edge's WAN joins the core. A list dual-homes the site (routed sites only)"
           },
           "routed": {
             "type": "boolean",
             "title": "Routed",
-            "description": "false: the edge NATs the site behind one address on a base customer network. true: the site gets a public /24 from the ISP's block and the edge peers with the base over eBGP",
+            "description": "false: the edge NATs the site behind one address on a core customer network. true: the site gets a public /24 from the ISP's block and the edge peers with the core over eBGP",
             "default": false
           },
           "segments": {
@@ -10717,7 +10717,7 @@
           "crucible": {
             "type": "boolean",
             "title": "Crucible",
-            "description": "Register the site's edge router in the base's Crucible Player view",
+            "description": "Register the site's edge router in the core's Crucible Player view",
             "default": false
           }
         },
@@ -10729,7 +10729,7 @@
           "segments"
         ],
         "title": "Site",
-        "description": "An enterprise site: an edge router on the base and the segments behind it."
+        "description": "An enterprise site: an edge router on the core and the segments behind it."
       },
       "Size": {
         "properties": {
@@ -10840,7 +10840,7 @@
                 "type": "null"
               }
             ],
-            "description": "Null for the base slice"
+            "description": "Null for the `base` slice (the core)"
           },
           "base": {
             "anyOf": [
@@ -10852,7 +10852,7 @@
               }
             ],
             "title": "Base",
-            "description": "The base slice: the deployed base version"
+            "description": "The `base` slice: the deployed core version"
           }
         },
         "type": "object",
@@ -10974,7 +10974,7 @@
           "prefix"
         ],
         "title": "SliceSpec",
-        "description": "A named, versioned addition to the base."
+        "description": "A named, versioned addition to the core."
       },
       "SliceSpec-Output": {
         "properties": {
@@ -11068,7 +11068,7 @@
           "prefix"
         ],
         "title": "SliceSpec",
-        "description": "A named, versioned addition to the base."
+        "description": "A named, versioned addition to the core."
       },
       "SliceSummary": {
         "properties": {
@@ -11423,7 +11423,7 @@
           "ca": {
             "type": "string",
             "title": "Ca",
-            "description": "A base CA, e.g. ca-graytrust"
+            "description": "A core CA, e.g. ca-graytrust"
           }
         },
         "additionalProperties": false,
@@ -11745,7 +11745,7 @@
           "clients": {
             "type": "integer",
             "title": "Clients",
-            "description": "Deprecated (contract 1.18): base clients were retired; always 0",
+            "description": "Deprecated (contract 1.18): core clients were retired; always 0",
             "default": 0,
             "deprecated": true
           }
@@ -11792,7 +11792,7 @@
           "bridge": {
             "type": "string",
             "title": "Bridge",
-            "description": "The base vnet (without environment_id), e.g. v332"
+            "description": "The core vnet (without environment_id), e.g. v332"
           },
           "ip": {
             "type": "string",
@@ -11802,7 +11802,7 @@
           "gateway": {
             "type": "string",
             "title": "Gateway",
-            "description": "The base router, .1"
+            "description": "The core router, .1"
           }
         },
         "type": "object",
@@ -11817,7 +11817,7 @@
           "gateway"
         ],
         "title": "Wan",
-        "description": "An edge router's WAN on a base router's customer network."
+        "description": "An edge router's WAN on a core router's customer network."
       },
       "WorkerStatus": {
         "properties": {
@@ -11986,7 +11986,7 @@
               "instance"
             ],
             "title": "Origin",
-            "description": "base: written by task configure. overlay: created at runtime in the web UI or by a base preset; quick reset removes it. instance: created by a slice instance; destroying it removes it"
+            "description": "`base`: written by task configure. `overlay`: created at runtime in the web UI or by a core preset; quick reset removes it. `instance`: created by a slice instance; destroying it removes it"
           },
           "instance": {
             "anyOf": [
@@ -12074,7 +12074,7 @@
               }
             ],
             "title": "Storage",
-            "description": "The block storage slice and base disks use (TF_VAR_proxmox_blockstore)"
+            "description": "The block storage slice and core disks use (TF_VAR_proxmox_blockstore)"
           },
           "storage_total": {
             "anyOf": [
@@ -12256,7 +12256,7 @@
   "tags": [
     {
       "name": "deployments",
-      "description": "The deployments this GraySpace runs, each a base and its enclaves under its own base URL. Served at the server's root"
+      "description": "The deployments this GraySpace runs, each a core and its enclaves under its own base URL. Served at the server's root"
     },
     {
       "name": "auth",
@@ -12276,11 +12276,11 @@
     },
     {
       "name": "base",
-      "description": "The deployed base: version, health, inventory, DNS and shipped versions; and its lifecycle as jobs: preflight, deploy, configure, destroy"
+      "description": "The deployed core: version, health, inventory, DNS and shipped versions; and its lifecycle as jobs: preflight, deploy, configure, destroy"
     },
     {
       "name": "rollout",
-      "description": "The draft (the base and enclave instances a deployment should have) and the rollout job that makes the deployment match it"
+      "description": "The draft (the core and enclave instances a deployment should have) and the rollout job that makes the deployment match it"
     },
     {
       "name": "player",
@@ -12288,7 +12288,7 @@
     },
     {
       "name": "capabilities",
-      "description": "What a slice can use on a base version, and where it can attach"
+      "description": "What a slice can use on a core version, and where it can attach"
     },
     {
       "name": "enclaves",
@@ -12296,7 +12296,7 @@
     },
     {
       "name": "instances",
-      "description": "Enclaves built on the base: create, inspect (the manifest), act on at runtime, destroy"
+      "description": "Enclaves built on the core: create, inspect (the manifest), act on at runtime, destroy"
     },
     {
       "name": "jobs",
@@ -12312,7 +12312,7 @@
     },
     {
       "name": "ca",
-      "description": "The base CAs' root certificates"
+      "description": "The core CAs' root certificates"
     },
     {
       "name": "slices (deprecated)",

@@ -104,7 +104,7 @@ class BasePresets(Api):
             self.assertEqual(self.client.post("/api/v1/changes/discard").json()["message"], "Applied slow-links")
             self.assertEqual(self.client.post("/api/v1/scenarios/discard-changes").json()["message"], "Applied slow-links")
             r = self.client.post("/api/v1/base/presets/none/apply")
-        self.assertEqual(r.json()["message"], "Back to the base as deployed")
+        self.assertEqual(r.json()["message"], "Back to the core as deployed")
         self.assertIsNone(mutation_tracker.preset)
         self.assertEqual(self.client.get("/api/v1/scenarios/mutations/count").json()["baseline"], "GraySpace")
 
@@ -112,7 +112,7 @@ class BasePresets(Api):
         mutation_tracker.preset = "gone"
         with patch.object(base_changes, "revert_all", AsyncMock(return_value=[])):
             r = self.client.post("/api/v1/changes/discard")
-        self.assertEqual(r.json()["message"], "Back to the base as deployed")
+        self.assertEqual(r.json()["message"], "Back to the core as deployed")
         self.assertIsNone(mutation_tracker.preset)
 
     def test_tracker_as_actions(self):
@@ -196,7 +196,7 @@ class Rollout(test_rollout.Simulated):
         with patch.object(base_changes, "revert_all", AsyncMock(return_value=[])), patch.object(base_changes, "apply", apply):
             job = self.run_job(rollout.submit(found))
         self.assertEqual(job.state, "succeeded", job.error)
-        self.assertEqual(job.stage_titles, {"preset": "Apply the base preset"})
+        self.assertEqual(job.stage_titles, {"preset": "Apply the core preset"})
         self.assertEqual(apply.await_args.args[0].target, "a:b")
         self.assertEqual(mutation_tracker.preset, "slow")
         self.assertFalse(rollout.plan().changes)

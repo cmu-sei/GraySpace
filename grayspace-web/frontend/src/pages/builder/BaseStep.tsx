@@ -49,7 +49,7 @@ export const BaseStep: React.FC<{ b: Builder; readOnly: boolean }> = ({ b, readO
     <div className="gs-grid2" style={{ gridTemplateColumns: '1.3fr 1fr', alignItems: 'start' }}>
       <div>
         <div className="gs-box">
-          <h3>Base version</h3>
+          <h3>Core version</h3>
           {b.versions.map((v) => (
             <label key={v.name} className={`gs-choice ${base?.version === v.name ? 'on' : ''}`}>
               <div className="gs-row">
@@ -91,7 +91,7 @@ export const BaseStep: React.FC<{ b: Builder; readOnly: boolean }> = ({ b, readO
           </div>
           {(presets.length > 0 || base?.preset) && (
             <div className="gs-row" style={{ marginTop: 10 }}>
-              <label htmlFor="base-preset">Preset <Tip text="A saved set of changes to the base, applied once it's deployed." /></label>
+              <label htmlFor="base-preset">Preset <Tip text="A saved set of changes to the core, applied once it's deployed." /></label>
               <select id="base-preset" className="gs-input" style={{ width: 'auto' }} disabled={readOnly || !base} value={base?.preset ?? ''}
                 onChange={(e) => base && b.setBase({ ...base, preset: e.target.value || null })}>
                 <option value="">None</option>

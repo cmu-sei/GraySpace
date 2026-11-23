@@ -152,7 +152,7 @@ async def _nothing_deployed(record: Dict, action: str):
     state = registry.work_dir(record) / "terraform" / "terraform.tfstate"
     with contextlib.suppress(OSError, ValueError):
         if json.loads(state.read_text()).get("resources"):
-            raise HTTPException(409, f"Deployment '{deployment_id}' has Terraform resources; destroy its base first "
+            raise HTTPException(409, f"Deployment '{deployment_id}' has Terraform resources; destroy its core first "
                                      f"(DELETE /deployments/{deployment_id}/api/v1/base) before you {action}")
     if not supervisor.running(deployment_id) and not await supervisor.wait_ready(deployment_id, 30):
         raise HTTPException(409, f"Deployment '{deployment_id}' isn't running, so whether anything is deployed can't be checked; "
@@ -165,7 +165,7 @@ async def _nothing_deployed(record: Dict, action: str):
     if instances:
         raise HTTPException(409, f"Deployment '{deployment_id}' has {len(instances)} live enclave instance(s); destroy them before you {action}")
     if base.get("status") != "not_deployed":
-        raise HTTPException(409, f"Deployment '{deployment_id}' has a base ({base.get('status')}); destroy it first "
+        raise HTTPException(409, f"Deployment '{deployment_id}' has a core ({base.get('status')}); destroy it first "
                                  f"(DELETE /deployments/{deployment_id}/api/v1/base) before you {action}")
 
 
@@ -196,7 +196,7 @@ async def list_deployments(principal: Principal = Depends(auth.current)):
              responses={403: {"description": "Only builders and admins create deployments"}, 409: {"description": "The ID is taken"}})
 async def create_deployment(body: CreateDeployment, principal: Principal = Depends(auth.require("deployments:create"))):
     """Create a deployment: its directory, environment file and work tree, and start its worker.
-    You become its owner. Its Terrain API is then at /deployments/{id}/api/v1; deploy its base with
+    You become its owner. Its Terrain API is then at /deployments/{id}/api/v1; deploy its core with
     POST /deployments/{id}/api/v1/base/deploy."""
     if body.default and not principal.can("deployments:all"):
         raise HTTPException(403, "Only admins choose the default deployment")

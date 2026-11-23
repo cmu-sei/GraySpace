@@ -98,7 +98,7 @@ def _simulated(version: Optional[str], scope: Optional[str]) -> Preflight:
     """A simulated deployment (services/dev_jobs.py) has no site to check: only the version and live instances."""
     checks = [_check("simulated", "warning", "This deployment is simulated (DEV_SIMULATE_DEPLOYMENT): Proxmox, storage and SSH aren't checked")]
     if not version:
-        checks.append(_check("version", "error", "No base is deployed; name a version (GET /api/v1/base/versions lists them)"))
+        checks.append(_check("version", "error", "No core is deployed; name a version (GET /api/v1/base/versions lists them)"))
     elif base_versions.get_version(version) is None:
         checks.append(_check("version", "error", base_versions.not_shipped(version)))
     else:
@@ -106,7 +106,7 @@ def _simulated(version: Optional[str], scope: Optional[str]) -> Preflight:
     deployed, live = deployed_ref(), store.live_instances()
     if live and deployed and version and (deployed.get("name"), deployed.get("scope")) != (version, scope):
         checks.append(_check("instances", "error", f"{len(live)} enclave instance(s) are live on {deployed.get('name')} ({deployed.get('scope')}); "
-                             "destroy them before changing the base version or scope"))
+                             "destroy them before changing the core version or scope"))
     return Preflight(ready=not any(c.status == "error" for c in checks), version=version, scope=scope, checks=checks)
 
 
@@ -117,7 +117,7 @@ async def run(version: Optional[str] = None, scope: Optional[str] = None) -> Pre
     checks: List[PreflightCheck] = []
 
     available, why = environment.base_jobs_available()
-    checks.append(_check("jobs", "ok" if available else "error", "This GraySpace can run base jobs" if available else why))
+    checks.append(_check("jobs", "ok" if available else "error", "This GraySpace can run core jobs" if available else why))
     env = environment.job_env() if environment.environment_file() else dict(os.environ)
 
     missing = [name for name in REQUIRED if not env.get(name)]
@@ -133,7 +133,7 @@ async def run(version: Optional[str] = None, scope: Optional[str] = None) -> Pre
 
     tfvars = None
     if not version:
-        checks.append(_check("version", "error", "No base is deployed; name a version (GET /api/v1/base/versions lists them)"))
+        checks.append(_check("version", "error", "No core is deployed; name a version (GET /api/v1/base/versions lists them)"))
     elif base_versions.get_version(version) is None:
         checks.append(_check("version", "error", base_versions.not_shipped(version)))
     else:
@@ -147,7 +147,7 @@ async def run(version: Optional[str] = None, scope: Optional[str] = None) -> Pre
     live = store.live_instances()
     if live and deployed and version and (deployed.get("name"), deployed.get("scope")) != (version, scope):
         checks.append(_check("instances", "error", f"{len(live)} enclave instance(s) are live on {deployed.get('name')} ({deployed.get('scope')}); "
-                             "destroy them before changing the base version or scope"))
+                             "destroy them before changing the core version or scope"))
 
     node = await asyncio.to_thread(proxmox_client.get_node_status)
     if node is None:
@@ -205,7 +205,7 @@ async def _node_checks(env: Dict[str, str]) -> List[PreflightCheck]:
 
     zones = await asyncio.to_thread(proxmox_client.get_sdn_zones)
     checks.append(_check("sdn", "ok" if zones is not None else "error",
-                         "SDN is available" if zones is not None else "SDN can't be read; the base creates SDN zones and vnets"))
+                         "SDN is available" if zones is not None else "SDN can't be read; the core creates SDN zones and vnets"))
     if zones is not None:
         checks.append(_environment_id_check(env, {z.get("zone") for z in zones}))
     return checks

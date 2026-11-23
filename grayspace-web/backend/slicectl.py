@@ -10,7 +10,7 @@ operators and CI don't need the API.
 
 The Taskfile wraps these (task slice:validate SLICE=...). Settings come from the GraySpace
 checkout this file is in and its .environment, as Terraform and Ansible see them; jobs take the
-node lock like task apply does. validate --base checks a spec against a shipped base version
+node lock like task apply does. validate --base checks a spec against a shipped core version
 without any deployment, as CI does.
 """
 import argparse
@@ -238,7 +238,7 @@ def main(argv=None):
     parser.add_argument("command", choices=COMMANDS)
     parser.add_argument("spec", help="A slice spec (YAML or JSON)")
     parser.add_argument("--prefix", help="Instance ID / hostname prefix, to run a second copy (default: the spec's)")
-    parser.add_argument("--base", help="validate: against a shipped base version (e.g. grayspace/2026.11) instead of the deployed tfvars")
+    parser.add_argument("--base", help="validate: against a shipped core version (e.g. grayspace/2026.11) instead of the deployed tfvars")
     parser.add_argument("--scope", default="full", choices=["full", "tier1"], help="validate --base: the scope")
     parser.add_argument("--tfvars", help="The deployed tfvars (default terraform/terraform.tfvars.json)")
     parser.add_argument("--cwd", default=os.getcwd(), help=argparse.SUPPRESS)

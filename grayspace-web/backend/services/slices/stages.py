@@ -35,7 +35,7 @@ DESTROY_STAGES = ["revoke", "dns", "conditions", "detach", "destroy", "workspace
 PLAN_STAGES = ["validate", "allocate", "render", "plan"]
 
 TITLES = {
-    "validate": "Check the enclave against the base",
+    "validate": "Check the enclave against the core",
     "allocate": "Assign addresses and names",
     "render": "Issue certificates and prepare the build",
     "apply": "Create the hosts",
@@ -46,7 +46,7 @@ TITLES = {
     "check": "Check reachability",
     "ready": "Finish",
     "revoke": "Revoke certificates",
-    "detach": "Disconnect from the base routers",
+    "detach": "Disconnect from the core routers",
     "destroy": "Remove the hosts",
     "workspace": "Clean up",
     "images": "Remove unused images",
@@ -452,7 +452,7 @@ async def stage_render(ctx: JobContext, record: InstanceRecord):
     team = crucible_team_id()
     store.write_text(instance_tfvars(record.id), render.dumps(render.instance_tfvars(record.allocation, images, env, certs, team)))
     write_images_tfvars(env, images_in_use(extra=record.allocation.images))
-    ctx.log(f"Wrote {instance_tfvars(record.id)}" + (f"; guests join the base's Crucible team {team}" if team else ""))
+    ctx.log(f"Wrote {instance_tfvars(record.id)}" + (f"; guests join the core's Crucible team {team}" if team else ""))
 
 
 async def stage_apply(ctx: JobContext, record: InstanceRecord):
@@ -685,7 +685,7 @@ async def stage_check(ctx: JobContext, record: InstanceRecord):
             router = h.router or (site.wans[0].router if site else None)
         router_ip = await base_mgmt_ip(router) if router else None
         if not router_ip:
-            problems.append(f"No management address for base router {router}")
+            problems.append(f"No management address for core router {router}")
             continue
         async def answer(ip=router_ip, addr=h.public_ip):
             code, out = await ssh(ip, f"ping -c 2 -W 2 {addr}")

@@ -21,8 +21,8 @@ class PresetAction(BaseModel):
 
 
 class PresetOwner(BaseModel):
-    kind: Literal["base"] = Field(..., description="Always base (enclave presets were removed in contract 1.19)")
-    ref: str = Field(..., description="The base version (grayspace/2026.11)")
+    kind: Literal["base"] = Field(..., description="Always `base` (enclave presets were removed in contract 1.19)")
+    ref: str = Field(..., description="The core version (grayspace/2026.11)")
 
 
 class Preset(BaseModel):
@@ -68,8 +68,8 @@ class TrackedChange(BaseModel):
 
 
 class TrackedChanges(BaseModel):
-    preset: Optional[str] = Field(..., description="The base preset Reset changes returns to; null for the base as deployed")
-    base: Optional[str] = Field(None, description="The deployed base version the preset belongs to")
+    preset: Optional[str] = Field(..., description="The core preset Reset changes returns to; null for the core as deployed")
+    base: Optional[str] = Field(None, description="The deployed core version the preset belongs to")
     baseline: str = Field(..., description="Deprecated: preset, or GraySpace for none", deprecated=True)
     count: int = Field(..., description="Tracked mutations, the preset's included")
     changes: List[TrackedChange] = Field(..., description="Changes since the preset, newest first")

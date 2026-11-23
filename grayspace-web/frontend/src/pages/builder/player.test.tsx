@@ -82,13 +82,13 @@ describe('the Player step', () => {
   it('gives the whole base or an enclave to a team as a rule, with exceptions', async () => {
     const calls = serve();
     wizard('player');
-    fireEvent.click(await screen.findByLabelText('Base: all to Blue'));
+    fireEvent.click(await screen.findByLabelText('Core: all to Blue'));
     fireEvent.click(screen.getByLabelText('meridian-bank · mb: all to Blue'));
     expect(screen.getByLabelText('web01 in Blue')).toBeChecked();
     // One base router out
     fireEvent.click(within(screen.getByText('Routers · Lumen').closest('td')!).getByRole('button'));
     fireEvent.click(screen.getByLabelText('lum-chi in Blue'));
-    expect(screen.getByLabelText('Base: all to Blue')).toBeChecked();
+    expect(screen.getByLabelText('Core: all to Blue')).toBeChecked();
     fireEvent.click(screen.getByRole('button', { name: 'Next: Review & deploy' }));
     await waitFor(() => expect(calls.some((c) => c.url.endsWith('/api/v1/draft') && c.init?.method === 'PUT')).toBe(true));
     const body = JSON.parse(String(calls.find((c) => c.init?.method === 'PUT')!.init?.body));
@@ -100,7 +100,7 @@ describe('the Player step', () => {
   it('drops entries for base guests the base no longer has', async () => {
     const calls = serve({ ...DRAFT, player: { applications: [], teams: [{ name: 'Blue', applications: [] }], guests: [{ name: 'grafana', teams: ['Blue'] }] } });
     wizard('player');
-    fireEvent.click(await screen.findByLabelText('Base: all to Blue'));
+    fireEvent.click(await screen.findByLabelText('Core: all to Blue'));
     fireEvent.click(screen.getByRole('button', { name: 'Next: Review & deploy' }));
     await waitFor(() => expect(calls.some((c) => c.init?.method === 'PUT')).toBe(true));
     expect(JSON.parse(String(calls.find((c) => c.init?.method === 'PUT')!.init?.body)).player.guests).toEqual([]);

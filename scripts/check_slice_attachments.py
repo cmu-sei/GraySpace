@@ -98,7 +98,7 @@ def check_apply(tfvars: dict, instances: list) -> list:
         for router, net, bridge, what in attachments(record):
             r = routers.get(router)
             if r is None:
-                problems.append(f"instance {rid}: {what} is attached to {router}, which the new base doesn't have")
+                problems.append(f"instance {rid}: {what} is attached to {router}, which the new core doesn't have")
                 continue
             if not r.get("customer_net"):
                 problems.append(f"instance {rid}: {router} would lose the customer network {what} is attached to")
@@ -111,7 +111,7 @@ def check_apply(tfvars: dict, instances: list) -> list:
         for static in alloc.get("static_addresses") or []:
             owner = addresses.get(static["ip"])
             if owner:
-                problems.append(f"instance {rid}: the base would give {static['ip']} on {static['router']} to {owner}; {static['use']} holds it")
+                problems.append(f"instance {rid}: the core would give {static['ip']} on {static['router']} to {owner}; {static['use']} holds it")
             r = routers.get(static["router"])
             if r and r.get("customer_net"):
                 net = ipaddress.IPv4Network(r["customer_net"])
@@ -122,7 +122,7 @@ def check_apply(tfvars: dict, instances: list) -> list:
             p = ipaddress.IPv4Network(prefix)
             clash = next((n for n in networks if n.overlaps(p)), None)
             if clash:
-                problems.append(f"instance {rid}: the base would use {clash}, inside the routed site prefix {p}")
+                problems.append(f"instance {rid}: the core would use {clash}, inside the routed site prefix {p}")
     return problems
 
 
@@ -139,7 +139,7 @@ def main(argv=None):
         return 0
     names = ", ".join(f"{r['id']} ({r.get('state')})" for r in instances)
     if args.mode == "destroy":
-        print(f"❌ Refusing to destroy the base: live slice instances {names}. Destroy them first: task slice:down SLICE=... or DELETE /api/v1/instances/<id>")
+        print(f"❌ Refusing to destroy the core: live slice instances {names}. Destroy them first: task slice:down SLICE=... or DELETE /api/v1/instances/<id>")
         return 1
     try:
         tfvars = json.loads(Path(args.tfvars).read_text())
@@ -148,12 +148,12 @@ def main(argv=None):
         return 1
     problems = check_apply(tfvars, instances)
     if problems:
-        print(f"❌ Refusing to apply: the new base would break live slice instances ({names})")
+        print(f"❌ Refusing to apply: the new core would break live slice instances ({names})")
         for p in problems:
             print(f"   - {p}")
-        print("   Destroy the affected instances first, or keep the base unchanged.")
+        print("   Destroy the affected instances first, or keep the core unchanged.")
         return 1
-    print(f"✅ The new base keeps every attachment of the live slice instances: {names}")
+    print(f"✅ The new core keeps every attachment of the live slice instances: {names}")
     return 0
 
 

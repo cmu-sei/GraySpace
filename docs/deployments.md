@@ -1,13 +1,19 @@
 # Deployments
 
-One GraySpace server runs several deployments at once. A deployment is a base (the simulated
-internet) and the enclaves built on it, deployed to a Proxmox node with its own `environment_id`.
-Deployments can share a Proxmox node or cluster, or use different ones.
+One GraySpace server runs several deployments at once. A deployment is a core (the simulated
+internet: ISPs, routers and core services such as DNS and CAs) and the enclaves built on it,
+deployed to a Proxmox node with its own `environment_id`. Deployments can share a Proxmox node or
+cluster, or use different ones.
+
+!!! note "The core was called the base"
+    API paths, JSON fields, CLI flags and file names still say `base` (`/api/v1/base`,
+    `base.preset`, `BASE=`, `bases/`, `base_jobs.py`). A later contract version adds core names,
+    with the base ones kept as aliases.
 
 ## Addressing a deployment
 
 Each deployment has a base URL, `/deployments/{id}`, and its whole API sits under that URL
-unchanged: the base is `/deployments/abc/api/v1/base`, its events are
+unchanged: the core is `/deployments/abc/api/v1/base`, its events are
 `/deployments/abc/api/v1/events`, a console is `/deployments/abc/ws/console/{hostname}`. The
 [Terrain API](api.md) contract is the same for every deployment. A client such as GHOSTS takes the
 deployment's base URL as GraySpace's address:
@@ -80,8 +86,8 @@ see the deployment: it is missing from the list and its routes are 404. Each dep
 |---|---|---|
 | `read` | Every `GET`, the topology and events websockets | members, owner |
 | `operate` | Consoles and desktops; instance actions (link conditions, DNS records, host stop and start); traffic shaping; interface zones; DNS and certificate changes; Reset changes (`POST /api/v1/changes/discard`); applying presets | members, owner |
-| `build` | Deploy and configure the base; enclaves; creating and destroying instances; job cancel and retry; saving and deleting presets; images; base container power; restarting the worker | build members, owner |
-| `members:manage`, `delete` | Rename, members, where it runs (connection, node) and its Player view; destroy the base; remove the deployment | owner |
+| `build` | Deploy and configure the core; enclaves; creating and destroying instances; job cancel and retry; saving and deleting presets; images; core container power; restarting the worker | build members, owner |
+| `members:manage`, `delete` | Rename, members, where it runs (connection, node) and its Player view; destroy the core; remove the deployment | owner |
 
 The control plane classes every worker route (`control/access.py`) and refuses with 403 what the
 caller's access doesn't allow; a test fails when a worker route isn't in the table. Making a
@@ -94,16 +100,16 @@ their owner on first start.
 
 | Route | |
 |---|---|
-| `GET /api/v1/deployments` | The deployments you can see, with their worker's state, their base's status, a summary (live and failed instances, the active job, the last base job), owner, members and `my_access` |
+| `GET /api/v1/deployments` | The deployments you can see, with their worker's state, their core's status, a summary (live and failed instances, the active job, the last core job), owner, members and `my_access` |
 | `POST /api/v1/deployments` | Create one (builders, admins): `{"id": "abd", "name": "Exercise 2", "placement": {"connection": "site", "node": "pve2"}}`. You become its owner |
 | `GET /api/v1/deployments/{id}` | One deployment, with its work tree and the worker log's tail |
 | `PATCH /api/v1/deployments/{id}` | Rename it, make it the default (admins), or (while nothing is deployed) change where it runs or its Player view |
 | `PUT /api/v1/deployments/{id}/members` | Who else may see and use it |
 | `POST /api/v1/deployments/{id}/restart` | Restart its worker |
-| `DELETE /api/v1/deployments/{id}` | Remove it; refused while it has a base or enclave instances |
+| `DELETE /api/v1/deployments/{id}` | Remove it; refused while it has a core or enclave instances |
 | `/api/v1/deployments/events` | Websocket: the deployments you can see created, changed, removed, and their workers' state (`grayspace-deployments-events-v1.json`) |
 
-From nothing to a second deployment's base:
+From nothing to a second deployment's core:
 
 ```bash
 H="Authorization: Bearer $GRAYSPACE_API_TOKEN"
@@ -185,7 +191,7 @@ choose one. Builders read them (to choose), admins (`platform:manage`) change th
 
 ## Building a deployment: the draft and the rollout
 
-A deployment's **draft** is what it should have: a base (version, scope, whether to configure)
+A deployment's **draft** is what it should have: a core (version, scope, whether to configure)
 and the enclave instances (slug, version, prefix). The UI's builder saves it; nothing changes
 until it is deployed. Under the deployment's base URL:
 
@@ -196,14 +202,14 @@ until it is deployed. Under the deployment's base URL:
 | `GET /api/v1/deploy/plan` | What deploying would do, the stages in order, `problems` that stop it, and the node's capacity |
 | `POST /api/v1/deploy` | Queue a **rollout** job (build access) |
 
-The UI's builder (Build, and Configuration once the base is live) edits the draft in five steps:
-Base, Enclaves (each spec in a form or as YAML; the form asks for the `role_vars` of the roles its
+The UI's builder (Build, and Configuration once the core is live) edits the draft in five steps:
+Core, Enclaves (each spec in a form or as YAML; the form asks for the `role_vars` of the roles its
 hosts use, once per role, since every host with a role reads the same values), DNS (the enclaves' `dns`), Certificates (their
-`tls`) and Review & deploy. Before the base is deployed, it checks enclaves against the draft's
-base version with `POST /api/v1/enclaves/{slug}/validate?base=<version>&scope=<scope>`.
+`tls`) and Review & deploy. Before the core is deployed, it checks enclaves against the draft's
+core version with `POST /api/v1/enclaves/{slug}/validate?base=<version>&scope=<scope>`.
 
 A rollout's stages are `destroy:<id>` for the instances the draft no longer has (or has at
-another version, or that failed), then `base` when the draft's base differs from the deployed one,
+another version, or that failed), then `base` when the draft's core differs from the deployed one,
 then `create:<id>` for each instance to build. Each stage runs a child job (`destroy_instance`,
 `deploy_base`, `create_instance`) with its own record and log; the rollout's `children` lists them
 and `GET /api/v1/jobs?parent=<id>` returns them. It stops at the first child that fails; retrying
@@ -222,7 +228,7 @@ listed as `unmanaged` and left alone; a draft prefix that one of them uses is a 
 
 Runtime changes (traffic shaping, interface zones, DNS domains and records,
 certificates issued and revoked) are tracked, with who made each and when.
-`GET /api/v1/changes` lists the ones since the active base preset; `POST /api/v1/changes/discard`
+`GET /api/v1/changes` lists the ones since the active core preset; `POST /api/v1/changes/discard`
 (Reset changes, operate access) undoes them back to that preset. A certificate issued is revoked; one revoked
 stays revoked, since a CA can't take a revocation back. An instance's runtime actions are its own:
 `POST /api/v1/instances/{id}/actions {"action": "reset"}` clears the link conditions actions set,
@@ -233,10 +239,10 @@ brings up the links they took down, deletes the DNS records they added and start
 ### Presets
 
 A preset is a named set of runtime changes, applied after a reset (`services/presets.py`; the web
-UI's side is in docs/web-app.md, Presets). A preset belongs to a base version and is the
+UI's side is in docs/web-app.md, Presets). A preset belongs to a core version and is the
 server's: every deployment on the version sees it. It is a list of actions in the shape
 `POST /api/v1/base/actions` takes: `link.condition`, `interface.zone`, `dns.domain.create` and
-`dns.record.set`. Every change to the base is made by
+`dns.record.set`. Every change to the core is made by
 `services/base_changes.py`: the web UI's routes (links, interface zones, DNS) turn their
 request into one of these actions, `POST /api/v1/base/actions` (operate access) takes one directly
 (`link.clear` too), and applying a preset replays them, so a preset does what the UI does.
@@ -245,10 +251,10 @@ request into one of these actions, `POST /api/v1/base/actions` (operate access) 
 |---|---|
 | `GET /api/v1/base/presets[?base=<version>]`, `GET /api/v1/base/presets/{name}` | read |
 | `POST /api/v1/base/presets` (save the tracked changes), `PUT`, `DELETE /api/v1/base/presets/{name}` | build |
-| `POST /api/v1/base/presets/{name}/apply` (`none`: the base as deployed) | operate |
+| `POST /api/v1/base/presets/{name}/apply` (`none`: the core as deployed) | operate |
 
 The draft names one (`base.preset`; contract 1.8). The rollout adds a `preset` stage after the
-base when the draft's preset differs from the one active or the base was just built. A null preset
+core when the draft's preset differs from the one active or the core was just built. A null preset
 leaves runtime changes alone.
 
 **Enclaves have no presets** (contract 1.19). An enclave is what its spec builds: a variant of one
@@ -258,9 +264,9 @@ changes, and its reset undoes them. The draft's `enclaves[].preset` is deprecate
 rollout planned before skips its `preset:<id>` stages. Files that were saved in
 `<data>/slices/<slug>/presets/` are ignored; delete them if you like.
 
-**Retired base versions.** `grayspace/2026.10` was retired with the base clients; `grayspace/2026.11`
+**Retired core versions.** `grayspace/2026.10` was retired with its clients; `grayspace/2026.11`
 is the same internet without them, so its routers, links, DNS servers and CAs, and the presets that
-name them, are unchanged. A draft or preflight that names 2026.10 says what replaces it. Base presets
+name them, are unchanged. A draft or preflight that names 2026.10 says what replaces it. Core presets
 stay where they were saved: move them to the new version on the server, e.g.
 `mv <deployments root>/presets/grayspace/2026.10 <deployments root>/presets/grayspace/2026.11`
 (`/data/deployments` in the container; `deployments/` in a checkout). A preset that has a
@@ -284,9 +290,9 @@ A deployment with the Player option has a Crucible Player view of its own, defin
 }
 ```
 
-- **Guests** are base hostnames (routers, core services, `prometheus`), or an enclave's hosts and sites as its spec names them: a counted host is every copy,
+- **Guests** are core hostnames (routers, core services, `prometheus`), or an enclave's hosts and sites as its spec names them: a counted host is every copy,
   a site its edge router, whatever the instance's prefix.
-- **Rules** (`assign`, contract 1.15) give every guest of the base (`base`) or of an enclave
+- **Rules** (`assign`, contract 1.15) give every guest of the core (`base`) or of an enclave
   instance (`enclave:<prefix>`) to teams, including hosts a spec adds later. A guest in `guests`
   has the teams it names instead (`"teams": []` leaves it out); the builder lists only the guests
   that differ from their rule. A host or site the spec marks `crucible: true` also goes to
@@ -295,19 +301,19 @@ A deployment with the Player option has a Crucible Player view of its own, defin
   service user is admin of the view, through a team of its own, `Admin`. Nobody else is put on a
   team: who joins which team is for Player (or Scenario Builder).
 - **The rollout** applies it in a `player` stage, last, once every VM exists, and whenever the
-  draft's view changed or the base or an instance was rebuilt (VM IDs change). A draft without
-  `player` removes the view, first. A base destroy removes it first too; an instance job outside a
+  draft's view changed or the core or an instance was rebuilt (VM IDs change). A draft without
+  `player` removes the view, first. A core destroy removes it first too; an instance job outside a
   rollout updates it (`POST /instances`, `DELETE /instances/{id}`).
-- **What the step offers:** `GET /api/v1/player/guests` (the base's guests by group and ISP, the
+- **What the step offers:** `GET /api/v1/player/guests` (the core's guests by group and ISP, the
   draft's enclaves with their hints), `/player/templates` (Player's application templates),
   `/player/roles`; `GET /api/v1/player` is what was applied (`<data>/player.json`).
-- **Before this workspace** the base module made the view (`modules/crucible`, one team Blue with
-  every base guest, enclave guests through `terraform/slice/crucible.tf`). A deployment that still
+- **Before this workspace** the core's Terraform module made the view (`modules/crucible`, one team Blue with
+  every core guest, enclave guests through `terraform/slice/crucible.tf`). A deployment that still
   has it gets a draft `player` reproducing it; the first rollout destroys the old view (and the
   instances' registrations in it) through the provider's delete path, and makes this one. Applies
   refresh: the provider (2.7) manages a view's teams and applications as a whole, so it must see
   what was changed in Player itself (2.5.0 panicked reading a view back, and never refreshed).
-  Destroys skip the refresh, as does that of a base whose state still holds Crucible resources.
+  Destroys skip the refresh, as does that of a core whose state still holds Crucible resources.
   Teams and applications go to the provider in name order, as it matches them by position.
   An apply that adds applications runs twice: first with teams given only instances of the
   applications the view already has (`instance_applications`), then in full, as the provider (2.7,
@@ -329,7 +335,7 @@ deployments/
   default                  the default deployment's ID
   locks/<proxmox host>.lock
   platform.json            the Proxmox and Crucible connections; platform-secrets.json their secrets
-  presets/<base>/<version>/ base presets, shared by the deployments on each version
+  presets/<base>/<version>/ core presets, shared by the deployments on each version
   <id>/deployment.json     the record
   <id>/secrets.json        write-only settings (the router password)
   <id>/environment         generated environment file (sources the site's)
@@ -356,8 +362,8 @@ they were. The control plane never refreshes or deletes it; `DELETE` only forget
 ### One job at a time per cluster
 
 Proxmox applies SDN changes cluster-wide. Every deployment on a cluster therefore takes the same
-lock, `locks/<proxmox host>.lock`, for its jobs: base deploys, configures and destroys, and enclave
-instances. A long base deploy in one deployment holds up the other deployments' jobs on that
+lock, `locks/<proxmox host>.lock`, for its jobs: core deploys, configures and destroys, and enclave
+instances. A long core deploy in one deployment holds up the other deployments' jobs on that
 cluster until it finishes. Deployments on different clusters run their jobs in parallel.
 
 Generated environment files set `GRAYSPACE_LOCK_FILE` to the cluster's lock, so `task apply` in a

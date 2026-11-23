@@ -27,7 +27,7 @@ class ApiDocs(unittest.TestCase):
         r = client().get("/api/openapi.json")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.json(), contract.contract_app().openapi())
-        self.assertIn("From nothing deployed to a base and a slice", r.json()["info"]["description"])
+        self.assertIn("From nothing deployed to a core and a slice", r.json()["info"]["description"])
 
     def test_try_it_out_sends_only_gets_by_default(self):
         html = client().get("/api/docs").text

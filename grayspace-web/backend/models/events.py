@@ -29,12 +29,12 @@ class FeatureUpdate(BaseModel):
 
 
 class GuestUpdate(BaseModel):
-    """A base guest's Proxmox status changed: a router or core service of /base/inventory.
+    """A core guest's Proxmox status changed: a router or core service of /base/inventory.
     Routers also get a feature.update with the same status, for the map."""
 
     type: Literal["guest.update"]
     hostname: str
-    kind: Literal["router", "client", "core-service"] = Field(..., description="client is deprecated (contract 1.18): base "
+    kind: Literal["router", "client", "core-service"] = Field(..., description="client is deprecated (contract 1.18): core "
                                                                "clients were retired, and none comes")
     status: str = Field(..., description="running, stopped or missing (no longer in Proxmox)")
     previous: str = Field(..., description="The status before")

@@ -11,7 +11,7 @@ router = APIRouter(prefix="/api/v1/ca", tags=["ca"], dependencies=[Depends(requi
 @router.get("/bundle", response_class=PlainTextResponse,
             responses={200: {"content": {"application/x-pem-file": {}}, "description": "Concatenated PEM root certificates"}})
 async def get_ca_bundle():
-    """The root certificates of every deployed base CA, for hosts outside GraySpace (such as GHOSTS) that must trust them."""
+    """The root certificates of every deployed core CA, for hosts outside GraySpace (such as GHOSTS) that must trust them."""
     roots = await ca_service.get_ca_bundle()
     pems = [pem for pem in roots.values() if pem]
     if not pems:

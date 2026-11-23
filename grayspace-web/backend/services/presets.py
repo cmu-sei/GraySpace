@@ -44,7 +44,7 @@ def _name(name: str) -> str:
 
 def _base_dir(base: str) -> Path:
     if not re.fullmatch(BASE_NAME, base or ""):
-        raise PresetError(422, f"'{base}' isn't a base version")
+        raise PresetError(422, f"'{base}' isn't a core version")
     return settings.presets_dir / base
 
 
@@ -91,7 +91,7 @@ def deployed_base() -> Optional[str]:
 def _need_base(base: Optional[str]) -> str:
     base = base or deployed_base()
     if not base:
-        raise PresetError(409, "No base version is deployed; base presets belong to one")
+        raise PresetError(409, "No core version is deployed; core presets belong to one")
     return base
 
 
@@ -123,7 +123,7 @@ def save_base(name: str, description: str) -> Preset:
 def put_base(preset: Preset) -> Preset:
     """Store a preset as given (an import, or one written by hand) under its own base version."""
     if preset.owner.kind != "base":
-        raise PresetError(422, "Not a base preset")
+        raise PresetError(422, "Not a core preset")
     check(preset.actions, BASE_ACTIONS)
     return _write(_base_dir(preset.owner.ref), preset.model_copy(update={"name": _name(preset.name)}))
 
@@ -166,7 +166,7 @@ async def apply_base(name: Optional[str]) -> ApplyPresetResult:
     warnings = [f"Reset: {e}" for e in await base_changes.revert_all()]
     if preset is None:
         mutation_tracker.set_preset(None)
-        return ApplyPresetResult(success=True, message="Back to the base as deployed" + (f", with {len(warnings)} warning(s)" if warnings else ""),
+        return ApplyPresetResult(success=True, message="Back to the core as deployed" + (f", with {len(warnings)} warning(s)" if warnings else ""),
                                  warnings=warnings)
     result = await _replay(preset, base_changes.apply)
     mutation_tracker.set_preset(preset.name)

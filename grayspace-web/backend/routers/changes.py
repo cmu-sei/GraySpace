@@ -27,7 +27,7 @@ async def get_changes():
 
 @router.post("/discard", response_model=ApplyPresetResult)
 async def discard_changes():
-    """Undo every tracked change and apply the active preset again; with none, back to the base as deployed."""
+    """Undo every tracked change and apply the active preset again; with none, back to the core as deployed."""
     return await presets.discard()
 
 

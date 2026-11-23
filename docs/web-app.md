@@ -19,14 +19,14 @@ The application asks for it the first time the API refuses a request and keeps i
 the **Token** button in the header changes it. Without it the map is drawn from the topology alone
 (a banner says so) and nothing can be changed.
 
-The **Preset** box in the map sub-bar shows the active base preset and opens the presets: see [Presets](#presets).
+The **Preset** box in the map sub-bar shows the active core preset and opens the presets: see [Presets](#presets).
 
 ## Map View
 
 The map view is the primary interface. It displays all deployed routers and links on an interactive world map.
 
 The map draws the **map layer** (`GET /api/v1/map`): the server computes router positions, curved
-great-circle links (split at the 180° meridian), ISP colors in the base's ISP order, and link
+great-circle links (split at the 180° meridian), ISP colors in the core's ISP order, and link
 colors by state and type, so this map and the GHOSTS map always agree. Slice sites appear as
 diamonds and internet hosts as squares near the routers they attach to, joined by dashed lines;
 click one for its instance, addresses and DNS names.
@@ -56,7 +56,7 @@ Link lines update in real-time via WebSocket to reflect operational state (up, d
 ## Slices and Instances
 
 The **Slices** tab lists stored slices. Select one to see its versions and spec, **Validate** it
-against the deployed base (findings and suggestions), **Plan** it (allocation, `terraform plan`,
+against the deployed core (findings and suggestions), **Plan** it (allocation, `terraform plan`,
 capacity needed), **Create instance** (optionally with another prefix), or delete it. Slices are
 stored through the API or `task slice:up`; the UI doesn't edit them, and slices owned by GHOSTS
 are shown read-only.
@@ -194,11 +194,11 @@ Console sessions are maintained over WebSocket and include automatic keepalive t
 
 ## Presets
 
-A preset is a named set of runtime changes on top of the base. The base itself is the
-default: no preset is the base as deployed. Make changes on a live deployment, save them as a
+A preset is a named set of runtime changes on top of the core. The core itself is the
+default: no preset is the core as deployed. Make changes on a live deployment, save them as a
 preset, and the preset is offered from then on. Presets replace the scenarios of earlier versions.
 
-A preset belongs to a base version (e.g. `grayspace/2026.11`) and holds link conditions, interface
+A preset belongs to a core version (e.g. `grayspace/2026.11`) and holds link conditions, interface
 zones, and DNS domains and records. It is offered to every deployment on that version, on this
 server. Enclaves have no presets: an enclave is what its spec builds, so a variant of one is
 another enclave, and an instance's **Reset actions** undoes what was done to it.
@@ -208,27 +208,27 @@ revoked.
 
 ### The preset box
 
-The **Preset** box in the map sub-bar names the active base preset (**None** for the base as
+The **Preset** box in the map sub-bar names the active core preset (**None** for the core as
 deployed). An asterisk (**\***) means changes were made since it. Opening it shows:
 
 - **Active**: the preset, and each change made since it, with who made it and when.
   **Reset changes** undoes them and applies the active preset again.
-- **Save as a preset** (build access): saves every change on the base, the active preset's
-  included, as a preset of the deployed base version. It becomes the active preset. Saving an
+- **Save as a preset** (build access): saves every change on the core, the active preset's
+  included, as a preset of the deployed core version. It becomes the active preset. Saving an
   existing name replaces that preset, for every deployment on the version.
-- **Presets for** the base version: **Apply** resets the changes, then applies the preset, so
-  the result is exactly the preset whatever was active before. **None** goes back to the base as
+- **Presets for** the core version: **Apply** resets the changes, then applies the preset, so
+  the result is exactly the preset whatever was active before. **None** goes back to the core as
   deployed. A preset saved on another deployment may name targets this one doesn't have (a
   link of the full scope on a Tier 1 deployment): they are listed, and skipped when it is
   applied. **Download** and **Upload…** move a preset between servers as JSON. **Delete** removes it
-  for every deployment on the version; where it is active its changes stay, as changes on the base.
+  for every deployment on the version; where it is active its changes stay, as changes on the core.
 
 !!! info
     Applying may take a few seconds per DNS change (SSH to containers). Link conditions and zone changes are near-instant.
 
 ### Presets in the build
 
-The builder's **Base** step chooses the base preset. Deploying applies it after the base is built,
+The builder's **Core** step chooses the core preset. Deploying applies it after the core is built,
 and again when another preset is active, so a rebuilt deployment comes back with the same changes. With no preset chosen, the rollout
 leaves runtime changes as they are.
 
@@ -244,7 +244,7 @@ A deployment with a Player view has a **Player** step in its builder, before Rev
 - **View:** its name (`<deployment>-grayspace` unless set) and description.
 - **Applications:** from Player's application templates (VMs, maps, chat…), or a URL of your own.
 - **Teams:** each with a role and the applications it gets, in order, and one default team.
-- **Who sees which VMs:** a column of checkboxes per team. The base's VMs are grouped by kind
+- **Who sees which VMs:** a column of checkboxes per team. The core's VMs are grouped by kind
   (routers by ISP, core services, management), each enclave's by site and host; a
   group's checkbox assigns all of it. A host or site its enclave spec marks `crucible: true` starts
   in the default team (**from the spec**) until you change it.

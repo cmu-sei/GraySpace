@@ -232,7 +232,7 @@ class Jobs(unittest.TestCase):
         self.assertGreater(len(counted), 1)  # every copy of a counted host
         self.assertEqual(tfvars["crucible_guests"], [record.allocation.sites[0].edge] + counted)
         self.assertNotIn(record.allocation.sites[1].edge, tfvars["crucible_guests"])
-        self.assertIn("guests join the base's Crucible team team-1", self.log(job))
+        self.assertIn("guests join the core's Crucible team team-1", self.log(job))
         destroy = self.destroy(iid)
         self.assertEqual(destroy.state, "succeeded", self.log(destroy))
         destroys = [c["args"] for c in self.checkout.calls("terraform") if c["module"] == "slice" and c["args"][0] == "destroy"]

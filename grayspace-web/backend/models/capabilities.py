@@ -56,7 +56,7 @@ class DnsServer(BaseModel):
 
 
 class DnsCapabilities(BaseModel):
-    tlds: List[str] = Field(..., description="Top-level domains served by the base's TLD servers")
+    tlds: List[str] = Field(..., description="Top-level domains served by the core's TLD servers")
     hosting: List[DnsServer] = Field(..., description="Servers that can host a slice's zones, e.g. dns-cloudflare")
     resolvers: List[DnsServer]
 
@@ -83,18 +83,18 @@ class Capacity(BaseModel):
     cpu_usage: Optional[float] = Field(..., description="Fraction of CPU in use, 0 to 1")
     memory_total: Optional[int] = Field(..., description="Bytes")
     memory_free: Optional[int] = Field(..., description="Bytes the node can give guests: Proxmox's available memory (free plus reclaimable cache), or free where it doesn't report available")
-    storage: Optional[str] = Field(None, description="The block storage slice and base disks use (TF_VAR_proxmox_blockstore)")
+    storage: Optional[str] = Field(None, description="The block storage slice and core disks use (TF_VAR_proxmox_blockstore)")
     storage_total: Optional[int] = Field(None, description="Bytes")
     storage_free: Optional[int] = Field(None, description="Bytes")
 
 
 class Capabilities(BaseModel):
-    """What a slice can use on a base version."""
+    """What a slice can use on a core version."""
 
     base: BaseVersionRef
     images: List[Image] = Field(..., description="The image catalog slice hosts can use")
     roles: List[Role] = Field(..., description="Roles enclave hosts can take")
-    host_features: List[HostFeature] = Field(default_factory=list, description="Deprecated (contract 1.18): features of base "
+    host_features: List[HostFeature] = Field(default_factory=list, description="Deprecated (contract 1.18): features of core "
                                              "clients, which were retired; always empty. An enclave image's are its `features`",
                                              deprecated=True)
     enclave_features: List[str] = Field(
@@ -103,10 +103,10 @@ class Capabilities(BaseModel):
     )
     slice_features: List[str] = Field(..., description="Deprecated (contract 1.5): the same as enclave_features", deprecated=True)
     jobs: bool = Field(
-        ..., description="Whether this GraySpace can run slice jobs (plan, create and destroy instances). False where there is no GraySpace checkout or no deployed base"
+        ..., description="Whether this GraySpace can run slice jobs (plan, create and destroy instances). False where there is no GraySpace checkout or no deployed core"
     )
     jobs_unavailable_reason: Optional[str] = None
-    base_jobs: bool = Field(False, description="Whether this GraySpace can deploy, configure and destroy the base")
+    base_jobs: bool = Field(False, description="Whether this GraySpace can deploy, configure and destroy the core")
     crucible: bool = Field(
         False, description="Whether the deployment has a Crucible Player view (its Player step decides which guests; crucible: true pre-assigns a host or site to its default team)"
     )
@@ -122,7 +122,7 @@ class Capabilities(BaseModel):
 
 class AddressSpace(BaseModel):
     public_block: str
-    free_addresses: int = Field(..., description="Addresses in the block not used by any link, loopback or network in the base")
+    free_addresses: int = Field(..., description="Addresses in the block not used by any link, loopback or network in the core")
     largest_free_prefix: Optional[str]
 
 
@@ -137,7 +137,7 @@ class AttachmentPoint(BaseModel):
     longitude: Optional[float]
     customer_net: str = Field(..., description="The router's customer network, which slice edges and internet hosts join")
     free_static_addresses: int = Field(
-        ..., description="Free static addresses on the customer network (.2 up to the DHCP start), less the base's and live instances'. A site takes one, plus one per published host"
+        ..., description="Free static addresses on the customer network (.2 up to the DHCP start), less the core's and live instances'. A site takes one, plus one per published host"
     )
     address_space: AddressSpace = Field(..., description="Free space in the ISP's public block, from which routed sites get their /24")
 

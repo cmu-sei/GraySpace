@@ -1,4 +1,4 @@
-# Internet hosts: a news outlet on GHOSTS Pandora and a company site, placed directly on base
+# Internet hosts: a news outlet on GHOSTS Pandora and a company site, placed directly on core
 # routers' customer networks, outside any site, with DNS names and GrayTrust certificates. A
 # small reader site browses them by name over TLS.
 apiVersion: grayspace/v1

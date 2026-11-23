@@ -132,7 +132,7 @@ You will need to do several things depending on your infrastructure and which pa
 
 ### Define deployment scope
 
-Terraform and Ansible depend on variables generated from a base version's topology CSVs under `bases/` (see the [graph data model](graph_model.md)). This allows for multiple deployment scopes, depending on which part of the topology is included.
+Terraform and Ansible depend on variables generated from a core version's topology CSVs under `bases/` (see the [graph data model](graph_model.md)). This allows for multiple deployment scopes, depending on which part of the topology is included.
 
 Supported scopes:
 
@@ -168,7 +168,7 @@ Two settings concern the web application and GHOSTS:
   container); change it at first sign-in. People sign in with their own accounts, which an admin
   creates (see [Deployments](deployments.md#sign-in)).
 
-The base has no GHOSTS VM: GHOSTS runs outside the simulated internet, and enclave hosts run its
+The core has no GHOSTS VM: GHOSTS runs outside the simulated internet, and enclave hosts run its
 clients (the `ghosts-client` role), which report to it over the management network.
 
 `TF_VAR_environment_id` must be at most 4 characters: slice vnet IDs append 4 to it, and Proxmox
@@ -215,11 +215,11 @@ docker compose -f container/compose.yaml up -d --build
 
 The UI is on port 8080 (`GRAYSPACE_PORT` changes it), with the API under `/api/v1`. The container runs several deployments ([Deployments](deployments.md)): the one the environment file describes is the default, at `/data/work`, and each deployment's API is under `/deployments/<id>/api/v1`. Set `TF_VAR_grayspace_url` to the container's address. The environment file also sets `GRAYSPACE_API_TOKEN`, without which the API refuses protected routes, and, if the GHOSTS frontend calls the API from a browser, `GRAYSPACE_CORS_ORIGINS`. On first start its Proxmox settings (and Crucible settings, with `TF_VAR_configure_crucible=true`) become the web app's first connections, named `site`; from then on admins manage connections in Admin > Platform, and new deployments choose one ([Platform connections](deployments.md#platform-connections)).
 
-Everything that has to survive an upgrade lives on the `grayspace-data` volume, mounted at `/data`: Terraform state, the SSH keys Terraform generates, the generated tfvars and inventory, the base presets (`/data/deployments/presets`), the platform's connections (`/data/deployments/platform.json`), the slice and image Terraform state and inputs (`terraform/slice/`, `terraform/images/`, `ansible/slice-inventory/`), and the API's slices, instances and jobs (`terraform/grayspace-data/`). Deployments made through the API have the same in `/data/deployments/<id>/work`. On every start the container copies the image's code over `/data/work` and leaves those alone, so upgrading is `git pull` and the same `up -d --build`. Terraform state includes the router password and the SSH keys, so back the volume up and restrict who can read it.
+Everything that has to survive an upgrade lives on the `grayspace-data` volume, mounted at `/data`: Terraform state, the SSH keys Terraform generates, the generated tfvars and inventory, the core presets (`/data/deployments/presets`), the platform's connections (`/data/deployments/platform.json`), the slice and image Terraform state and inputs (`terraform/slice/`, `terraform/images/`, `ansible/slice-inventory/`), and the API's slices, instances and jobs (`terraform/grayspace-data/`). Deployments made through the API have the same in `/data/deployments/<id>/work`. On every start the container copies the image's code over `/data/work` and leaves those alone, so upgrading is `git pull` and the same `up -d --build`. Terraform state includes the router password and the SSH keys, so back the volume up and restrict who can read it.
 
 ### Operate it
 
-Everything can go through the API, documented at `/api/docs` on the container's port (Swagger; Authorize with `GRAYSPACE_API_TOKEN`) and in [Terrain API](api.md), from nothing deployed to a base and slices: `GET /api/v1/base/preflight` says whether the site is ready, `POST /api/v1/base/deploy {"version": "grayspace/2026.11", "scope": "tier1"}` deploys it as a job, and `DELETE /api/v1/base` tears it down. Or run the usual tasks inside the container:
+Everything can go through the API, documented at `/api/docs` on the container's port (Swagger; Authorize with `GRAYSPACE_API_TOKEN`) and in [Terrain API](api.md), from nothing deployed to a core and slices: `GET /api/v1/base/preflight` says whether the site is ready, `POST /api/v1/base/deploy {"version": "grayspace/2026.11", "scope": "tier1"}` deploys it as a job, and `DELETE /api/v1/base` tears it down. Or run the usual tasks inside the container:
 
 ```bash
 docker compose -f container/compose.yaml exec grayspace task parse

@@ -18,10 +18,10 @@ def _target(version: Optional[str], scope: Scope):
     resolved = base_versions.resolve(version)
     if resolved is None:
         if version is not None:
-            raise HTTPException(status_code=404, detail=f"No shipped base version '{version}'")
+            raise HTTPException(status_code=404, detail=f"No shipped core version '{version}'")
         raise HTTPException(
             status_code=409,
-            detail="The deployed base version is unknown or not a shipped version; name one with ?version=",
+            detail="The deployed core version is unknown or not a shipped version; name one with ?version=",
         )
     if scope is None:
         deployed = topology_service.tfvars_data.get("base") or {}
@@ -37,11 +37,11 @@ def _is_deployed(directory) -> bool:
 
 @router.get("/capabilities", response_model=Capabilities)
 async def get_capabilities(
-    version: Optional[str] = Query(None, description="A shipped base version; defaults to the deployed one"),
+    version: Optional[str] = Query(None, description="A shipped core version; defaults to the deployed one"),
     scope: Scope = Query(None, description="Defaults to the deployed scope, or full when a version is named"),
 ):
     """
-    What a slice can use on a base version: the image catalog and roles, the slice features this
+    What a slice can use on a core version: the image catalog and roles, the slice features this
     GraySpace builds, whether it can run jobs, the management subnet and slice pool, DNS (TLDs,
     hosting servers, resolvers), CAs, ISPs and their locations, and the Proxmox node's capacity
     (CPU, memory and the block storage).
@@ -54,7 +54,7 @@ async def get_capabilities(
 async def get_attachment_points(
     isp: Optional[str] = Query(None, description="Only routers of this ISP"),
     location: Optional[str] = Query(None, description="Only routers in this location, e.g. Chicago"),
-    version: Optional[str] = Query(None, description="A shipped base version; defaults to the deployed one"),
+    version: Optional[str] = Query(None, description="A shipped core version; defaults to the deployed one"),
     scope: Scope = Query(None, description="Defaults to the deployed scope, or full when a version is named"),
 ):
     """

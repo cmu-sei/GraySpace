@@ -9,10 +9,10 @@ from models.slices import PREFIX
 
 
 class DraftBase(BaseModel):
-    version: str = Field(..., description="A shipped base version, e.g. grayspace/2026.11 (GET /base/versions)")
+    version: str = Field(..., description="A shipped core version, e.g. grayspace/2026.11 (GET /base/versions)")
     scope: Literal["full", "tier1"] = "full"
     configure: bool = Field(True, description="Run Ansible after the apply")
-    preset: Optional[str] = Field(None, description="A base preset of the version (GET /base/presets?base=), applied after the base; "
+    preset: Optional[str] = Field(None, description="A core preset of the version (GET /base/presets?base=), applied after the core; "
                                   "null leaves the runtime changes as they are")
 
 
@@ -41,16 +41,16 @@ class PlayerTeam(BaseModel):
 
 class PlayerGuest(BaseModel):
     """A VM and the teams that see it."""
-    instance: Optional[str] = Field(None, description="An enclave instance of the draft (its prefix); null for a base guest")
-    name: str = Field(..., description="A base hostname (lum-chi, prometheus), or an enclave host or site as its spec names it; "
+    instance: Optional[str] = Field(None, description="An enclave instance of the draft (its prefix); null for a core guest")
+    name: str = Field(..., description="A core hostname (lum-chi, prometheus), or an enclave host or site as its spec names it; "
                       "a counted host is every copy")
     site: bool = Field(False, description="name is a site: its edge router")
     teams: List[str] = Field(default_factory=list, description="Empty: not in the view, even if the spec marks it crucible: true")
 
 
 class PlayerRule(BaseModel):
-    """Teams for a whole part of the deployment: every base guest, or every site and host of an enclave instance."""
-    scope: str = Field(..., pattern=r"^(base|enclave:[a-z][a-z0-9]{0,7})$", description="base, or enclave:<prefix> (a draft enclave instance)")
+    """Teams for a whole part of the deployment: every core guest, or every site and host of an enclave instance."""
+    scope: str = Field(..., pattern=r"^(base|enclave:[a-z][a-z0-9]{0,7})$", description="base (the core's guests), or enclave:<prefix> (a draft enclave instance)")
     teams: List[str] = Field(default_factory=list)
 
 
@@ -63,13 +63,13 @@ class DraftPlayer(BaseModel):
     teams: List[PlayerTeam] = Field(..., min_length=1)
     default_team: Optional[str] = Field(None, description="Where hosts and sites an enclave spec marks crucible: true go unless "
                                         "guests says otherwise; the first team when unset")
-    assign: List[PlayerRule] = Field(default_factory=list, description="Teams for every guest of the base or of an enclave instance. "
+    assign: List[PlayerRule] = Field(default_factory=list, description="Teams for every guest of the core or of an enclave instance. "
                                      "A guest in guests has the teams it names instead; an enclave's crucible: true hints add the default team")
     guests: List[PlayerGuest] = Field(default_factory=list, description="Guests whose teams differ from what assign gives them")
 
 
 class DraftUpdate(BaseModel):
-    base: Optional[DraftBase] = Field(None, description="Null: keep the deployed base, or deploy none")
+    base: Optional[DraftBase] = Field(None, description="Null: keep the deployed core, or deploy none")
     enclaves: List[DraftEnclave] = Field(default_factory=list, description="The instances the deployment should have")
     player: Optional[DraftPlayer] = Field(None, description="The Player view; null for none (removed if there is one)")
 
@@ -86,8 +86,8 @@ class PlannedBase(BaseModel):
     version: Optional[str] = None
     scope: Optional[str] = None
     configure: bool = True
-    preset: Optional[str] = Field(None, description="The base preset the rollout applies")
-    active_preset: Optional[str] = Field(None, description="The base preset applied now")
+    preset: Optional[str] = Field(None, description="The core preset the rollout applies")
+    active_preset: Optional[str] = Field(None, description="The core preset applied now")
 
 
 class PlannedInstance(BaseModel):
@@ -113,7 +113,7 @@ class DeployPlan(BaseModel):
     instances: List[PlannedInstance]
     unmanaged: List[str] = Field(default_factory=list, description="Live instances made outside the draft (by GHOSTS, the API): left alone")
     problems: List[str] = Field(default_factory=list, description="Why the draft can't be deployed as it is")
-    stages: List[str] = Field(default_factory=list, description="The rollout's stages, in order: destroys, the base and its preset "
+    stages: List[str] = Field(default_factory=list, description="The rollout's stages, in order: destroys, the core (base) and its preset "
                               "(preset), creates, then the Player view (player); a view being removed goes first")
     changes: bool = Field(..., description="Whether deploying would change anything")
     capacity: Optional[Capacity] = Field(None, description="The Proxmox node's headroom now; null when Proxmox is unavailable")

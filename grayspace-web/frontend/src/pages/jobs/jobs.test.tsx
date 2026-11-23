@@ -165,7 +165,7 @@ describe('a job', () => {
   it("lists a rollout's steps and the jobs that ran them", async () => {
     const child = job({ id: 'c1', kind: 'deploy_base', target: 'base', state: 'succeeded', stages: ['parse'], stage: 'parse', parent: 'r1' });
     renderDetail(job({ id: 'r1', kind: 'rollout', target: 'deployment', stages: ['base', 'create:mb'], stage: 'create:mb', children: ['c1'],
-      result: { children: { base: 'c1' } }, stage_titles: { base: 'Deploy or update the base', 'create:mb': 'Create instance mb' } }), true, [child]);
+      result: { children: { base: 'c1' } }, stage_titles: { base: 'Deploy or update the core', 'create:mb': 'Create instance mb' } }), true, [child]);
     expect(await screen.findByText('Create instance mb')).toBeInTheDocument();
     expect(await screen.findByText('waiting')).toBeInTheDocument();
     expect(screen.getByText('succeeded')).toBeInTheDocument();
@@ -227,7 +227,7 @@ describe("the overview's base details", () => {
 describe('a rollout', () => {
   it("shows the steps it runs itself as its own", async () => {
     renderDetail(job({ id: 'r2', kind: 'rollout', target: 'deployment', state: 'succeeded', stages: ['preset', 'player'], stage: 'player', children: [],
-      result: { children: {} }, stage_titles: { preset: 'Apply the base preset', player: 'Apply the Player view' } }), true, []);
+      result: { children: {} }, stage_titles: { preset: 'Apply the core preset', player: 'Apply the Player view' } }), true, []);
     expect(await screen.findByText('Apply the Player view')).toBeInTheDocument();
     expect(screen.queryByText('waiting')).not.toBeInTheDocument();
   });

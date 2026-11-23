@@ -131,5 +131,5 @@ def not_shipped(name: str) -> str:
     """Why a version name can't be used: there's no such version, or it was retired."""
     successor = RETIRED.get(name)
     if successor:
-        return f"Base version '{name}' was retired: hosts at the edge are enclaves now; {successor} replaces it"
-    return f"No shipped base version '{name}'"
+        return f"Core version '{name}' was retired: hosts at the edge are enclaves now; {successor} replaces it"
+    return f"No shipped core version '{name}'"

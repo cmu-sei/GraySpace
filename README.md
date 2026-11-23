@@ -31,9 +31,9 @@ Supported infrastructure:
 - **DNS infrastructure** — full delegation chain (root, TLD, hosting, resolver) with dynamic domain creation
 - **Certificate Authorities** — 4 independent CAs (step-ca) for issuing SSL/TLS certificates
 - **Desktops** — browser-accessible Fluxbox desktops via noVNC for exercise participants, as enclave hosts (`grayspace-desktop`)
-- **Presets** — save runtime changes (traffic shaping, DNS, enclave actions) as named presets of a base version or an enclave, apply them from the map or the build
+- **Presets** — save runtime changes (traffic shaping, DNS, enclave actions) as named presets of a core version or an enclave, apply them from the map or the build
 - **Traffic shaping** — configurable bandwidth and latency on any link
-- **Slices** — enterprise sites, internet hosts, DNS names and certificates built at the edge of the base from a spec, by the CLI, the web UI or GHOSTS through the [Terrain API](openapi/grayspace-v1.json) ([docs](docs/slices.md))
+- **Slices** — enterprise sites, internet hosts, DNS names and certificates built at the edge of the core from a spec, by the CLI, the web UI or GHOSTS through the [Terrain API](openapi/grayspace-v1.json) ([docs](docs/slices.md))
 
 ### Getting Started
 
@@ -73,7 +73,7 @@ Topology CSVs     -->  generate_tfvars.py  -->  terraform.tfvars.json
 
 ### Key Paths
 
-- `bases/` — Shipped base versions: topology CSVs for routers, ISPs, connections, services
+- `bases/` — Shipped core versions: topology CSVs for routers, ISPs, connections, services
 - `terraform/` — Infrastructure as code
 - `ansible/` — Configuration management
 - `grayspace-web/` — Web management application (FastAPI backend + React frontend) and the Terrain API

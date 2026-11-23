@@ -77,24 +77,24 @@ class FromNothing(Simulated):
         self.assertEqual(store.get_instance("mb").state, "ready")
         self.assertFalse(rollout.plan().changes)
         self.assertEqual(rollout.managed(), {"mb"})
-        self.assertEqual(job.stage_titles, {"base": "Deploy the base", "create:mb": "Create enclave mb"})
+        self.assertEqual(job.stage_titles, {"base": "Deploy the core", "create:mb": "Create enclave mb"})
 
     def test_enclaves_need_a_base(self):
         rollout.put_draft(DraftUpdate(enclaves=[DraftEnclave(slug="meridian-bank", prefix="mb")]))
-        self.assertEqual(rollout.plan().problems, ["Nothing is deployed: choose a base version"])
+        self.assertEqual(rollout.plan().problems, ["Nothing is deployed: choose a core version"])
 
     def test_the_draft_is_checked(self):
         with self.assertRaises(rollout.DraftError) as e:
             rollout.put_draft(DraftUpdate(base=DraftBase(version="nope/1"), enclaves=[DraftEnclave(slug="nope", prefix="a"),
                                                                                       DraftEnclave(slug="meridian-bank", prefix="a")]))
-        self.assertIn("No shipped base version 'nope/1'", e.exception.detail)
+        self.assertIn("No shipped core version 'nope/1'", e.exception.detail)
         self.assertIn("No enclave 'nope'", e.exception.detail)
         self.assertIn("Prefix 'a' is used twice", e.exception.detail)
 
     def test_a_retired_version_says_what_replaces_it(self):
         with self.assertRaises(rollout.DraftError) as e:
             rollout.put_draft(DraftUpdate(base=DraftBase(version="grayspace/2026.10")))
-        self.assertIn("Base version 'grayspace/2026.10' was retired", e.exception.detail)
+        self.assertIn("Core version 'grayspace/2026.10' was retired", e.exception.detail)
         self.assertIn("grayspace/2026.11 replaces it", e.exception.detail)
 
     def test_a_failed_child_stops_the_rollout_and_its_retry_resumes_there(self):

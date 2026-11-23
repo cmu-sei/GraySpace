@@ -86,7 +86,7 @@ class Availability(Checkout):
         self.assertEqual(environment.base_jobs_available(), (True, None))
         available, why = environment.jobs_available()
         self.assertFalse(available)
-        self.assertIn("deploy the base first", why)
+        self.assertIn("deploy the core first", why)
 
     def test_slice_jobs_become_available_without_a_restart(self):
         key = self.checkout.root / ".ssh" / "terraform_key.pub"
@@ -185,7 +185,7 @@ class Deploy(Checkout):
                                                 bgp=BgpHealth(total=4, established=3))
         job, done = self.deploy()
         self.assertEqual(done.state, "succeeded")
-        self.assertIn("WARNING: the base is degraded", self.log(job))
+        self.assertIn("WARNING: the core is degraded", self.log(job))
 
     def test_preflight_errors_fail_the_job(self):
         failing = Preflight(ready=False, checks=[PreflightCheck(name="bridges", status="error", message="Bridge 'vmbr9' isn't on the node")])

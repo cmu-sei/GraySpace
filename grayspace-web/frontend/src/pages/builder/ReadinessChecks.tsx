@@ -21,7 +21,7 @@ interface Group {
 }
 
 export const GROUPS: Group[] = [
-  { key: 'base', label: 'Base version', names: ['version', 'instances'] },
+  { key: 'base', label: 'Core version', names: ['version', 'instances'] },
   { key: 'proxmox', label: 'Proxmox', names: ['proxmox', 'storage', 'bridges', 'sdn', 'capacity', 'ssh', 'environment-id'], platform: true },
   { key: 'crucible', label: 'Crucible', names: ['crucible'], platform: true },
   { key: 'server', label: 'GraySpace server', names: [], quiet: true, platform: true },
