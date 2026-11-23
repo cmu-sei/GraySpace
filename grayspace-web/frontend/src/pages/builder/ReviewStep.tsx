@@ -75,7 +75,7 @@ export const ReviewStep: React.FC<{ b: Builder; deploymentId: string; canBuild: 
 
   const running = rollout && !isFinished(rollout);
   // The plan is the worker's answer now; the deployments list can lag a rollout that just ended
-  const live = plan ? Boolean(plan.base.deployed) : listedLive;
+  const live = plan ? Boolean(plan.core.deployed) : listedLive;
   const creates = plan?.instances.filter((i) => i.action === 'create' || i.action === 'replace').length ?? 0;
   const label = live ? 'Apply changes' : `Deploy the core${creates ? ` and ${creates} enclave${creates === 1 ? '' : 's'}` : ''}`;
   const cap = plan?.capacity;
@@ -94,11 +94,11 @@ export const ReviewStep: React.FC<{ b: Builder; deploymentId: string; canBuild: 
             <table className="gs-table">
               <tbody>
                 <tr>
-                  <td style={{ width: 110 }}><span className={`gs-pill ${ACTION[plan.base.action][0]}`}>{ACTION[plan.base.action][1]}</span></td>
-                  <td>Core {plan.base.version || plan.base.deployed?.name}{(plan.base.scope || plan.base.deployed?.scope) ? ` · ${plan.base.scope || plan.base.deployed?.scope}` : ''}</td>
+                  <td style={{ width: 110 }}><span className={`gs-pill ${ACTION[plan.core.action][0]}`}>{ACTION[plan.core.action][1]}</span></td>
+                  <td>Core {plan.core.version || plan.core.deployed?.name}{(plan.core.scope || plan.core.deployed?.scope) ? ` · ${plan.core.scope || plan.core.deployed?.scope}` : ''}</td>
                   <td className="gs-muted">
-                    {plan.base.action === 'update' && plan.base.deployed ? `from ${plan.base.deployed.name} · ${plan.base.deployed.scope}` : plan.base.action !== 'none' && !plan.base.configure ? 'without configure' : ''}
-                    {plan.stages.includes('preset') && <div>apply preset {plan.base.preset}{plan.base.active_preset && plan.base.active_preset !== plan.base.preset ? ` (now ${plan.base.active_preset})` : ''}</div>}
+                    {plan.core.action === 'update' && plan.core.deployed ? `from ${plan.core.deployed.name} · ${plan.core.deployed.scope}` : plan.core.action !== 'none' && !plan.core.configure ? 'without configure' : ''}
+                    {plan.stages.includes('preset') && <div>apply preset {plan.core.preset}{plan.core.active_preset && plan.core.active_preset !== plan.core.preset ? ` (now ${plan.core.active_preset})` : ''}</div>}
                   </td>
                 </tr>
                 {plan.player && (plan.player.action !== 'none' || plan.player.view) && (

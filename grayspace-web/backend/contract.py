@@ -48,7 +48,7 @@ SLICE_SCHEMA = OPENAPI / "grayspace-slice-v1.json"
 EVENTS_SCHEMA = OPENAPI / "grayspace-events-v1.json"
 DEPLOYMENT_EVENTS_SCHEMA = OPENAPI / "grayspace-deployments-events-v1.json"
 
-ROUTERS = [base.router, rollout.router, player.router, capabilities.router, slices.router, slices.legacy_router, instances.router, jobs.router, images.router,
+ROUTERS = [base.router, base.legacy_router, rollout.router, player.router, capabilities.router, slices.router, slices.legacy_router, instances.router, jobs.router, images.router,
            map_router.router, ca_bundle.router, deployments.router, accounts.auth_router, accounts.me_router, accounts.users_router,
            accounts.admin_router, platform_api.router]
 # The control plane's own routes, at the server's root rather than under a deployment
@@ -69,7 +69,7 @@ configured and destroyed through the API too.
 
 One GraySpace runs several deployments, each a core and the enclaves on it. `GET /api/v1/deployments` lists them;
 every other route is a deployment's, under its base URL `/deployments/{deployment}` (so the core is
-`/deployments/abc/api/v1/base`). Without the prefix, a route reaches the default deployment: that alias is
+`/deployments/abc/api/v1/core`). Without the prefix, a route reaches the default deployment: that alias is
 deprecated. A client such as GHOSTS takes the deployment's base URL as its GraySpace address.
 
 Every route needs a bearer token, sent as `Authorization: Bearer <token>`: the server's service token
@@ -84,14 +84,14 @@ being created, changed and removed over `/api/v1/deployments/events` (`grayspace
 
 0. `POST /api/v1/deployments` with `{"id": "abd"}` (at the server's root), unless the deployment exists. It runs on the
    default Proxmox connection; `placement` chooses another, or another node (`GET /api/v1/platform`).
-1. `GET /api/v1/base/preflight?version=grayspace/2026.11&scope=tier1`: is the site ready? Fix every `error`.
-2. `POST /api/v1/base/deploy` with `{"version": "grayspace/2026.11", "scope": "tier1"}`: returns a job.
-3. `GET /api/v1/jobs/{id}` (or its streamed `/log`, or `/events`) until it succeeds; then `GET /api/v1/base` is `healthy`.
+1. `GET /api/v1/core/preflight?version=grayspace/2026.11&scope=tier1`: is the site ready? Fix every `error`.
+2. `POST /api/v1/core/deploy` with `{"version": "grayspace/2026.11", "scope": "tier1"}`: returns a job.
+3. `GET /api/v1/jobs/{id}` (or its streamed `/log`, or `/events`) until it succeeds; then `GET /api/v1/core` is `healthy`.
 4. `PUT /api/v1/enclaves/{slug}` with an enclave spec (`grayspace-enclave-v1.json`); fix any error findings.
 5. `POST /api/v1/instances` with `{"enclave": "<slug>"}`: returns a job; when it succeeds, `GET /api/v1/instances/{id}` is the manifest.
 
 Or in one job: `PUT /api/v1/draft` with the core and the enclave instances the deployment should have
-(`{"base": {"version": "grayspace/2026.11", "scope": "tier1"}, "enclaves": [{"slug": "<slug>", "prefix": "bk"}]}`),
+(`{"core": {"version": "grayspace/2026.11", "scope": "tier1"}, "enclaves": [{"slug": "<slug>", "prefix": "bk"}]}`),
 `GET /api/v1/deploy/plan` to see what would change, then `POST /api/v1/deploy`: a rollout job that destroys what the
 draft no longer has, deploys or updates the core, and creates the instances, each as a child job (`GET /api/v1/jobs?parent={id}`).
 Change the draft and deploy again to change the deployment. Since 1.8 the draft's core may name a
@@ -107,7 +107,7 @@ lists it, and a draft's Player guest that names it is dropped (since 1.17 withou
 Since 1.14 `GET /api/v1/player` has the view's `url` in Player's UI.
 Since 1.15 the draft's `player.assign` gives every guest of the core or of an enclave instance to teams; `player.guests`
 lists the guests whose teams differ.
-Since 1.16 `GET /api/v1/base/preview` is a shipped version's map before it is deployed, and a Crucible connection may
+Since 1.16 `GET /api/v1/core/preview` (then `/api/v1/base/preview`) is a shipped version's map before it is deployed, and a Crucible connection may
 set `player_url`, Player's UI when it isn't the Player API URL without /api.
 Since 1.18 the core has no clients: a core version is ISPs, routers, links, DNS servers and CAs, and hosts on the
 simulated internet are enclaves (`grayspace/2026.11`; `grayspace/2026.10` is retired). The inventory's `clients`, a
@@ -134,8 +134,15 @@ Since 1.25 the core has no GHOSTS VM: enclave hosts run GHOSTS clients (the `gho
 GHOSTS server outside the simulated internet. A deployment's `options.deploy_ghosts` is deprecated and ignored,
 `GET /api/v1/player/guests` no longer lists `ghosts`, a draft's Player guest that names it is dropped without a warning,
 and the core preflight has no `ghosts-vm` check.
+Since 1.26 the base is called the core. Its routes are at `/api/v1/core` (`/api/v1/core/presets` and `/actions` too), and
+`/api/v1/base` is their deprecated alias. Responses name it `core` as well as `base`: a draft's and a plan's `core`,
+a deployment's `core` and its summary's `last_core_job`, a manifest's `core`, capabilities' `core`, `core_jobs` and
+`core_jobs_unavailable_reason`, and the Player guests' `core`. A draft takes `core` or `base` (both, only if they are the same),
+and enclave validation and presets `?core=` or `?base=`. The `base` names are deprecated and go in 2.0. Values keep their
+names until then: the `base` rollout stage, job kinds such as `deploy_base`, a job's `base` target, the `base` Player
+scope and DNS origin, and the `base` enclave.
 
-Tear down in reverse: `DELETE /api/v1/instances/{id}`, then `DELETE /api/v1/base`. Long-running work is always a
+Tear down in reverse: `DELETE /api/v1/instances/{id}`, then `DELETE /api/v1/core`. Long-running work is always a
 job: poll it, read its log, cancel it, or retry it from the stage that failed."""
 
 TAGS = [
@@ -145,7 +152,7 @@ TAGS = [
     {"name": "users", "description": "Local accounts: create, change role, disable, reset a password (admins). At the server's root"},
     {"name": "admin", "description": "The audit log and the Proxmox nodes (admins). At the server's root"},
     {"name": "platform", "description": "The Proxmox and Crucible connections deployments run on, defined once by admins. At the server's root"},
-    {"name": "base", "description": "The deployed core: version, health, inventory, DNS and shipped versions; "
+    {"name": "core", "description": "The deployed core: version, health, inventory, DNS and shipped versions; "
      "and its lifecycle as jobs: preflight, deploy, configure, destroy"},
     {"name": "rollout", "description": "The draft (the core and enclave instances a deployment should have) and the rollout job "
      "that makes the deployment match it"},
@@ -157,6 +164,7 @@ TAGS = [
     {"name": "images", "description": "The image catalog and the roles slice hosts can take"},
     {"name": "map", "description": "The map layer as GeoJSON, for any map renderer"},
     {"name": "ca", "description": "The core CAs' root certificates"},
+    {"name": "base (deprecated)", "description": "The core routes under their name before 1.26, when the core was the base. Removed in 2.0"},
     {"name": "slices (deprecated)", "description": "The enclave routes under their 1.4 name, for existing clients. Removed in 2.0"},
 ]
 
@@ -165,7 +173,7 @@ def contract_app() -> FastAPI:
     app = FastAPI(
         title="GraySpace Terrain API",
         description=DESCRIPTION,
-        version="1.25.0",
+        version="1.26.0",
         openapi_tags=TAGS,
         servers=SERVERS,
     )

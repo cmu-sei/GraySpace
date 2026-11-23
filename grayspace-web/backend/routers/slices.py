@@ -88,15 +88,17 @@ async def delete_slice(slug: str):
 
 @routes.post("/{slug}/validate", response_model=ValidateResult)
 async def validate_slice(slug: str, spec: SliceSpec = Body(...),
-                         base: Optional[str] = Query(None, description="A shipped core version to check against instead of the deployed one, "
+                         core: Optional[str] = Query(None, description="A shipped core version to check against instead of the deployed one, "
                                                      "e.g. grayspace/2026.11: for a deployment still being built (its draft's core)"),
-                         scope: Literal["full", "tier1"] = Query("full", description="With `base`: its scope"),
+                         base: Optional[str] = Query(None, description="Deprecated (contract 1.26): the same as `core`", deprecated=True),
+                         scope: Literal["full", "tier1"] = Query("full", description="With `core`: its scope"),
                          instance: Optional[str] = Query(None, pattern=PREFIX, description="Check it as this instance (a draft's prefix): "
                                                          "with that prefix, and when that instance is live and of this enclave, "
                                                          "what it holds is its own")):
     """Findings for a spec against the deployed core, live instances and the node's capacity; or,
-    with `base`, against that shipped version as it would deploy. Nothing is stored."""
+    with `core`, against that shipped version as it would deploy. Nothing is stored."""
     _check_slug(slug, spec)
+    base = core or base
     if base:
         try:
             _, findings = await service.validate_on(spec, base, scope, prefix=instance, instance=instance)

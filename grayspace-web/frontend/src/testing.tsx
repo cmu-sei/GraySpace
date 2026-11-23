@@ -47,6 +47,6 @@ export const PLATFORM = {
 export const deployment = (id: string, extra: Partial<Deployment> = {}): Deployment => ({
   id, name: id, description: '', kind: 'managed', default: false, created: '2026-11-10T00:00:00+00:00', url: `/deployments/${id}`,
   proxmox: {}, options: {}, secrets: [], worker: { state: 'running', restarts: 0 },
-  base: { status: 'not_deployed' }, summary: { instances_live: 0, instances_failed: 0 }, owner: 'builder', members: [],
+  core: { status: 'not_deployed' }, summary: { instances_live: 0, instances_failed: 0 }, owner: 'builder', members: [],
   my_access: ['read', 'operate', 'build', 'members:manage', 'delete'], warnings: [], ...extra,
 });

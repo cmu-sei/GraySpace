@@ -176,7 +176,7 @@ describe('the overview', () => {
   const base = { version: { name: 'grayspace/2026.11', csv_sha256: 'x', scope: 'full' }, status: 'degraded',
     routers: { expected: 134, running: 133, not_running: ['lum-chi'] }, bgp: { total: 10, established: 9, not_established: [{ router: 'ntt-tok', peer_address: '1.2.3.4', state: 'down' }] } };
   const serve = () => fakeServer((url) => {
-    if (url.endsWith('/api/v1/base')) return { body: base };
+    if (url.endsWith('/api/v1/core')) return { body: base };
     if (url.endsWith('/api/v1/instances')) return { body: [] };
     if (url.includes('/api/v1/jobs')) return { body: [] };
     return undefined;
@@ -209,7 +209,7 @@ describe("the overview's base details", () => {
   it('break the base down by ISP, and list its core services', async () => {
     const base = { version: { name: 'grayspace/2026.11', csv_sha256: 'x', scope: 'full' }, status: 'degraded',
       routers: { expected: 2, running: 1, not_running: ['lum-chi'] }, bgp: { total: 2, established: 1, not_established: [{ router: 'ntt-tok', peer_address: '1.2.3.4', state: 'down' }] } };
-    fakeServer((url) => (url.endsWith('/api/v1/base') ? { body: base } : url.endsWith('/api/v1/instances') || url.includes('/api/v1/jobs') ? { body: [] } : undefined));
+    fakeServer((url) => (url.endsWith('/api/v1/core') ? { body: base } : url.endsWith('/api/v1/instances') || url.includes('/api/v1/jobs') ? { body: [] } : undefined));
     const store = useTopologyStore.getState();
     store.setISPs([{ name: 'Lumen', asn: 3356, public_block: '' }, { name: 'NTT', asn: 2914, public_block: '' }]);
     store.setRouters([{ hostname: 'lum-chi', isp_name: 'Lumen' }, { hostname: 'ntt-tok', isp_name: 'NTT' }] as never);

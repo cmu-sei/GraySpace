@@ -42,7 +42,7 @@ const groupsOf = (c: PlayerCandidates | null): Group[] => {
   if (!c) return [];
   const out: Group[] = [];
   const byKey: Record<string, Group> = {};
-  for (const g of c.base) {
+  for (const g of c.core) {
     const split = g.group === 'routers';
     const key = `base:${g.group}:${split ? g.isp ?? '' : ''}`;
     if (!byKey[key]) {
@@ -116,7 +116,7 @@ export const PlayerStep: React.FC<{ b: Builder; readOnly: boolean }> = ({ b, rea
   // for a base guest the base no longer has (nobody could untick it here)
   const tidy = (entries: PlayerGuest[], rules: PlayerRule[]) => entries.filter((g) => {
     const r = rows.get(rowKey(g.instance, g.name, g.site));
-    if (!r) return Boolean(g.instance) || !candidates?.base.length;
+    if (!r) return Boolean(g.instance) || !candidates?.core.length;
     return !sameTeams(g.teams, implied(r, rules));
   });
   const setTeams = (list: Row[], team: string, on: boolean) => {

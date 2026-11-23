@@ -1,7 +1,7 @@
 """The deployments resource (/api/v1/deployments)."""
 from typing import Any, Dict, List, Literal, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 
 ID_PATTERN = r"^[a-z][a-z0-9]{0,3}$"
 CONNECTION_ID = r"^[a-z][a-z0-9-]{0,31}$"
@@ -218,7 +218,7 @@ class WorkerStatus(BaseModel):
 
 
 class BaseSummary(BaseModel):
-    status: str = Field(..., description="The deployed core's status (GET /deployments/{id}/api/v1/base), or unknown when the worker "
+    status: str = Field(..., description="The deployed core's status (GET /deployments/{id}/api/v1/core), or unknown when the worker "
                         "doesn't answer")
     version: Optional[Any] = None
     scope: Optional[str] = Field(None, description="full or tier1, when deployed")
@@ -244,9 +244,14 @@ class DeploymentSummary(BaseModel):
     instances_live: int = 0
     instances_failed: int = 0
     active_job: Optional[JobBrief] = Field(None, description="The newest queued or running job")
-    last_base_job: Optional[JobBrief] = Field(None, description="The newest core job (deploy, configure, destroy)")
+    last_base_job: Optional[JobBrief] = Field(None, description="Deprecated (contract 1.26): the same as `last_core_job`", json_schema_extra={"deprecated": True})
     updated: Optional[str] = Field(None, description="When its newest job changed")
     draft: Optional[DraftState] = None
+
+    @computed_field(description="The newest core job (deploy, configure, destroy)")
+    @property
+    def last_core_job(self) -> Optional[JobBrief]:
+        return self.last_base_job
 
 
 class Member(BaseModel):
@@ -272,7 +277,13 @@ class Deployment(BaseModel):
     options: DeploymentOptions
     secrets: List[str] = Field(default_factory=list, description="Which write-only settings are set")
     worker: WorkerStatus
-    base: Optional[BaseSummary] = None
+    base: Optional[BaseSummary] = Field(None, description="Deprecated (contract 1.26): the same as `core`", json_schema_extra={"deprecated": True})
+
+    @computed_field(description="The deployed core and its health; null when the worker isn't running")
+    @property
+    def core(self) -> Optional[BaseSummary]:
+        return self.base
+
     summary: Optional[DeploymentSummary] = Field(None, description="Null when the worker isn't running")
     owner: Optional[str] = Field(None, description="The user who created it; null when the service token did, or it predates owners")
     members: List[Member] = Field(default_factory=list)

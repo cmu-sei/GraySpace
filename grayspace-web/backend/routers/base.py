@@ -24,10 +24,10 @@ from services.slices import stages, store
 from services.slices.runner import new_job, runner
 from services.topology_service import topology_service
 
-router = APIRouter(prefix="/api/v1/base", tags=["base"], dependencies=[Depends(require_token)])
+routes = APIRouter()
 
 
-@router.get("", response_model=DeployedBase)
+@routes.get("", response_model=DeployedBase)
 async def get_base():
     """
     The deployed core version and its health.
@@ -39,7 +39,7 @@ async def get_base():
     return await get_deployed_base()
 
 
-@router.get("/inventory", response_model=Inventory)
+@routes.get("/inventory", response_model=Inventory)
 async def get_inventory():
     """
     What the deployed core consists of: ISPs; routers with their interfaces and addresses; links
@@ -54,7 +54,7 @@ async def get_inventory():
     return inventory.build_inventory(topology_service.tfvars_data, statuses, state_monitor.previous_link_states)
 
 
-@router.get("/dns", response_model=DnsView)
+@routes.get("/dns", response_model=DnsView)
 async def get_dns():
     """
     Every zone the simulated DNS serves and its records (all but the SOA), with the resolvers.
@@ -67,7 +67,7 @@ async def get_dns():
                                store.live_instances())
 
 
-@router.get("/versions", response_model=List[BaseVersion])
+@routes.get("/versions", response_model=List[BaseVersion])
 async def list_base_versions():
     """
     Shipped core versions under bases/, with a summary of each and which one is deployed.
@@ -77,11 +77,11 @@ async def list_base_versions():
     return base_versions.list_versions()
 
 
-@router.get("/versions/{name:path}", response_model=BaseVersionDetail)
+@routes.get("/versions/{name:path}", response_model=BaseVersionDetail)
 async def get_base_version(name: str):
     """
     A core version and its topology snapshot: ISPs, locations, routers (with ISP and location)
-    and links. Version names contain a slash, e.g. /api/v1/base/versions/grayspace/2026.11.
+    and links. Version names contain a slash, e.g. /api/v1/core/versions/grayspace/2026.11.
     """
     version = base_versions.get_version(name)
     if version is None:
@@ -105,7 +105,7 @@ def _gateway(value: Optional[str]) -> Optional[str]:
         raise HTTPException(status_code=422, detail=str(e))
 
 
-@router.get("/preflight", response_model=Preflight)
+@routes.get("/preflight", response_model=Preflight)
 async def get_preflight(version: Optional[str] = Query(None, description="Core version to check; the deployed one by default"),
                         scope: Optional[str] = Query(None, pattern="^(full|tier1)$", description="full or tier1; the deployed scope, else full")):
     """
@@ -117,7 +117,7 @@ async def get_preflight(version: Optional[str] = Query(None, description="Core v
     return await base_preflight.run(version, scope)
 
 
-@router.post("/deploy", response_model=JobAccepted, status_code=202, dependencies=[Depends(require_base_jobs)],
+@routes.post("/deploy", response_model=JobAccepted, status_code=202, dependencies=[Depends(require_base_jobs)],
              responses={409: {"description": "Another core job is queued or running, or live instances would break"},
                         422: {"description": "Preflight failed; detail.checks lists the errors"}})
 async def deploy_base(request: DeployBaseRequest = Body(DeployBaseRequest())):
@@ -140,19 +140,19 @@ async def deploy_base(request: DeployBaseRequest = Body(DeployBaseRequest())):
     return JobAccepted(job=job)
 
 
-@router.post("/configure", response_model=JobAccepted, status_code=202, dependencies=[Depends(require_base_jobs)],
+@routes.post("/configure", response_model=JobAccepted, status_code=202, dependencies=[Depends(require_base_jobs)],
              responses={409: {"description": "Nothing is deployed, or another core job is queued or running"}})
 async def configure_base(request: ConfigureBaseRequest = Body(ConfigureBaseRequest())):
     """Run Ansible on the deployed core again (task configure), then the health check. Returns a job."""
     _no_active_base_job()
     if not topology_service.tfvars_data:
-        raise HTTPException(status_code=409, detail="Nothing is deployed; POST /api/v1/base/deploy first")
+        raise HTTPException(status_code=409, detail="Nothing is deployed; POST /api/v1/core/deploy first")
     job = base_jobs.submit("configure_base", {"mgmt_gateway": _gateway(request.mgmt_gateway)})
     runner.submit(job)
     return JobAccepted(job=job)
 
 
-@router.delete("", response_model=List[JobRecord], status_code=202, dependencies=[Depends(require_base_jobs)],
+@routes.delete("", response_model=List[JobRecord], status_code=202, dependencies=[Depends(require_base_jobs)],
                responses={409: {"description": "Live instances exist (pass destroy_instances=true), or another job is active"}})
 async def destroy_base(destroy_instances: bool = Query(False, description="Destroy every live slice instance first")):
     """
@@ -179,3 +179,10 @@ async def destroy_base(destroy_instances: bool = Query(False, description="Destr
     for job in jobs:
         runner.submit(job)
     return jobs
+
+
+router = APIRouter(tags=["core"], dependencies=[Depends(require_token)])
+router.include_router(routes, prefix="/api/v1/core")
+# The names before 1.26, when the core was the base. They go in contract 2.0
+legacy_router = APIRouter(tags=["base (deprecated)"], deprecated=True, dependencies=[Depends(require_token)])
+legacy_router.include_router(routes, prefix="/api/v1/base")

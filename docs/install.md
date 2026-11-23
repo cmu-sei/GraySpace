@@ -219,7 +219,7 @@ Everything that has to survive an upgrade lives on the `grayspace-data` volume, 
 
 ### Operate it
 
-Everything can go through the API, documented at `/api/docs` on the container's port (Swagger; Authorize with `GRAYSPACE_API_TOKEN`) and in [Terrain API](api.md), from nothing deployed to a core and slices: `GET /api/v1/base/preflight` says whether the site is ready, `POST /api/v1/base/deploy {"version": "grayspace/2026.11", "scope": "tier1"}` deploys it as a job, and `DELETE /api/v1/base` tears it down. Or run the usual tasks inside the container:
+Everything can go through the API, documented at `/api/docs` on the container's port (Swagger; Authorize with `GRAYSPACE_API_TOKEN`) and in [Terrain API](api.md), from nothing deployed to a core and slices: `GET /api/v1/core/preflight` says whether the site is ready, `POST /api/v1/core/deploy {"version": "grayspace/2026.11", "scope": "tier1"}` deploys it as a job, and `DELETE /api/v1/core` tears it down. Or run the usual tasks inside the container:
 
 ```bash
 docker compose -f container/compose.yaml exec grayspace task parse

@@ -1,4 +1,4 @@
-"""GET /api/v1/base/versions[/{name}]: shipped base versions and their snapshots.
+"""GET /api/v1/core/versions[/{name}]: shipped base versions and their snapshots.
 
 Runs against the repository's real bases/ directory.
 """
@@ -30,7 +30,7 @@ def client():
 class ListVersions(unittest.TestCase):
     def test_lists_shipped_version(self):
         with patch.object(base_versions.topology_service, "tfvars_data", {}):
-            body = client().get("/api/v1/base/versions").json()
+            body = client().get("/api/v1/core/versions").json()
         version = next(v for v in body if v["name"] == SHIPPED)
         self.assertEqual(version["csv_sha256"], SHA)
         self.assertFalse(version["deployed"])
@@ -43,7 +43,7 @@ class ListVersions(unittest.TestCase):
     def test_marks_deployed_version(self):
         tfvars = {"base": {"name": SHIPPED, "csv_sha256": SHA, "scope": "full"}}
         with patch.object(base_versions.topology_service, "tfvars_data", tfvars):
-            body = client().get("/api/v1/base/versions").json()
+            body = client().get("/api/v1/core/versions").json()
         self.assertTrue(next(v for v in body if v["name"] == SHIPPED)["deployed"])
 
     def test_invalid_version_is_listed_with_problems(self):
@@ -52,7 +52,7 @@ class ListVersions(unittest.TestCase):
         shutil.copytree(REPO / "bases" / SHIPPED, bases / "local" / "broken")
         (bases / "local" / "broken" / "hosted_by.csv").unlink()
         with patch.object(settings, "bases_path", str(bases)):
-            body = client().get("/api/v1/base/versions").json()
+            body = client().get("/api/v1/core/versions").json()
         self.assertEqual(len(body), 1)
         self.assertEqual(body[0]["name"], "local/broken")
         self.assertIsNone(body[0]["summary"])
@@ -63,7 +63,7 @@ class ListVersions(unittest.TestCase):
 class GetVersion(unittest.TestCase):
     def get(self, name):
         with patch.object(base_versions.topology_service, "tfvars_data", {}):
-            return client().get(f"/api/v1/base/versions/{name}")
+            return client().get(f"/api/v1/core/versions/{name}")
 
     def test_snapshot(self):
         body = self.get(SHIPPED).json()

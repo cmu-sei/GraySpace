@@ -76,7 +76,7 @@ export interface DeploymentSummary {
   instances_live: number;
   instances_failed: number;
   active_job?: JobBrief | null;
-  last_base_job?: JobBrief | null;
+  last_core_job?: JobBrief | null;
   updated?: string | null;
   draft?: { saved: boolean; changes: boolean | null } | null;
 }
@@ -200,7 +200,7 @@ export interface Deployment {
   options: DeploymentOptions;
   secrets: string[];
   worker: WorkerStatus;
-  base?: BaseSummary | null;
+  core?: BaseSummary | null;
   summary?: DeploymentSummary | null;
   owner?: string | null;
   members: Member[];

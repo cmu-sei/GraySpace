@@ -514,7 +514,7 @@ def act_live(world, api, caps, data_dir: Path, metrics_url):
     from services.slices import manifest, stages, store
 
     act("Live: the Terrain API and the map", f"The simulated stack at {api.url}: every guest reports as running, nothing is reachable over SSH")
-    out(f"  core {bold(caps['base']['name'])} ({caps['base']['scope']})   {len(caps['images'])} images   {len(caps['roles'])} roles   "
+    out(f"  core {bold(caps['core']['name'])} ({caps['core']['scope']})   {len(caps['images'])} images   {len(caps['roles'])} roles   "
         f"{len(caps['isps'])} ISPs   jobs: {yellow('no')} {dim('(simulated)')}")
     out()
     clean(api, data_dir, quiet=True)

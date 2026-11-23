@@ -6,14 +6,15 @@ deployed to a Proxmox node with its own `environment_id`. Deployments can share 
 cluster, or use different ones.
 
 !!! note "The core was called the base"
-    API paths, JSON fields, CLI flags and file names still say `base` (`/api/v1/base`,
-    `base.preset`, `BASE=`, `bases/`, `base_jobs.py`). A later contract version adds core names,
-    with the base ones kept as aliases.
+    Since contract 1.26 the API says core: `/api/v1/core`, a draft's `core`, `core_jobs`,
+    `last_core_job`. The `base` names stay as deprecated aliases until 2.0, and values keep
+    theirs (the `base` rollout stage, job kinds such as `deploy_base`). CLI flags and file names
+    still say base (`BASE=`, `--base`, `bases/`, `base_jobs.py`).
 
 ## Addressing a deployment
 
 Each deployment has a base URL, `/deployments/{id}`, and its whole API sits under that URL
-unchanged: the core is `/deployments/abc/api/v1/base`, its events are
+unchanged: the core is `/deployments/abc/api/v1/core`, its events are
 `/deployments/abc/api/v1/events`, a console is `/deployments/abc/ws/console/{hostname}`. The
 [Terrain API](api.md) contract is the same for every deployment. A client such as GHOSTS takes the
 deployment's base URL as GraySpace's address:
@@ -114,8 +115,8 @@ From nothing to a second deployment's core:
 ```bash
 H="Authorization: Bearer $GRAYSPACE_API_TOKEN"
 curl -H "$H" -X POST https://grayspace.example/api/v1/deployments -d '{"id": "abd"}' -H 'Content-Type: application/json'
-curl -H "$H" "https://grayspace.example/deployments/abd/api/v1/base/preflight?version=grayspace/2026.11&scope=tier1"
-curl -H "$H" -X POST https://grayspace.example/deployments/abd/api/v1/base/deploy -d '{"version": "grayspace/2026.11", "scope": "tier1"}' -H 'Content-Type: application/json'
+curl -H "$H" "https://grayspace.example/deployments/abd/api/v1/core/preflight?version=grayspace/2026.11&scope=tier1"
+curl -H "$H" -X POST https://grayspace.example/deployments/abd/api/v1/core/deploy -d '{"version": "grayspace/2026.11", "scope": "tier1"}' -H 'Content-Type: application/json'
 ```
 
 - **IDs.** The ID is the deployment's `environment_id`, which prefixes every Proxmox resource it
@@ -206,7 +207,7 @@ The UI's builder (Build, and Configuration once the core is live) edits the draf
 Core, Enclaves (each spec in a form or as YAML; the form asks for the `role_vars` of the roles its
 hosts use, once per role, since every host with a role reads the same values), DNS (the enclaves' `dns`), Certificates (their
 `tls`) and Review & deploy. Before the core is deployed, it checks enclaves against the draft's
-core version with `POST /api/v1/enclaves/{slug}/validate?base=<version>&scope=<scope>`.
+core version with `POST /api/v1/enclaves/{slug}/validate?core=<version>&scope=<scope>`.
 
 A rollout's stages are `destroy:<id>` for the instances the draft no longer has (or has at
 another version, or that failed), then `base` when the draft's core differs from the deployed one,
@@ -241,19 +242,19 @@ brings up the links they took down, deletes the DNS records they added and start
 A preset is a named set of runtime changes, applied after a reset (`services/presets.py`; the web
 UI's side is in docs/web-app.md, Presets). A preset belongs to a core version and is the
 server's: every deployment on the version sees it. It is a list of actions in the shape
-`POST /api/v1/base/actions` takes: `link.condition`, `interface.zone`, `dns.domain.create` and
+`POST /api/v1/core/actions` takes: `link.condition`, `interface.zone`, `dns.domain.create` and
 `dns.record.set`. Every change to the core is made by
 `services/base_changes.py`: the web UI's routes (links, interface zones, DNS) turn their
-request into one of these actions, `POST /api/v1/base/actions` (operate access) takes one directly
+request into one of these actions, `POST /api/v1/core/actions` (operate access) takes one directly
 (`link.clear` too), and applying a preset replays them, so a preset does what the UI does.
 
 | Route | Access |
 |---|---|
-| `GET /api/v1/base/presets[?base=<version>]`, `GET /api/v1/base/presets/{name}` | read |
-| `POST /api/v1/base/presets` (save the tracked changes), `PUT`, `DELETE /api/v1/base/presets/{name}` | build |
-| `POST /api/v1/base/presets/{name}/apply` (`none`: the core as deployed) | operate |
+| `GET /api/v1/core/presets[?core=<version>]`, `GET /api/v1/core/presets/{name}` | read |
+| `POST /api/v1/core/presets` (save the tracked changes), `PUT`, `DELETE /api/v1/core/presets/{name}` | build |
+| `POST /api/v1/core/presets/{name}/apply` (`none`: the core as deployed) | operate |
 
-The draft names one (`base.preset`; contract 1.8). The rollout adds a `preset` stage after the
+The draft names one (`core.preset`; contract 1.8). The rollout adds a `preset` stage after the
 core when the draft's preset differs from the one active or the core was just built. A null preset
 leaves runtime changes alone.
 

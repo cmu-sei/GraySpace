@@ -299,13 +299,13 @@ sessions; without a configured token they return 503. Browsers may call the API 
 
 | Route | |
 |---|---|
-| `GET /base`, `/base/versions`, `/base/versions/{name}` | The deployed version and its health (`not_deployed` when nothing is); shipped versions and their topology snapshots |
-| `GET /base/preflight?version=&scope=` | Whether the site can deploy: settings, Proxmox API and node, storages and their content types, bridges (node or SDN vnet), SDN, SSH to the host, capacity, live instances a version change would break, and, with Crucible on, a Keycloak token and the Player API |
-| `POST /base/deploy {version, scope, configure, mgmt_gateway}` | A job: preflight, parse, guards, Terraform until converged, Ansible, refresh, then a wait for routers and BGP. Re-running it changes nothing |
-| `POST /base/configure`, `DELETE /base?destroy_instances=` | Jobs: Ansible again; destroy the core (refused while instances are live, unless their destroy jobs are queued first) |
-| `GET /base/inventory` | What the deployment built: ISPs; routers with interfaces and addresses; links with both ends' addresses and state; clients and core services (DNS servers, CAs) with addresses; Proxmox status throughout |
-| `GET /base/dns` | Every zone the simulated DNS serves with its records (all but the SOA), and the resolvers. Each zone and record has an `origin`: `base`, `overlay` (web UI or core preset) or `instance` |
-| `GET /capabilities`, `/attachment-points` | What a slice can use: images, roles, `slice_features`, `jobs` (slice jobs) and `base_jobs`, management subnet, slice pool, DNS, CAs, ISPs, capacity (CPU, memory, storage); routers with free static addresses |
+| `GET /core`, `/core/versions`, `/core/versions/{name}` | The deployed version and its health (`not_deployed` when nothing is); shipped versions and their topology snapshots |
+| `GET /core/preflight?version=&scope=` | Whether the site can deploy: settings, Proxmox API and node, storages and their content types, bridges (node or SDN vnet), SDN, SSH to the host, capacity, live instances a version change would break, and, with Crucible on, a Keycloak token and the Player API |
+| `POST /core/deploy {version, scope, configure, mgmt_gateway}` | A job: preflight, parse, guards, Terraform until converged, Ansible, refresh, then a wait for routers and BGP. Re-running it changes nothing |
+| `POST /core/configure`, `DELETE /core?destroy_instances=` | Jobs: Ansible again; destroy the core (refused while instances are live, unless their destroy jobs are queued first) |
+| `GET /core/inventory` | What the deployment built: ISPs; routers with interfaces and addresses; links with both ends' addresses and state; clients and core services (DNS servers, CAs) with addresses; Proxmox status throughout |
+| `GET /core/dns` | Every zone the simulated DNS serves with its records (all but the SOA), and the resolvers. Each zone and record has an `origin`: `base`, `overlay` (web UI or core preset) or `instance` |
+| `GET /capabilities`, `/attachment-points` | What a slice can use: images, roles, `slice_features`, `jobs` (slice jobs) and `core_jobs`, management subnet, slice pool, DNS, CAs, ISPs, capacity (CPU, memory, storage); routers with free static addresses |
 | `GET /enclaves`, `GET/PUT/DELETE /enclaves/{slug}` | Stored enclaves and versions. `PUT` returns the version and findings. Also at the deprecated `/slices` |
 | `POST /enclaves/{slug}/validate`, `/plan` | Findings only; a plan job |
 | `POST /instances`, `GET /instances`, `GET/DELETE /instances/{id}` | Create (a job), list, manifest, destroy (a job) |

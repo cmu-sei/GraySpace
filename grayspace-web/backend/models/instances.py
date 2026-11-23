@@ -169,7 +169,13 @@ class Manifest(BaseModel):
     def enclave(self) -> SliceRef:
         return self.slice
 
-    base: Optional[BaseVersionRef]
+    base: Optional[BaseVersionRef] = Field(..., description="Deprecated (contract 1.26): the same as `core`", json_schema_extra={"deprecated": True})
+
+    @computed_field(description="The core version it was built on")
+    @property
+    def core(self) -> Optional[BaseVersionRef]:
+        return self.base
+
     state: InstanceState
     sites: List[ManifestSite]
     hosts: List[ManifestHost]

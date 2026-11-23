@@ -233,9 +233,9 @@ export const EnclavesPage: React.FC<Props> = ({ deployment, selectedId, onSelect
                 <h3 style={{ margin: 0 }}>
                   <span className="gs-mono">{view.id}</span> <InstanceState state={view.state} />
                   <span className="gs-muted" style={{ fontWeight: 400 }}>
-                    {enclaveOf(view).slug}{view.base && <> · {view.base.name ?? 'local CSVs'}</>} · {ago(view.created)}
+                    {enclaveOf(view).slug}{view.core && <> · {view.core.name ?? 'local CSVs'}</>} · {ago(view.created)}
                   </span>
-                  <Tip text={`Version ${enclaveOf(view).version.replace('sha256:', '').slice(0, 12)}${view.base ? `, ${view.base.scope} core` : ''}. Created ${new Date(view.created).toLocaleString()}.`} />
+                  <Tip text={`Version ${enclaveOf(view).version.replace('sha256:', '').slice(0, 12)}${view.core ? `, ${view.core.scope} core` : ''}. Created ${new Date(view.created).toLocaleString()}.`} />
                   <span className="gs-spacer" />
                   <div className="gs-seg" role="group" aria-label="Instance view">
                     <button className={tab === 'hosts' ? 'on' : ''} aria-pressed={tab === 'hosts'} onClick={() => setPanel('hosts')}>Hosts</button>

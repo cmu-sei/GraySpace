@@ -23,18 +23,18 @@ beforeEach(() => {
   clearToken();
 });
 
-const LIVE = { base: { status: 'healthy', version: { name: 'grayspace/2026.11', csv_sha256: 'x', scope: 'full' }, scope: 'full', routers: 134 } };
+const LIVE = { core: { status: 'healthy', version: { name: 'grayspace/2026.11', csv_sha256: 'x', scope: 'full' }, scope: 'full', routers: 134 } };
 
 describe('deployment state', () => {
   it('follows the base, the jobs and the draft', () => {
     expect(deploymentState(deployment('a'))).toBe('none');
     expect(deploymentState(deployment('a', { summary: { instances_live: 0, instances_failed: 0, draft: { saved: true, changes: true } } }))).toBe('draft');
     expect(deploymentState(deployment('a', { summary: { instances_live: 0, instances_failed: 0, active_job: { id: 'j', kind: 'rollout', state: 'running' } } }))).toBe('deploying');
-    expect(deploymentState(deployment('a', { summary: { instances_live: 0, instances_failed: 0, last_base_job: { id: 'j', kind: 'deploy_base', state: 'failed' } } }))).toBe('failed');
+    expect(deploymentState(deployment('a', { summary: { instances_live: 0, instances_failed: 0, last_core_job: { id: 'j', kind: 'deploy_base', state: 'failed' } } }))).toBe('failed');
     expect(deploymentState(deployment('a', LIVE))).toBe('live');
-    expect(deploymentState(deployment('a', { base: { status: 'degraded' } }))).toBe('degraded');
+    expect(deploymentState(deployment('a', { core: { status: 'degraded' } }))).toBe('degraded');
     expect(deploymentState(deployment('a', { worker: { state: 'crashed', restarts: 3 } }))).toBe('down');
-    expect(isLive(deployment('a', { base: { status: 'unknown' } }))).toBe(true);
+    expect(isLive(deployment('a', { core: { status: 'unknown' } }))).toBe(true);
   });
 });
 

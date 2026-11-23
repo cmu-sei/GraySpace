@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "GraySpace Terrain API",
-    "description": "What the simulated internet offers and how it is doing, and the enclaves built at its edge: the\ndeployed core version, its inventory (routers, links and core services with their addresses and status)\nand DNS (every zone and record), shipped versions and their snapshots, capabilities, attachment points, enclaves,\ninstances and their manifests, jobs, images and roles, the CA bundle and the map layer. The core itself is deployed,\nconfigured and destroyed through the API too.\n\nOne GraySpace runs several deployments, each a core and the enclaves on it. `GET /api/v1/deployments` lists them;\nevery other route is a deployment's, under its base URL `/deployments/{deployment}` (so the core is\n`/deployments/abc/api/v1/base`). Without the prefix, a route reaches the default deployment: that alias is\ndeprecated. A client such as GHOSTS takes the deployment's base URL as its GraySpace address.\n\nEvery route needs a bearer token, sent as `Authorization: Bearer <token>`: the server's service token\n(`GRAYSPACE_API_TOKEN`), which may do everything, or a person's session token from `POST /api/v1/auth/login`.\nA person sees only the deployments they own or are a member of (others are 404), and may only do what their\naccess there allows (403 otherwise): `GET /api/v1/me` gives their role, and each deployment's `my_access`\nwhat they may do in it.\nLive updates come over the deployment's `/api/v1/events` websocket (`grayspace-events-v1.json`); deployments\nbeing created, changed and removed over `/api/v1/deployments/events` (`grayspace-deployments-events-v1.json`).\n\n**From nothing deployed to a core and a slice** (paths relative to the deployment's base URL):\n\n0. `POST /api/v1/deployments` with `{\"id\": \"abd\"}` (at the server's root), unless the deployment exists. It runs on the\n   default Proxmox connection; `placement` chooses another, or another node (`GET /api/v1/platform`).\n1. `GET /api/v1/base/preflight?version=grayspace/2026.11&scope=tier1`: is the site ready? Fix every `error`.\n2. `POST /api/v1/base/deploy` with `{\"version\": \"grayspace/2026.11\", \"scope\": \"tier1\"}`: returns a job.\n3. `GET /api/v1/jobs/{id}` (or its streamed `/log`, or `/events`) until it succeeds; then `GET /api/v1/base` is `healthy`.\n4. `PUT /api/v1/enclaves/{slug}` with an enclave spec (`grayspace-enclave-v1.json`); fix any error findings.\n5. `POST /api/v1/instances` with `{\"enclave\": \"<slug>\"}`: returns a job; when it succeeds, `GET /api/v1/instances/{id}` is the manifest.\n\nOr in one job: `PUT /api/v1/draft` with the core and the enclave instances the deployment should have\n(`{\"base\": {\"version\": \"grayspace/2026.11\", \"scope\": \"tier1\"}, \"enclaves\": [{\"slug\": \"<slug>\", \"prefix\": \"bk\"}]}`),\n`GET /api/v1/deploy/plan` to see what would change, then `POST /api/v1/deploy`: a rollout job that destroys what the\ndraft no longer has, deploys or updates the core, and creates the instances, each as a child job (`GET /api/v1/jobs?parent={id}`).\nChange the draft and deploy again to change the deployment. Since 1.8 the draft's core may name a\npreset (`preset`), a saved set of runtime changes the rollout applies once the core is built. Since 1.10\nthe draft's `player` is the deployment's Crucible Player view: its applications, teams, and which core and enclave VMs\neach team sees (`GET /api/v1/player/guests`); the rollout applies it last, in its `player` stage.\nSince 1.11 a Proxmox connection may set `apply_parallelism` and `plan_parallelism`, Terraform's parallelism for the\ndeployments placed on it (applies and destroys: how many guests are created at once; plans).\nSince 1.12 a deployment's `options.use_custom_image` is deprecated and ignored: every deployment's Alpine guests use\nthe GraySpace image.\nSince 1.13 the core has no `grafana` guest (the web app has the dashboards): `GET /api/v1/player/guests` no longer\nlists it, and a draft's Player guest that names it is dropped (since 1.17 without a warning, when the draft is read or saved).\nSince 1.14 `GET /api/v1/player` has the view's `url` in Player's UI.\nSince 1.15 the draft's `player.assign` gives every guest of the core or of an enclave instance to teams; `player.guests`\nlists the guests whose teams differ.\nSince 1.16 `GET /api/v1/base/preview` is a shipped version's map before it is deployed, and a Crucible connection may\nset `player_url`, Player's UI when it isn't the Player API URL without /api.\nSince 1.18 the core has no clients: a core version is ISPs, routers, links, DNS servers and CAs, and hosts on the\nsimulated internet are enclaves (`grayspace/2026.11`; `grayspace/2026.10` is retired). The inventory's `clients`, a\nversion summary's `clients` and the capabilities' `host_features` are deprecated and always empty or 0, `guest.update`\nno longer comes for a `client`, and `client.move` is no longer a core action (a preset that has one lists it in its\n`problems`), and a draft's Player guest that names one is dropped without a warning. An image with the `desktop`\nfeature (`grayspace-desktop`) is a desktop in the browser.\nSince 1.19 enclaves have no presets: an enclave is what its spec builds, and a variant is another enclave. The routes\n`/api/v1/enclaves/{slug}/presets` and `/api/v1/instances/{id}/presets` are gone, a draft's `enclaves[].preset` is\ndeprecated and ignored, an instance and a planned instance no longer have `preset` and `active_preset`, and the plan has\nno `preset:<id>` stages. An instance's actions are live changes its reset undoes. Core presets are unchanged.\nSince 1.20 `POST /api/v1/enclaves/{slug}/validate` takes `instance`, a draft's prefix, to check the spec as that\ninstance: when it is live and built from the enclave, its prefix, DNS names and links are its own, not conflicts.\nSince 1.21 a role can name the image types it runs on (`image_types`, e.g. `[vm]` for `ad-dc`), and a host whose image\nis another type gets `INCOMPATIBLE_ROLE`.\nSince 1.22 a rollout resumes only while the draft is the one it deployed: after the draft changes, retrying it is refused\n(409; deploy instead), and `GET /api/v1/deploy/plan` has `resumable_rollout`, the last rollout when it can still be\nretried. A destroyed instance is no longer managed by the draft, however it was destroyed.\nSince 1.23 a Proxmox connection chooses the proxy its deployments' guests install packages through (`proxy_mode`: `site`,\nthe site file's, by default; `none`; or `custom`, with `proxy` and `no_proxy`).\nSince 1.24 the hosts of a site with a domain controller (an `ad-dc` host) use it as their resolver (an allocated host's\n`resolver`); the DC keeps the core resolver, its DNS's forwarder. A site's `resolver` is still the core's.\nSince 1.25 the core has no GHOSTS VM: enclave hosts run GHOSTS clients (the `ghosts-client` role), which report to a\nGHOSTS server outside the simulated internet. A deployment's `options.deploy_ghosts` is deprecated and ignored,\n`GET /api/v1/player/guests` no longer lists `ghosts`, a draft's Player guest that names it is dropped without a warning,\nand the core preflight has no `ghosts-vm` check.\n\nTear down in reverse: `DELETE /api/v1/instances/{id}`, then `DELETE /api/v1/base`. Long-running work is always a\njob: poll it, read its log, cancel it, or retry it from the stage that failed.",
-    "version": "1.25.0"
+    "description": "What the simulated internet offers and how it is doing, and the enclaves built at its edge: the\ndeployed core version, its inventory (routers, links and core services with their addresses and status)\nand DNS (every zone and record), shipped versions and their snapshots, capabilities, attachment points, enclaves,\ninstances and their manifests, jobs, images and roles, the CA bundle and the map layer. The core itself is deployed,\nconfigured and destroyed through the API too.\n\nOne GraySpace runs several deployments, each a core and the enclaves on it. `GET /api/v1/deployments` lists them;\nevery other route is a deployment's, under its base URL `/deployments/{deployment}` (so the core is\n`/deployments/abc/api/v1/core`). Without the prefix, a route reaches the default deployment: that alias is\ndeprecated. A client such as GHOSTS takes the deployment's base URL as its GraySpace address.\n\nEvery route needs a bearer token, sent as `Authorization: Bearer <token>`: the server's service token\n(`GRAYSPACE_API_TOKEN`), which may do everything, or a person's session token from `POST /api/v1/auth/login`.\nA person sees only the deployments they own or are a member of (others are 404), and may only do what their\naccess there allows (403 otherwise): `GET /api/v1/me` gives their role, and each deployment's `my_access`\nwhat they may do in it.\nLive updates come over the deployment's `/api/v1/events` websocket (`grayspace-events-v1.json`); deployments\nbeing created, changed and removed over `/api/v1/deployments/events` (`grayspace-deployments-events-v1.json`).\n\n**From nothing deployed to a core and a slice** (paths relative to the deployment's base URL):\n\n0. `POST /api/v1/deployments` with `{\"id\": \"abd\"}` (at the server's root), unless the deployment exists. It runs on the\n   default Proxmox connection; `placement` chooses another, or another node (`GET /api/v1/platform`).\n1. `GET /api/v1/core/preflight?version=grayspace/2026.11&scope=tier1`: is the site ready? Fix every `error`.\n2. `POST /api/v1/core/deploy` with `{\"version\": \"grayspace/2026.11\", \"scope\": \"tier1\"}`: returns a job.\n3. `GET /api/v1/jobs/{id}` (or its streamed `/log`, or `/events`) until it succeeds; then `GET /api/v1/core` is `healthy`.\n4. `PUT /api/v1/enclaves/{slug}` with an enclave spec (`grayspace-enclave-v1.json`); fix any error findings.\n5. `POST /api/v1/instances` with `{\"enclave\": \"<slug>\"}`: returns a job; when it succeeds, `GET /api/v1/instances/{id}` is the manifest.\n\nOr in one job: `PUT /api/v1/draft` with the core and the enclave instances the deployment should have\n(`{\"core\": {\"version\": \"grayspace/2026.11\", \"scope\": \"tier1\"}, \"enclaves\": [{\"slug\": \"<slug>\", \"prefix\": \"bk\"}]}`),\n`GET /api/v1/deploy/plan` to see what would change, then `POST /api/v1/deploy`: a rollout job that destroys what the\ndraft no longer has, deploys or updates the core, and creates the instances, each as a child job (`GET /api/v1/jobs?parent={id}`).\nChange the draft and deploy again to change the deployment. Since 1.8 the draft's core may name a\npreset (`preset`), a saved set of runtime changes the rollout applies once the core is built. Since 1.10\nthe draft's `player` is the deployment's Crucible Player view: its applications, teams, and which core and enclave VMs\neach team sees (`GET /api/v1/player/guests`); the rollout applies it last, in its `player` stage.\nSince 1.11 a Proxmox connection may set `apply_parallelism` and `plan_parallelism`, Terraform's parallelism for the\ndeployments placed on it (applies and destroys: how many guests are created at once; plans).\nSince 1.12 a deployment's `options.use_custom_image` is deprecated and ignored: every deployment's Alpine guests use\nthe GraySpace image.\nSince 1.13 the core has no `grafana` guest (the web app has the dashboards): `GET /api/v1/player/guests` no longer\nlists it, and a draft's Player guest that names it is dropped (since 1.17 without a warning, when the draft is read or saved).\nSince 1.14 `GET /api/v1/player` has the view's `url` in Player's UI.\nSince 1.15 the draft's `player.assign` gives every guest of the core or of an enclave instance to teams; `player.guests`\nlists the guests whose teams differ.\nSince 1.16 `GET /api/v1/core/preview` (then `/api/v1/base/preview`) is a shipped version's map before it is deployed, and a Crucible connection may\nset `player_url`, Player's UI when it isn't the Player API URL without /api.\nSince 1.18 the core has no clients: a core version is ISPs, routers, links, DNS servers and CAs, and hosts on the\nsimulated internet are enclaves (`grayspace/2026.11`; `grayspace/2026.10` is retired). The inventory's `clients`, a\nversion summary's `clients` and the capabilities' `host_features` are deprecated and always empty or 0, `guest.update`\nno longer comes for a `client`, and `client.move` is no longer a core action (a preset that has one lists it in its\n`problems`), and a draft's Player guest that names one is dropped without a warning. An image with the `desktop`\nfeature (`grayspace-desktop`) is a desktop in the browser.\nSince 1.19 enclaves have no presets: an enclave is what its spec builds, and a variant is another enclave. The routes\n`/api/v1/enclaves/{slug}/presets` and `/api/v1/instances/{id}/presets` are gone, a draft's `enclaves[].preset` is\ndeprecated and ignored, an instance and a planned instance no longer have `preset` and `active_preset`, and the plan has\nno `preset:<id>` stages. An instance's actions are live changes its reset undoes. Core presets are unchanged.\nSince 1.20 `POST /api/v1/enclaves/{slug}/validate` takes `instance`, a draft's prefix, to check the spec as that\ninstance: when it is live and built from the enclave, its prefix, DNS names and links are its own, not conflicts.\nSince 1.21 a role can name the image types it runs on (`image_types`, e.g. `[vm]` for `ad-dc`), and a host whose image\nis another type gets `INCOMPATIBLE_ROLE`.\nSince 1.22 a rollout resumes only while the draft is the one it deployed: after the draft changes, retrying it is refused\n(409; deploy instead), and `GET /api/v1/deploy/plan` has `resumable_rollout`, the last rollout when it can still be\nretried. A destroyed instance is no longer managed by the draft, however it was destroyed.\nSince 1.23 a Proxmox connection chooses the proxy its deployments' guests install packages through (`proxy_mode`: `site`,\nthe site file's, by default; `none`; or `custom`, with `proxy` and `no_proxy`).\nSince 1.24 the hosts of a site with a domain controller (an `ad-dc` host) use it as their resolver (an allocated host's\n`resolver`); the DC keeps the core resolver, its DNS's forwarder. A site's `resolver` is still the core's.\nSince 1.25 the core has no GHOSTS VM: enclave hosts run GHOSTS clients (the `ghosts-client` role), which report to a\nGHOSTS server outside the simulated internet. A deployment's `options.deploy_ghosts` is deprecated and ignored,\n`GET /api/v1/player/guests` no longer lists `ghosts`, a draft's Player guest that names it is dropped without a warning,\nand the core preflight has no `ghosts-vm` check.\nSince 1.26 the base is called the core. Its routes are at `/api/v1/core` (`/api/v1/core/presets` and `/actions` too), and\n`/api/v1/base` is their deprecated alias. Responses name it `core` as well as `base`: a draft's and a plan's `core`,\na deployment's `core` and its summary's `last_core_job`, a manifest's `core`, capabilities' `core`, `core_jobs` and\n`core_jobs_unavailable_reason`, and the Player guests' `core`. A draft takes `core` or `base` (both, only if they are the same),\nand enclave validation and presets `?core=` or `?base=`. The `base` names are deprecated and go in 2.0. Values keep their\nnames until then: the `base` rollout stage, job kinds such as `deploy_base`, a job's `base` target, the `base` Player\nscope and DNS origin, and the `base` enclave.\n\nTear down in reverse: `DELETE /api/v1/instances/{id}`, then `DELETE /api/v1/core`. Long-running work is always a\njob: poll it, read its log, cancel it, or retry it from the stage that failed.",
+    "version": "1.26.0"
   },
   "servers": [
     {
@@ -22,14 +22,14 @@
     }
   ],
   "paths": {
-    "/api/v1/base": {
+    "/api/v1/core": {
       "get": {
         "tags": [
-          "base"
+          "core"
         ],
         "summary": "Get Base",
         "description": "The deployed core version and its health.\n\nThe version comes from the `base` block that `task parse` writes into terraform.tfvars.json.\nHealth compares the routers in the tfvars with what Proxmox reports as running, and counts\nBGP sessions up across all routers from Prometheus.",
-        "operationId": "get_base_api_v1_base_get",
+        "operationId": "get_base_api_v1_core_get",
         "security": [
           {
             "GrayspaceToken": []
@@ -50,11 +50,400 @@
       },
       "delete": {
         "tags": [
-          "base"
+          "core"
+        ],
+        "summary": "Destroy Base",
+        "description": "Destroy the core (task destroy). Refused while slice instances are live, unless\ndestroy_instances is true: then each live instance's destroy job is queued first, and the\ncore's destroy job last, which refuses to run if any instance is still live. Returns the jobs\nin the order they run; the last is the core's.",
+        "operationId": "destroy_base_api_v1_core_delete",
+        "security": [
+          {
+            "GrayspaceToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "destroy_instances",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Destroy every live slice instance first",
+              "default": false,
+              "title": "Destroy Instances"
+            },
+            "description": "Destroy every live slice instance first"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/JobRecord"
+                  },
+                  "title": "Response Destroy Base Api V1 Core Delete"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Live instances exist (pass destroy_instances=true), or another job is active"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/core/inventory": {
+      "get": {
+        "tags": [
+          "core"
+        ],
+        "summary": "Get Inventory",
+        "description": "What the deployed core consists of: ISPs; routers with their interfaces and addresses; links\nwith both ends' addresses and their state; clients (the hosts the core places on customer\nnetworks) and core services (DNS servers and CAs) with their addresses. Read from the deployed\ntfvars, so only what the deployment scope built. Status is Proxmox's, link state comes from\nPrometheus. Slice instances are not included: GET /instances/{id} returns each one's manifest.",
+        "operationId": "get_inventory_api_v1_core_inventory_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Inventory"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "GrayspaceToken": []
+          }
+        ]
+      }
+    },
+    "/api/v1/core/dns": {
+      "get": {
+        "tags": [
+          "core"
+        ],
+        "summary": "Get Dns",
+        "description": "Every zone the simulated DNS serves and its records (all but the SOA), with the resolvers.\nEach zone and record has an origin: `base` (the root and TLD zones task configure writes),\n`overlay` (domains and records created in the web UI or by a core preset) or `instance` (created by a\nslice instance, named in `instance`). Delegations sit in their TLD zone with the origin of the\ndomain they delegate.",
+        "operationId": "get_dns_api_v1_core_dns_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DnsView"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "GrayspaceToken": []
+          }
+        ]
+      }
+    },
+    "/api/v1/core/versions": {
+      "get": {
+        "tags": [
+          "core"
+        ],
+        "summary": "List Base Versions",
+        "description": "Shipped core versions under bases/, with a summary of each and which one is deployed.\n\nA version whose CSVs fail to load is listed with its problems instead of a summary.",
+        "operationId": "list_base_versions_api_v1_core_versions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/BaseVersion"
+                  },
+                  "type": "array",
+                  "title": "Response List Base Versions Api V1 Core Versions Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "GrayspaceToken": []
+          }
+        ]
+      }
+    },
+    "/api/v1/core/versions/{name}": {
+      "get": {
+        "tags": [
+          "core"
+        ],
+        "summary": "Get Base Version",
+        "description": "A core version and its topology snapshot: ISPs, locations, routers (with ISP and location)\nand links. Version names contain a slash, e.g. /api/v1/core/versions/grayspace/2026.11.",
+        "operationId": "get_base_version_api_v1_core_versions__name__get",
+        "security": [
+          {
+            "GrayspaceToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseVersionDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/core/preflight": {
+      "get": {
+        "tags": [
+          "core"
+        ],
+        "summary": "Get Preflight",
+        "description": "Whether this site can deploy the core version at the scope: the settings, the Proxmox API and\nnode, storages (and their content types), bridges, SDN, SSH to the Proxmox host, capacity, and\nlive instances that a version change would break. A deploy is refused while any check is an\nerror, and runs these again as its first stage.",
+        "operationId": "get_preflight_api_v1_core_preflight_get",
+        "security": [
+          {
+            "GrayspaceToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Core version to check; the deployed one by default",
+              "title": "Version"
+            },
+            "description": "Core version to check; the deployed one by default"
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(full|tier1)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "full or tier1; the deployed scope, else full",
+              "title": "Scope"
+            },
+            "description": "full or tier1; the deployed scope, else full"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Preflight"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/core/deploy": {
+      "post": {
+        "tags": [
+          "core"
+        ],
+        "summary": "Deploy Base",
+        "description": "Deploy or update the core: preflight, parse, the guards, Terraform until converged, Ansible,\nthen a health check that waits for routers and BGP. Returns a job; poll GET /jobs/{id} or follow\n/events, then GET /base. Deploying the deployed version again changes nothing. Without a\nversion, the deployed one is redeployed; with nothing deployed, a version is required.",
+        "operationId": "deploy_base_api_v1_core_deploy_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeployBaseRequest",
+                "default": {
+                  "configure": true
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobAccepted"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Another core job is queued or running, or live instances would break"
+          },
+          "422": {
+            "description": "Preflight failed; detail.checks lists the errors"
+          }
+        },
+        "security": [
+          {
+            "GrayspaceToken": []
+          }
+        ]
+      }
+    },
+    "/api/v1/core/configure": {
+      "post": {
+        "tags": [
+          "core"
+        ],
+        "summary": "Configure Base",
+        "description": "Run Ansible on the deployed core again (task configure), then the health check. Returns a job.",
+        "operationId": "configure_base_api_v1_core_configure_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigureBaseRequest",
+                "default": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobAccepted"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Nothing is deployed, or another core job is queued or running"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "GrayspaceToken": []
+          }
+        ]
+      }
+    },
+    "/api/v1/base": {
+      "get": {
+        "tags": [
+          "base (deprecated)"
+        ],
+        "summary": "Get Base",
+        "description": "The deployed core version and its health.\n\nThe version comes from the `base` block that `task parse` writes into terraform.tfvars.json.\nHealth compares the routers in the tfvars with what Proxmox reports as running, and counts\nBGP sessions up across all routers from Prometheus.",
+        "operationId": "get_base_api_v1_base_get",
+        "deprecated": true,
+        "security": [
+          {
+            "GrayspaceToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeployedBase"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "base (deprecated)"
         ],
         "summary": "Destroy Base",
         "description": "Destroy the core (task destroy). Refused while slice instances are live, unless\ndestroy_instances is true: then each live instance's destroy job is queued first, and the\ncore's destroy job last, which refuses to run if any instance is still live. Returns the jobs\nin the order they run; the last is the core's.",
         "operationId": "destroy_base_api_v1_base_delete",
+        "deprecated": true,
         "security": [
           {
             "GrayspaceToken": []
@@ -108,7 +497,7 @@
     "/api/v1/base/inventory": {
       "get": {
         "tags": [
-          "base"
+          "base (deprecated)"
         ],
         "summary": "Get Inventory",
         "description": "What the deployed core consists of: ISPs; routers with their interfaces and addresses; links\nwith both ends' addresses and their state; clients (the hosts the core places on customer\nnetworks) and core services (DNS servers and CAs) with their addresses. Read from the deployed\ntfvars, so only what the deployment scope built. Status is Proxmox's, link state comes from\nPrometheus. Slice instances are not included: GET /instances/{id} returns each one's manifest.",
@@ -125,6 +514,7 @@
             }
           }
         },
+        "deprecated": true,
         "security": [
           {
             "GrayspaceToken": []
@@ -135,7 +525,7 @@
     "/api/v1/base/dns": {
       "get": {
         "tags": [
-          "base"
+          "base (deprecated)"
         ],
         "summary": "Get Dns",
         "description": "Every zone the simulated DNS serves and its records (all but the SOA), with the resolvers.\nEach zone and record has an origin: `base` (the root and TLD zones task configure writes),\n`overlay` (domains and records created in the web UI or by a core preset) or `instance` (created by a\nslice instance, named in `instance`). Delegations sit in their TLD zone with the origin of the\ndomain they delegate.",
@@ -152,6 +542,7 @@
             }
           }
         },
+        "deprecated": true,
         "security": [
           {
             "GrayspaceToken": []
@@ -162,7 +553,7 @@
     "/api/v1/base/versions": {
       "get": {
         "tags": [
-          "base"
+          "base (deprecated)"
         ],
         "summary": "List Base Versions",
         "description": "Shipped core versions under bases/, with a summary of each and which one is deployed.\n\nA version whose CSVs fail to load is listed with its problems instead of a summary.",
@@ -183,6 +574,7 @@
             }
           }
         },
+        "deprecated": true,
         "security": [
           {
             "GrayspaceToken": []
@@ -193,11 +585,12 @@
     "/api/v1/base/versions/{name}": {
       "get": {
         "tags": [
-          "base"
+          "base (deprecated)"
         ],
         "summary": "Get Base Version",
-        "description": "A core version and its topology snapshot: ISPs, locations, routers (with ISP and location)\nand links. Version names contain a slash, e.g. /api/v1/base/versions/grayspace/2026.11.",
+        "description": "A core version and its topology snapshot: ISPs, locations, routers (with ISP and location)\nand links. Version names contain a slash, e.g. /api/v1/core/versions/grayspace/2026.11.",
         "operationId": "get_base_version_api_v1_base_versions__name__get",
+        "deprecated": true,
         "security": [
           {
             "GrayspaceToken": []
@@ -241,11 +634,12 @@
     "/api/v1/base/preflight": {
       "get": {
         "tags": [
-          "base"
+          "base (deprecated)"
         ],
         "summary": "Get Preflight",
         "description": "Whether this site can deploy the core version at the scope: the settings, the Proxmox API and\nnode, storages (and their content types), bridges, SDN, SSH to the Proxmox host, capacity, and\nlive instances that a version change would break. A deploy is refused while any check is an\nerror, and runs these again as its first stage.",
         "operationId": "get_preflight_api_v1_base_preflight_get",
+        "deprecated": true,
         "security": [
           {
             "GrayspaceToken": []
@@ -317,7 +711,7 @@
     "/api/v1/base/deploy": {
       "post": {
         "tags": [
-          "base"
+          "base (deprecated)"
         ],
         "summary": "Deploy Base",
         "description": "Deploy or update the core: preflight, parse, the guards, Terraform until converged, Ansible,\nthen a health check that waits for routers and BGP. Returns a job; poll GET /jobs/{id} or follow\n/events, then GET /base. Deploying the deployed version again changes nothing. Without a\nversion, the deployed one is redeployed; with nothing deployed, a version is required.",
@@ -352,6 +746,7 @@
             "description": "Preflight failed; detail.checks lists the errors"
           }
         },
+        "deprecated": true,
         "security": [
           {
             "GrayspaceToken": []
@@ -362,7 +757,7 @@
     "/api/v1/base/configure": {
       "post": {
         "tags": [
-          "base"
+          "base (deprecated)"
         ],
         "summary": "Configure Base",
         "description": "Run Ansible on the deployed core again (task configure), then the health check. Returns a job.",
@@ -402,6 +797,7 @@
             }
           }
         },
+        "deprecated": true,
         "security": [
           {
             "GrayspaceToken": []
@@ -1091,7 +1487,7 @@
           "enclaves"
         ],
         "summary": "Validate Slice",
-        "description": "Findings for a spec against the deployed core, live instances and the node's capacity; or,\nwith `base`, against that shipped version as it would deploy. Nothing is stored.",
+        "description": "Findings for a spec against the deployed core, live instances and the node's capacity; or,\nwith `core`, against that shipped version as it would deploy. Nothing is stored.",
         "operationId": "validate_slice_api_v1_enclaves__slug__validate_post",
         "security": [
           {
@@ -1109,7 +1505,7 @@
             }
           },
           {
-            "name": "base",
+            "name": "core",
             "in": "query",
             "required": false,
             "schema": {
@@ -1122,9 +1518,28 @@
                 }
               ],
               "description": "A shipped core version to check against instead of the deployed one, e.g. grayspace/2026.11: for a deployment still being built (its draft's core)",
-              "title": "Base"
+              "title": "Core"
             },
             "description": "A shipped core version to check against instead of the deployed one, e.g. grayspace/2026.11: for a deployment still being built (its draft's core)"
+          },
+          {
+            "name": "base",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Deprecated (contract 1.26): the same as `core`",
+              "title": "Base"
+            },
+            "description": "Deprecated (contract 1.26): the same as `core`",
+            "deprecated": true
           },
           {
             "name": "scope",
@@ -1136,11 +1551,11 @@
                 "tier1"
               ],
               "type": "string",
-              "description": "With `base`: its scope",
+              "description": "With `core`: its scope",
               "default": "full",
               "title": "Scope"
             },
-            "description": "With `base`: its scope"
+            "description": "With `core`: its scope"
           },
           {
             "name": "instance",
@@ -1454,7 +1869,7 @@
           "slices (deprecated)"
         ],
         "summary": "Validate Slice",
-        "description": "Findings for a spec against the deployed core, live instances and the node's capacity; or,\nwith `base`, against that shipped version as it would deploy. Nothing is stored.",
+        "description": "Findings for a spec against the deployed core, live instances and the node's capacity; or,\nwith `core`, against that shipped version as it would deploy. Nothing is stored.",
         "operationId": "validate_slice_api_v1_slices__slug__validate_post",
         "deprecated": true,
         "security": [
@@ -1473,7 +1888,7 @@
             }
           },
           {
-            "name": "base",
+            "name": "core",
             "in": "query",
             "required": false,
             "schema": {
@@ -1486,9 +1901,28 @@
                 }
               ],
               "description": "A shipped core version to check against instead of the deployed one, e.g. grayspace/2026.11: for a deployment still being built (its draft's core)",
-              "title": "Base"
+              "title": "Core"
             },
             "description": "A shipped core version to check against instead of the deployed one, e.g. grayspace/2026.11: for a deployment still being built (its draft's core)"
+          },
+          {
+            "name": "base",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Deprecated (contract 1.26): the same as `core`",
+              "title": "Base"
+            },
+            "description": "Deprecated (contract 1.26): the same as `core`",
+            "deprecated": true
           },
           {
             "name": "scope",
@@ -1500,11 +1934,11 @@
                 "tier1"
               ],
               "type": "string",
-              "description": "With `base`: its scope",
+              "description": "With `core`: its scope",
               "default": "full",
               "title": "Scope"
             },
-            "description": "With `base`: its scope"
+            "description": "With `core`: its scope"
           },
           {
             "name": "instance",
@@ -2361,11 +2795,80 @@
     "/api/v1/base/preview": {
       "get": {
         "tags": [
+          "map",
+          "base (deprecated)"
+        ],
+        "summary": "Get Base Preview (deprecated since 1.26: GET /api/v1/core/preview)",
+        "description": "The map of a shipped core version as it would deploy, before it is: GET /map's routers and links\nfor that version and scope, with no state (every status and link state unknown) and no enclaves.\nFor comparing versions in the builder.",
+        "operationId": "get_base_preview_api_v1_base_preview_get",
+        "deprecated": true,
+        "security": [
+          {
+            "GrayspaceToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "A shipped core version, e.g. grayspace/2026.11",
+              "title": "Version"
+            },
+            "description": "A shipped core version, e.g. grayspace/2026.11"
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "full",
+                "tier1"
+              ],
+              "type": "string",
+              "default": "full",
+              "title": "Scope"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeatureCollection"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such shipped version"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/core/preview": {
+      "get": {
+        "tags": [
           "map"
         ],
         "summary": "Get Base Preview",
         "description": "The map of a shipped core version as it would deploy, before it is: GET /map's routers and links\nfor that version and scope, with no state (every status and link state unknown) and no enclaves.\nFor comparing versions in the builder.",
-        "operationId": "get_base_preview_api_v1_base_preview_get",
+        "operationId": "get_base_preview_api_v1_core_preview_get",
         "security": [
           {
             "GrayspaceToken": []
@@ -2545,7 +3048,7 @@
           "deployments"
         ],
         "summary": "Create Deployment",
-        "description": "Create a deployment: its directory, environment file and work tree, and start its worker.\nYou become its owner. Its Terrain API is then at /deployments/{id}/api/v1; deploy its core with\nPOST /deployments/{id}/api/v1/base/deploy.",
+        "description": "Create a deployment: its directory, environment file and work tree, and start its worker.\nYou become its owner. Its Terrain API is then at /deployments/{id}/api/v1; deploy its core with\nPOST /deployments/{id}/api/v1/core/deploy.",
         "operationId": "create_deployment_api_v1_deployments_post",
         "requestBody": {
           "content": {
@@ -4507,7 +5010,7 @@
           "status": {
             "type": "string",
             "title": "Status",
-            "description": "The deployed core's status (GET /deployments/{id}/api/v1/base), or unknown when the worker doesn't answer"
+            "description": "The deployed core's status (GET /deployments/{id}/api/v1/core), or unknown when the worker doesn't answer"
           },
           "version": {
             "anyOf": [
@@ -4788,7 +5291,9 @@
       "Capabilities": {
         "properties": {
           "base": {
-            "$ref": "#/components/schemas/BaseVersionRef"
+            "$ref": "#/components/schemas/BaseVersionRef",
+            "description": "Deprecated (contract 1.26): the same as `core`",
+            "deprecated": true
           },
           "images": {
             "items": {
@@ -4851,8 +5356,9 @@
           "base_jobs": {
             "type": "boolean",
             "title": "Base Jobs",
-            "description": "Whether this GraySpace can deploy, configure and destroy the core",
-            "default": false
+            "description": "Deprecated (contract 1.26): the same as `core_jobs`",
+            "default": false,
+            "deprecated": true
           },
           "crucible": {
             "type": "boolean",
@@ -4869,7 +5375,9 @@
                 "type": "null"
               }
             ],
-            "title": "Base Jobs Unavailable Reason"
+            "title": "Base Jobs Unavailable Reason",
+            "description": "Deprecated (contract 1.26): the same as `core_jobs_unavailable_reason`",
+            "deprecated": true
           },
           "management_subnet": {
             "type": "string",
@@ -4914,6 +5422,30 @@
               }
             ],
             "description": "Null when Proxmox is unavailable"
+          },
+          "core": {
+            "$ref": "#/components/schemas/BaseVersionRef",
+            "description": "The core version",
+            "readOnly": true
+          },
+          "core_jobs": {
+            "type": "boolean",
+            "title": "Core Jobs",
+            "description": "Whether this GraySpace can deploy, configure and destroy the core",
+            "readOnly": true
+          },
+          "core_jobs_unavailable_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Core Jobs Unavailable Reason",
+            "description": "Why it can't, when it can't",
+            "readOnly": true
           }
         },
         "type": "object",
@@ -4930,7 +5462,10 @@
           "dns",
           "cas",
           "isps",
-          "capacity"
+          "capacity",
+          "core",
+          "core_jobs",
+          "core_jobs_unavailable_reason"
         ],
         "title": "Capabilities",
         "description": "What a slice can use on a core version."
@@ -5921,7 +6456,9 @@
       "DeployPlan": {
         "properties": {
           "base": {
-            "$ref": "#/components/schemas/PlannedBase"
+            "$ref": "#/components/schemas/PlannedBase",
+            "description": "Deprecated (contract 1.26): the same as `core`",
+            "deprecated": true
           },
           "instances": {
             "items": {
@@ -5992,13 +6529,19 @@
             ],
             "title": "Resumable Rollout",
             "description": "The last rollout, when it failed or was cancelled and the draft is still the one it deployed: retrying it resumes where it stopped (since 1.22). Null otherwise; after the draft changes, deploy instead (a retry is refused)"
+          },
+          "core": {
+            "$ref": "#/components/schemas/PlannedBase",
+            "description": "What happens to the core",
+            "readOnly": true
           }
         },
         "type": "object",
         "required": [
           "base",
           "instances",
-          "changes"
+          "changes",
+          "core"
         ],
         "title": "DeployPlan",
         "description": "What POST /deploy would do: the draft against what is deployed."
@@ -6118,7 +6661,9 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "Deprecated (contract 1.26): the same as `core`",
+            "deprecated": true
           },
           "summary": {
             "anyOf": [
@@ -6164,6 +6709,18 @@
             },
             "type": "array",
             "title": "Warnings"
+          },
+          "core": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BaseSummary"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The deployed core and its health; null when the worker isn't running",
+            "readOnly": true
           }
         },
         "type": "object",
@@ -6176,7 +6733,8 @@
           "url",
           "proxmox",
           "options",
-          "worker"
+          "worker",
+          "core"
         ],
         "title": "Deployment"
       },
@@ -6254,7 +6812,9 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "Deprecated (contract 1.26): the same as `core`",
+            "deprecated": true
           },
           "summary": {
             "anyOf": [
@@ -6312,6 +6872,18 @@
             "type": "array",
             "title": "Log",
             "description": "The worker log's last lines"
+          },
+          "core": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BaseSummary"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The deployed core and its health; null when the worker isn't running",
+            "readOnly": true
           }
         },
         "type": "object",
@@ -6325,7 +6897,8 @@
           "proxmox",
           "options",
           "worker",
-          "work_dir"
+          "work_dir",
+          "core"
         ],
         "title": "DeploymentDetail"
       },
@@ -6417,7 +6990,8 @@
                 "type": "null"
               }
             ],
-            "description": "The newest core job (deploy, configure, destroy)"
+            "description": "Deprecated (contract 1.26): the same as `last_core_job`",
+            "deprecated": true
           },
           "updated": {
             "anyOf": [
@@ -6440,9 +7014,24 @@
                 "type": "null"
               }
             ]
+          },
+          "last_core_job": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JobBrief"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The newest core job (deploy, configure, destroy)",
+            "readOnly": true
           }
         },
         "type": "object",
+        "required": [
+          "last_core_job"
+        ],
         "title": "DeploymentSummary",
         "description": "What the deployments list shows of each: its enclave instances and jobs (GET /deployments/{id}/api/v1/summary)."
       },
@@ -6859,7 +7448,7 @@
       },
       "Draft": {
         "properties": {
-          "base": {
+          "core": {
             "anyOf": [
               {
                 "$ref": "#/components/schemas/DraftBase"
@@ -6869,6 +7458,18 @@
               }
             ],
             "description": "Null: keep the deployed core, or deploy none"
+          },
+          "base": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DraftBase"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Deprecated (contract 1.26): the same as `core`; give one, or both the same",
+            "deprecated": true
           },
           "enclaves": {
             "items": {
@@ -7106,7 +7707,7 @@
       },
       "DraftUpdate": {
         "properties": {
-          "base": {
+          "core": {
             "anyOf": [
               {
                 "$ref": "#/components/schemas/DraftBase"
@@ -7116,6 +7717,18 @@
               }
             ],
             "description": "Null: keep the deployed core, or deploy none"
+          },
+          "base": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DraftBase"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Deprecated (contract 1.26): the same as `core`; give one, or both the same",
+            "deprecated": true
           },
           "enclaves": {
             "items": {
@@ -7270,7 +7883,8 @@
             },
             "type": "array",
             "title": "Base",
-            "description": "{hostname, group: routers|core_services|management, isp, role, type}"
+            "description": "Deprecated (contract 1.26): the same as `core`",
+            "deprecated": true
           },
           "enclaves": {
             "items": {
@@ -7279,12 +7893,22 @@
             "type": "array",
             "title": "Enclaves",
             "description": "Per draft enclave: {prefix, slug, sites: [{name, edge, hint}], hosts: [{name, count, image, hint}]}; hint: the spec marks it crucible: true"
+          },
+          "core": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Core",
+            "description": "The core's guests: {hostname, group: routers|core_services|management, isp, role, type}",
+            "readOnly": true
           }
         },
         "type": "object",
         "required": [
           "base",
-          "enclaves"
+          "enclaves",
+          "core"
         ],
         "title": "Guests"
       },
@@ -7632,7 +8256,9 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "Deprecated (contract 1.26): the same as `core`",
+            "deprecated": true
           },
           "state": {
             "type": "string",
@@ -7715,6 +8341,18 @@
             "$ref": "#/components/schemas/SliceRef",
             "description": "The enclave and version it was built from",
             "readOnly": true
+          },
+          "core": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BaseVersionRef"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The core version it was built on",
+            "readOnly": true
           }
         },
         "type": "object",
@@ -7731,7 +8369,8 @@
           "updated",
           "stages_done",
           "jobs",
-          "enclave"
+          "enclave",
+          "core"
         ],
         "title": "InstanceView",
         "description": "An instance: its manifest, complete once ready, plus its lifecycle."
@@ -12275,7 +12914,7 @@
       "description": "The Proxmox and Crucible connections deployments run on, defined once by admins. At the server's root"
     },
     {
-      "name": "base",
+      "name": "core",
       "description": "The deployed core: version, health, inventory, DNS and shipped versions; and its lifecycle as jobs: preflight, deploy, configure, destroy"
     },
     {
@@ -12313,6 +12952,10 @@
     {
       "name": "ca",
       "description": "The core CAs' root certificates"
+    },
+    {
+      "name": "base (deprecated)",
+      "description": "The core routes under their name before 1.26, when the core was the base. Removed in 2.0"
     },
     {
       "name": "slices (deprecated)",

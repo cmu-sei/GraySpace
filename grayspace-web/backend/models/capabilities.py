@@ -1,6 +1,6 @@
 """Models for /api/v1/capabilities, /attachment-points and /slices."""
 from typing import Any, Dict, List, Literal, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 
 from models.base import BaseVersionRef
 
@@ -91,7 +91,13 @@ class Capacity(BaseModel):
 class Capabilities(BaseModel):
     """What a slice can use on a core version."""
 
-    base: BaseVersionRef
+    base: BaseVersionRef = Field(..., description="Deprecated (contract 1.26): the same as `core`", json_schema_extra={"deprecated": True})
+
+    @computed_field(description="The core version")
+    @property
+    def core(self) -> BaseVersionRef:
+        return self.base
+
     images: List[Image] = Field(..., description="The image catalog slice hosts can use")
     roles: List[Role] = Field(..., description="Roles enclave hosts can take")
     host_features: List[HostFeature] = Field(default_factory=list, description="Deprecated (contract 1.18): features of core "
@@ -106,11 +112,12 @@ class Capabilities(BaseModel):
         ..., description="Whether this GraySpace can run slice jobs (plan, create and destroy instances). False where there is no GraySpace checkout or no deployed core"
     )
     jobs_unavailable_reason: Optional[str] = None
-    base_jobs: bool = Field(False, description="Whether this GraySpace can deploy, configure and destroy the core")
+    base_jobs: bool = Field(False, description="Deprecated (contract 1.26): the same as `core_jobs`", json_schema_extra={"deprecated": True})
     crucible: bool = Field(
         False, description="Whether the deployment has a Crucible Player view (its Player step decides which guests; crucible: true pre-assigns a host or site to its default team)"
     )
-    base_jobs_unavailable_reason: Optional[str] = None
+    base_jobs_unavailable_reason: Optional[str] = Field(None, description="Deprecated (contract 1.26): the same as "
+                                                        "`core_jobs_unavailable_reason`", json_schema_extra={"deprecated": True})
     management_subnet: str = Field(..., description="Enclave address space never overlaps it")
     enclave_pool: str = Field(..., description="Where segments without an explicit CIDR are allocated from")
     slice_pool: str = Field(..., description="Deprecated (contract 1.5): the same as enclave_pool", deprecated=True)
@@ -118,6 +125,16 @@ class Capabilities(BaseModel):
     cas: List[CertificateAuthority]
     isps: List[IspCapability]
     capacity: Optional[Capacity] = Field(..., description="Null when Proxmox is unavailable")
+
+    @computed_field(description="Whether this GraySpace can deploy, configure and destroy the core")
+    @property
+    def core_jobs(self) -> bool:
+        return self.base_jobs
+
+    @computed_field(description="Why it can't, when it can't")
+    @property
+    def core_jobs_unavailable_reason(self) -> Optional[str]:
+        return self.base_jobs_unavailable_reason
 
 
 class AddressSpace(BaseModel):

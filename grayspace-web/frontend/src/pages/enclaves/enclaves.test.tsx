@@ -13,7 +13,7 @@ const host = (name: string, image: string, extra: Partial<ManifestHost> = {}): M
   fqdns: [], roles: [], labels: {}, image, status: 'running', ...extra,
 });
 const view: InstanceView = {
-  id: 'rc', slice: ref, enclave: ref, base: null, state: 'ready', dns: [], certificates: [],
+  id: 'rc', slice: ref, enclave: ref, core: null, state: 'ready', dns: [], certificates: [],
   sites: [{
     name: 'home', router: 'rog-tor', isp: 'Rogers', location: 'Toronto', wan_ip: '64.231.0.2', routed: false, public_prefix: null,
     wans: [{ router: 'rog-tor', isp: 'Rogers', asn: 812, location: 'Toronto', customer_net: '64.231.0.0/24', bridge: 'v100', ip: '64.231.0.2', gateway: '64.231.0.1' }],

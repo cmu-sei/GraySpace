@@ -207,7 +207,7 @@ describe("a deployment's settings", () => {
   });
 
   it("locks where it runs, and removing it, while it's deployed", async () => {
-    const d = deployment('ex1', { base: { status: 'healthy' }, placement: { connection: 'site', node: 'pve1' } });
+    const d = deployment('ex1', { core: { status: 'healthy' }, placement: { connection: 'site', node: 'pve1' } });
     app('/d/ex1/settings', me('builder'), [d]);
     expect(await screen.findByLabelText('Node')).toBeDisabled();
     expect(screen.getByLabelText('Proxmox connection')).toBeDisabled();

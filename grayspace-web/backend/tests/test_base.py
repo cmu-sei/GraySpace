@@ -1,4 +1,4 @@
-"""GET /api/v1/base: the deployed base version and its health.
+"""GET /api/v1/core: the deployed base version and its health.
 
 Run from grayspace-web/backend: python -m unittest discover -s tests -t .
 """
@@ -36,7 +36,7 @@ class GetBase(unittest.TestCase):
         with patch.object(base_service.topology_service, "tfvars_data", tfvars), \
              patch.object(base_service.proxmox_client, "get_deployment_containers", side_effect=proxmox), \
              patch.object(base_service.prometheus_client, "get_bgp_peer_states", AsyncMock(return_value=peers)):
-            response = TestClient(app, headers=AUTH).get("/api/v1/base")
+            response = TestClient(app, headers=AUTH).get("/api/v1/core")
         self.assertEqual(response.status_code, 200)
         return response.json()
 
@@ -91,7 +91,7 @@ class GetBase(unittest.TestCase):
         app = FastAPI()
         app.include_router(base.router)
         schema = TestClient(app, headers=AUTH).get("/openapi.json").json()
-        ref = schema["paths"]["/api/v1/base"]["get"]["responses"]["200"]["content"]["application/json"]["schema"]
+        ref = schema["paths"]["/api/v1/core"]["get"]["responses"]["200"]["content"]["application/json"]["schema"]
         self.assertEqual(ref, {"$ref": "#/components/schemas/DeployedBase"})
 
 

@@ -6,7 +6,7 @@ builds, and a variant is another enclave.
 """
 from typing import Any, Dict, List, Literal, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 
 PRESET_NAME = r"^[a-z0-9][a-z0-9-]{0,47}$"
 
@@ -69,7 +69,12 @@ class TrackedChange(BaseModel):
 
 class TrackedChanges(BaseModel):
     preset: Optional[str] = Field(..., description="The core preset Reset changes returns to; null for the core as deployed")
-    base: Optional[str] = Field(None, description="The deployed core version the preset belongs to")
+    base: Optional[str] = Field(None, description="Deprecated (contract 1.26): the same as `core`", json_schema_extra={"deprecated": True})
+
+    @computed_field(description="The deployed core version the preset belongs to")
+    @property
+    def core(self) -> Optional[str]:
+        return self.base
     baseline: str = Field(..., description="Deprecated: preset, or GraySpace for none", deprecated=True)
     count: int = Field(..., description="Tracked mutations, the preset's included")
     changes: List[TrackedChange] = Field(..., description="Changes since the preset, newest first")

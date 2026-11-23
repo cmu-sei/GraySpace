@@ -18,7 +18,7 @@ jest.mock('../../components/MapView', () => ({
 }));
 
 const CAPS = {
-  base: { name: 'grayspace/2026.11', csv_sha256: 'x', scope: 'full' },
+  core: { name: 'grayspace/2026.11', csv_sha256: 'x', scope: 'full' },
   images: [{ name: 'grayspace-ubuntu-lxc', type: 'lxc', os_family: 'ubuntu', description: '' }],
   roles: [
     { name: 'web', description: 'nginx', os_families: ['ubuntu'] },
@@ -198,14 +198,14 @@ const serve = (extra: (url: string, init?: RequestInit) => { status?: number; bo
     const answer = extra(url, init);
     if (answer) return answer;
     if (url.endsWith('/api/v1/draft') && init?.method === 'PUT') return { body: { ...JSON.parse(String(init.body)), updated: new Date().toISOString(), updated_by: 'blake' } };
-    if (url.endsWith('/api/v1/draft')) return { body: { base: null, enclaves: [], adopted: true } };
-    if (url.endsWith('/api/v1/base/versions')) return { body: [{ name: 'grayspace/2026.11', csv_sha256: 'x', deployed: false, problems: [], summary: { isps: 15, locations: 30, routers: 134, links: 200, core_services: 22, clients: 0 } }] };
+    if (url.endsWith('/api/v1/draft')) return { body: { core: null, enclaves: [], adopted: true } };
+    if (url.endsWith('/api/v1/core/versions')) return { body: [{ name: 'grayspace/2026.11', csv_sha256: 'x', deployed: false, problems: [], summary: { isps: 15, locations: 30, routers: 134, links: 200, core_services: 22, clients: 0 } }] };
     if (url.endsWith('/api/v1/enclaves')) return { body: [{ slug: 'base', kind: 'base', description: '', versions: [], instances: [] }, { slug: 'meridian-bank', kind: 'slice', description: 'A bank', versions: [], instances: [] }] };
     if (url.endsWith('/api/v1/enclaves/meridian-bank')) return { body: { slug: 'meridian-bank', kind: 'slice', description: '', versions: [], instances: [], spec: BANK } };
     if (url.includes('/validate')) return { body: { valid: true, version: 'sha256:1', findings: [] } };
     if (url.includes('/api/v1/capabilities')) return { body: CAPS };
-    if (url.includes('/api/v1/base/preflight')) return { body: { ready: true, version: 'grayspace/2026.11', scope: 'full', checks: [{ name: 'version', status: 'ok', message: 'fine' }] } };
-    if (url.endsWith('/api/v1/deploy/plan')) return { body: { base: { action: 'deploy', deployed: null, version: 'grayspace/2026.11', scope: 'full', configure: true }, instances: [{ id: 'mb', slug: 'meridian-bank', version: 'sha256:1', action: 'create', state: null }], unmanaged: [], problems: [], stages: ['base', 'create:mb'], changes: true, capacity: CAPS.capacity } };
+    if (url.includes('/api/v1/core/preflight')) return { body: { ready: true, version: 'grayspace/2026.11', scope: 'full', checks: [{ name: 'version', status: 'ok', message: 'fine' }] } };
+    if (url.endsWith('/api/v1/deploy/plan')) return { body: { core: { action: 'deploy', deployed: null, version: 'grayspace/2026.11', scope: 'full', configure: true }, instances: [{ id: 'mb', slug: 'meridian-bank', version: 'sha256:1', action: 'create', state: null }], unmanaged: [], problems: [], stages: ['base', 'create:mb'], changes: true, capacity: CAPS.capacity } };
     if (url.includes('/api/v1/jobs?')) return { body: [] };
     if (url.endsWith('/api/v1/deployments')) return { body: [] };
     return undefined;
@@ -227,7 +227,7 @@ describe('the builder', () => {
 
   it('previews a version: its map, and its ISPs with their routers', async () => {
     const router = (id: string, isp: string, location: string) => ({ type: 'Feature', id, geometry: { type: 'Point', coordinates: [0, 0] }, properties: { id, kind: 'router', isp, asn: 1, location } });
-    serve((url) => (url.includes('/api/v1/base/preview?version=grayspace%2F2026.11&scope=full')
+    serve((url) => (url.includes('/api/v1/core/preview?version=grayspace%2F2026.11&scope=full')
       ? { body: { type: 'FeatureCollection', features: [router('lum-chi', 'Lumen', 'Chicago'), router('lum-nyc', 'Lumen', 'New York'), router('ntt-tok', 'NTT', 'Tokyo')] } } : undefined));
     wizard('base');
     fireEvent.click(await screen.findByRole('button', { name: 'Preview' }));
@@ -244,12 +244,12 @@ describe('the builder', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Next: DNS' }));
     await waitFor(() => expect(calls.some((c) => c.url.endsWith('/api/v1/draft') && c.init?.method === 'PUT')).toBe(true));
     const put = calls.find((c) => c.url.endsWith('/api/v1/draft') && c.init?.method === 'PUT')!;
-    expect(JSON.parse(String(put.init?.body))).toEqual({ base: { version: 'grayspace/2026.11', scope: 'full', configure: true }, enclaves: [{ slug: 'meridian-bank', prefix: 'bank', version: null }] });
+    expect(JSON.parse(String(put.init?.body))).toEqual({ core: { version: 'grayspace/2026.11', scope: 'full', configure: true }, enclaves: [{ slug: 'meridian-bank', prefix: 'bank', version: null }] });
   });
 
   it('checks each enclave as the draft\'s instance, so the one already built is not a conflict', async () => {
     const calls = serve((url) => (url.endsWith('/api/v1/draft')
-      ? { body: { base: { version: 'grayspace/2026.11', scope: 'full', configure: true }, enclaves: [{ slug: 'meridian-bank', prefix: 'mb', version: null }] } } : undefined));
+      ? { body: { core: { version: 'grayspace/2026.11', scope: 'full', configure: true }, enclaves: [{ slug: 'meridian-bank', prefix: 'mb', version: null }] } } : undefined));
     wizard('enclaves');
     const validations = () => calls.filter((c) => c.url.includes('/api/v1/enclaves/meridian-bank/validate')).map((c) => c.url);
     await waitFor(() => expect(validations().some((u) => u.includes('instance=mb'))).toBe(true));
@@ -274,7 +274,7 @@ describe('the builder', () => {
       created: new Date().toISOString(), children: [], result: { children: {} }, stage_titles: { 'create:old': 'Create instance old' } };
     const plan = (resumable: string | null) => (url: string) => (url.includes('/api/v1/jobs?') ? { body: [failed] }
       : url.endsWith('/api/v1/jobs/r0') ? { body: failed }
-        : url.endsWith('/api/v1/deploy/plan') ? { body: { base: { action: 'none', deployed: { name: 'grayspace/2026.11', scope: 'full' }, version: 'grayspace/2026.11', scope: 'full', configure: true },
+        : url.endsWith('/api/v1/deploy/plan') ? { body: { core: { action: 'none', deployed: { name: 'grayspace/2026.11', scope: 'full' }, version: 'grayspace/2026.11', scope: 'full', configure: true },
           instances: [], unmanaged: [], problems: [], stages: [], changes: false, capacity: CAPS.capacity, resumable_rollout: resumable } } : undefined);
     serve(plan(null));
     const view = wizard('review');

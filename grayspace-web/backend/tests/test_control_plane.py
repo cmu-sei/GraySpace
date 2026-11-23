@@ -78,7 +78,7 @@ class TwoDeployments(unittest.TestCase):
         self.assertNotIn("bank", slugs("b"))
 
     def test_the_unprefixed_routes_reach_the_default_and_are_deprecated(self):
-        r = self.client.get("/api/v1/base", headers=AUTH)
+        r = self.client.get("/api/v1/core", headers=AUTH)
         self.assertEqual(r.status_code, 200, r.text)
         self.assertEqual((r.headers["deprecation"], r.headers["x-grayspace-deployment"]), ("true", "a"))
         # A UI route: its GETs need no token on the worker, but every request through the control plane does
@@ -86,10 +86,10 @@ class TwoDeployments(unittest.TestCase):
         self.assertEqual(self.client.get("/api/v1/topology/routers").status_code, 401)
 
     def test_every_request_needs_a_token(self):
-        self.assertEqual(self.client.get("/deployments/b/api/v1/base").status_code, 401)
+        self.assertEqual(self.client.get("/deployments/b/api/v1/core").status_code, 401)
         self.assertEqual(self.client.get("/deployments/b/api/v1/topology/routers").status_code, 401)
-        self.assertEqual(self.client.get("/deployments/zz/api/v1/base").status_code, 401)  # nothing said about which exist
-        self.assertEqual(self.client.get("/deployments/zz/api/v1/base", headers=AUTH).status_code, 404)
+        self.assertEqual(self.client.get("/deployments/zz/api/v1/core").status_code, 401)  # nothing said about which exist
+        self.assertEqual(self.client.get("/deployments/zz/api/v1/core", headers=AUTH).status_code, 404)
 
     def test_websockets_are_relayed(self):
         with self.client.websocket_connect("/deployments/b/api/v1/events?token=test-token") as ws:
@@ -106,17 +106,17 @@ class TwoDeployments(unittest.TestCase):
         self.assertEqual(r.json()["secrets"], ["router_password"])
         self.assertEqual(self.client.post("/api/v1/deployments", json={"id": "c"}, headers=AUTH).status_code, 409)
         self.assertTrue(wait_for(lambda: supervisor.running("c")))
-        self.assertEqual(self.client.get("/deployments/c/api/v1/base", headers=AUTH).status_code, 200)
+        self.assertEqual(self.client.get("/deployments/c/api/v1/core", headers=AUTH).status_code, 200)
         self.assertEqual(self.client.delete("/api/v1/deployments/c", headers=AUTH).status_code, 204)
         self.assertIsNone(registry.get("c"))
-        self.assertEqual(self.client.get("/deployments/c/api/v1/base", headers=AUTH).status_code, 404)
+        self.assertEqual(self.client.get("/deployments/c/api/v1/core", headers=AUTH).status_code, 404)
 
     def test_a_killed_worker_is_restarted(self):
         before = supervisor.status("b")
         os.kill(before.pid, signal.SIGKILL)
         self.assertTrue(wait_for(lambda: supervisor.running("b") and supervisor.status("b").pid != before.pid))
         self.assertEqual(supervisor.status("b").restarts, before.restarts + 1)
-        self.assertEqual(self.client.get("/deployments/b/api/v1/base", headers=AUTH).status_code, 200)
+        self.assertEqual(self.client.get("/deployments/b/api/v1/core", headers=AUTH).status_code, 200)
 
 
 class Streaming(unittest.TestCase):
