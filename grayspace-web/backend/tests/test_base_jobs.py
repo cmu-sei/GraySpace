@@ -281,7 +281,7 @@ class Routes(unittest.TestCase):
             self.addCleanup(p.stop)
 
     def test_deploy_returns_a_job(self):
-        r = self.client.post("/api/v1/base/deploy", json={"version": "grayspace/2026.11", "scope": "tier1"})
+        r = self.client.post("/api/v1/core/deploy", json={"version": "grayspace/2026.11", "scope": "tier1"})
         self.assertEqual(r.status_code, 202, r.text)
         job = r.json()["job"]
         self.assertEqual((job["kind"], job["target"], job["state"]), ("deploy_base", "base", "queued"))
@@ -290,43 +290,43 @@ class Routes(unittest.TestCase):
         self.assertEqual([j.id for j in self.submitted], [job["id"]])
 
     def test_one_base_job_at_a_time(self):
-        self.client.post("/api/v1/base/deploy", json={"version": "grayspace/2026.11"})
-        r = self.client.post("/api/v1/base/deploy", json={"version": "grayspace/2026.11"})
+        self.client.post("/api/v1/core/deploy", json={"version": "grayspace/2026.11"})
+        r = self.client.post("/api/v1/core/deploy", json={"version": "grayspace/2026.11"})
         self.assertEqual(r.status_code, 409)
-        self.assertEqual(self.client.delete("/api/v1/base").status_code, 409)
+        self.assertEqual(self.client.delete("/api/v1/core").status_code, 409)
 
     def test_preflight_errors_are_422_and_instance_conflicts_409(self):
         self.preflight.return_value = Preflight(ready=False, checks=[PreflightCheck(name="ssh", status="error", message="closed")])
-        r = self.client.post("/api/v1/base/deploy", json={"version": "grayspace/2026.11"})
+        r = self.client.post("/api/v1/core/deploy", json={"version": "grayspace/2026.11"})
         self.assertEqual(r.status_code, 422)
         self.assertEqual(r.json()["detail"]["checks"][0]["name"], "ssh")
         self.preflight.return_value = Preflight(ready=False, checks=[PreflightCheck(name="instances", status="error", message="live")])
-        self.assertEqual(self.client.post("/api/v1/base/deploy", json={"version": "grayspace/2026.11"}).status_code, 409)
+        self.assertEqual(self.client.post("/api/v1/core/deploy", json={"version": "grayspace/2026.11"}).status_code, 409)
         self.assertEqual(self.submitted, [])
 
     def test_a_bad_gateway_is_422(self):
-        r = self.client.post("/api/v1/base/deploy", json={"version": "grayspace/2026.11", "mgmt_gateway": "gateway"})
+        r = self.client.post("/api/v1/core/deploy", json={"version": "grayspace/2026.11", "mgmt_gateway": "gateway"})
         self.assertEqual(r.status_code, 422)
 
     def test_configure_needs_a_deployed_base(self):
-        self.assertEqual(self.client.post("/api/v1/base/configure", json={}).status_code, 409)
+        self.assertEqual(self.client.post("/api/v1/core/configure", json={}).status_code, 409)
         with patch.object(topology_service, "tfvars_data", {"routers": {"a": {}}}):
-            r = self.client.post("/api/v1/base/configure", json={})
+            r = self.client.post("/api/v1/core/configure", json={})
         self.assertEqual(r.status_code, 202, r.text)
         self.assertEqual(r.json()["job"]["stages"], base_jobs.CONFIGURE_STAGES)
 
     def test_destroy_with_live_instances(self):
         live_instance("mb")
         live_instance("ns")
-        self.assertEqual(self.client.delete("/api/v1/base").status_code, 409)
-        r = self.client.delete("/api/v1/base?destroy_instances=true")
+        self.assertEqual(self.client.delete("/api/v1/core").status_code, 409)
+        r = self.client.delete("/api/v1/core?destroy_instances=true")
         self.assertEqual(r.status_code, 202, r.text)
         kinds = [(j["kind"], j["target"]) for j in r.json()]
         self.assertEqual(kinds, [("destroy_instance", "mb"), ("destroy_instance", "ns"), ("destroy_base", "base")])
         self.assertEqual([j.kind for j in self.submitted], ["destroy_instance", "destroy_instance", "destroy_base"])
 
     def test_preflight_route(self):
-        r = self.client.get("/api/v1/base/preflight?version=grayspace/2026.11&scope=tier1")
+        r = self.client.get("/api/v1/core/preflight?version=grayspace/2026.11&scope=tier1")
         self.assertEqual(r.status_code, 200)
         self.assertTrue(r.json()["ready"])
         self.preflight.assert_awaited_with("grayspace/2026.11", "tier1")

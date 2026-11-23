@@ -22,7 +22,9 @@ def _isp_order(name: Optional[str] = None):
     return [i.id for i in base_versions.topology().load(resolved[1]).of("ISP")]
 
 
-@router.get("/base/preview", response_model=FeatureCollection, responses={404: {"description": "No such shipped version"}})
+@router.get("/core/preview", response_model=FeatureCollection, responses={404: {"description": "No such shipped version"}})
+@router.get("/base/preview", response_model=FeatureCollection, responses={404: {"description": "No such shipped version"}}, deprecated=True,
+            tags=["base (deprecated)"], summary="Get Base Preview (deprecated since 1.26: GET /api/v1/core/preview)")
 async def get_base_preview(version: str = Query(..., description="A shipped core version, e.g. grayspace/2026.11"),
                            scope: Literal["full", "tier1"] = Query("full")):
     """

@@ -7,6 +7,15 @@ import unittest
 import contract
 
 PATHS = {
+    "/api/v1/core",
+    "/api/v1/core/preflight",
+    "/api/v1/core/deploy",
+    "/api/v1/core/configure",
+    "/api/v1/core/inventory",
+    "/api/v1/core/dns",
+    "/api/v1/core/versions",
+    "/api/v1/core/versions/{name}",
+    "/api/v1/core/preview",
     "/api/v1/base",
     "/api/v1/base/preflight",
     "/api/v1/base/deploy",

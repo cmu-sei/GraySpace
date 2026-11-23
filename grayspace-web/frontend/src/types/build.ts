@@ -38,7 +38,7 @@ export interface RoleVariable { description: string; required?: boolean; default
 export interface Role { name: string; description: string; os_families: string[]; image_types?: ('lxc' | 'vm')[] | null; variables?: Record<string, RoleVariable> }
 
 export interface Capabilities {
-  base: { name: string | null; csv_sha256: string; scope: string };
+  core: { name: string | null; csv_sha256: string; scope: string };
   images: { name: string; type: string; os_family: string; description: string }[];
   roles: Role[];
   dns: { tlds: string[]; hosting: { hostname: string; isp: string }[]; resolvers: { hostname: string }[] };
@@ -108,7 +108,7 @@ export interface PlayerRule { scope: string; teams: string[] }
 
 /** GET /api/v1/player/guests */
 export interface PlayerCandidates {
-  base: { hostname: string; group: 'routers' | 'core_services' | 'management'; isp?: string | null; role?: string; type?: string }[];
+  core: { hostname: string; group: 'routers' | 'core_services' | 'management'; isp?: string | null; role?: string; type?: string }[];
   enclaves: { prefix: string; slug: string; sites: { name: string; edge: string; hint: boolean }[]; hosts: { name: string; count: number; image: string; hint: boolean }[] }[];
 }
 
@@ -118,7 +118,7 @@ export interface PlayerTemplate { id: string; name: string; url?: string | null;
 export interface PlayerRole { id: string; name: string }
 
 export interface Draft {
-  base: DraftBase | null;
+  core: DraftBase | null;
   enclaves: DraftEnclave[];
   player?: DraftPlayer | null;
   updated?: string | null;
@@ -135,7 +135,7 @@ export interface PlannedInstance {
 }
 
 export interface DeployPlan {
-  base: { action: 'none' | 'deploy' | 'update'; deployed: { name: string | null; scope: string } | null; version: string | null; scope: string | null; configure: boolean;
+  core: { action: 'none' | 'deploy' | 'update'; deployed: { name: string | null; scope: string } | null; version: string | null; scope: string | null; configure: boolean;
     preset?: string | null; active_preset?: string | null };
   instances: PlannedInstance[];
   player?: { action: 'none' | 'create' | 'update' | 'destroy'; view?: string | null; teams: number; guests: number; warnings: string[] } | null;

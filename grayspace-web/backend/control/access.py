@@ -7,7 +7,7 @@ is its owner, or a member with build or use access. What that allows there:
     read      see it: every GET, the topology and events websockets
     operate   act on it at runtime: consoles, instance actions, traffic shaping,
               DNS and certificate changes, Reset changes, applying presets
-    build     change what is deployed: the base (deploy, configure), enclaves, instances, jobs,
+    build     change what is deployed: the core (deploy, configure), enclaves, instances, jobs,
               presets (saving and deleting), images
     members:manage, delete   the owner's (and admins')
 
@@ -85,9 +85,11 @@ WORKER_ROUTES: List[Tuple[str, str, str]] = [
     ("POST", "/api/v1/dns/{}/records", "operate"),
     ("POST", "/api/v1/ca/certificates/issue", "operate"),
     ("POST", "/api/v1/ca/{}/certificates/revoke", "operate"),
+    ("POST", "/api/v1/core/actions", "operate"),
     ("POST", "/api/v1/base/actions", "operate"),
     ("POST", "/api/v1/changes/discard", "operate"),
     ("POST", "/api/v1/scenarios/discard-changes", "operate"),
+    ("POST", "/api/v1/core/presets/{}/apply", "operate"),
     ("POST", "/api/v1/base/presets/{}/apply", "operate"),
     ("POST", "/api/v1/reset/quick", "operate"),
     ("POST", "/api/v1/reset/cancel", "operate"),
@@ -98,12 +100,17 @@ WORKER_ROUTES: List[Tuple[str, str, str]] = [
     ("POST", "/api/v1/containers/{}/restart", "build"),
     ("PUT", "/api/v1/networks/vnet/{}/zone", "build"),
     ("POST", "/api/v1/networks/apply", "build"),
+    ("POST", "/api/v1/core/presets", "build"),
     ("POST", "/api/v1/base/presets", "build"),
+    ("PUT DELETE", "/api/v1/core/presets/{}", "build"),
     ("PUT DELETE", "/api/v1/base/presets/{}", "build"),
+    ("POST", "/api/v1/core/deploy", "build"),
     ("POST", "/api/v1/base/deploy", "build"),
     ("PUT", "/api/v1/draft", "build"),
     ("POST", "/api/v1/deploy", "build"),
+    ("POST", "/api/v1/core/configure", "build"),
     ("POST", "/api/v1/base/configure", "build"),
+    ("DELETE", "/api/v1/core", "delete"),
     ("DELETE", "/api/v1/base", "delete"),
     ("PUT DELETE", "/api/v1/enclaves/{}", "build"),
     ("POST", "/api/v1/enclaves/{}/validate", "build"),

@@ -5,7 +5,7 @@ import { fakeServer } from '../testing';
 import { PresetModal } from './PresetModal';
 
 const CHANGES = {
-  preset: 'slow-links', base: 'grayspace/2026.11', baseline: 'slow-links', count: 2,
+  preset: 'slow-links', core: 'grayspace/2026.11', baseline: 'slow-links', count: 2,
   changes: [{ kind: 'traffic', key: 'a:b', summary: 'a:b shaped: latency_ms 80', by: 'uma', at: new Date().toISOString() }],
 };
 const LIST = [
@@ -20,9 +20,9 @@ afterEach(() => apiService.setDeployment(null));
 
 const server = () => fakeServer((url, init) => {
   if (url.endsWith('/api/v1/changes')) return { body: CHANGES };
-  if (url.endsWith('/api/v1/base/presets') && !init?.method) return { body: LIST };
+  if (url.endsWith('/api/v1/core/presets') && !init?.method) return { body: LIST };
   if (url.includes('/apply')) return { body: { success: true, message: 'Applied dns-outage', applied: { 'dns.record.set': 1 }, warnings: [], errors: [] } };
-  if (url.endsWith('/api/v1/base/presets') && init?.method === 'POST') return { body: { ...LIST[0], name: 'mine', actions: [] } };
+  if (url.endsWith('/api/v1/core/presets') && init?.method === 'POST') return { body: { ...LIST[0], name: 'mine', actions: [] } };
   return undefined;
 });
 
@@ -46,11 +46,11 @@ describe('the preset box', () => {
     fireEvent.click(screen.getAllByRole('button', { name: 'Apply' })[1]);
     await screen.findByText('Applied dns-outage');
     expect(window.confirm).toHaveBeenCalledWith(expect.stringContaining('resets the 1 change made since slow-links'));
-    expect(calls.some((c) => c.url.endsWith('/deployments/ex1/api/v1/base/presets/dns-outage/apply') && c.init?.method === 'POST')).toBe(true);
+    expect(calls.some((c) => c.url.endsWith('/deployments/ex1/api/v1/core/presets/dns-outage/apply') && c.init?.method === 'POST')).toBe(true);
     fireEvent.change(screen.getByLabelText('Preset name'), { target: { value: 'My Preset' } });
     expect((screen.getByLabelText('Preset name') as HTMLInputElement).value).toBe('my-preset');
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
-    await waitFor(() => expect(calls.some((c) => c.init?.method === 'POST' && c.url.endsWith('/api/v1/base/presets'))).toBe(true));
+    await waitFor(() => expect(calls.some((c) => c.init?.method === 'POST' && c.url.endsWith('/api/v1/core/presets'))).toBe(true));
     expect(changed).toHaveBeenCalled();
   });
 

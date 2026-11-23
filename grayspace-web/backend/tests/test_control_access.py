@@ -228,7 +228,7 @@ class Access(Base):
     def test_others_deployments_are_not_found(self):
         uma = self.login("uma")
         self.assertEqual(self.client.get("/api/v1/deployments/d2", headers=uma).status_code, 404)
-        self.assertEqual(self.client.get("/deployments/d2/api/v1/base", headers=uma).status_code, 404)
+        self.assertEqual(self.client.get("/deployments/d2/api/v1/core", headers=uma).status_code, 404)
 
     def test_the_worker_gets_the_service_token_and_the_caller(self):
         uma = self.login("uma")
@@ -242,7 +242,7 @@ class Access(Base):
         self.assertEqual(self.client.post("/deployments/d1/api/v1/instances/bk/actions", json={}, headers=uma).status_code, 200)
         self.assertEqual(self.client.post("/deployments/d1/api/v1/scenarios/discard-changes", headers=uma).status_code, 200)
         self.assertEqual(self.client.post("/deployments/d1/api/v1/changes/discard", headers=uma).status_code, 200)
-        self.assertEqual(self.client.post("/deployments/d1/api/v1/base/presets/slow-links/apply", headers=uma).status_code, 200)
+        self.assertEqual(self.client.post("/deployments/d1/api/v1/core/presets/slow-links/apply", headers=uma).status_code, 200)
         for method, path in (("POST", "base/configure"), ("POST", "base/deploy"), ("POST", "instances"), ("PUT", "enclaves/bank"),
                              ("POST", "base/presets"), ("DELETE", "base/presets/slow-links"), ("POST", "jobs/j1/retry"), ("DELETE", "base")):
             r = self.client.request(method, f"/deployments/d1/api/v1/{path}", json={}, headers=uma)
@@ -250,14 +250,14 @@ class Access(Base):
 
     def test_build_access_builds_but_doesnt_destroy_the_base(self):
         carol = self.login("carol")
-        self.assertEqual(self.client.post("/deployments/d1/api/v1/base/configure", headers=carol).status_code, 200)
-        self.assertEqual(self.client.delete("/deployments/d1/api/v1/base", headers=carol).status_code, 403)
-        self.assertEqual(self.client.delete("/deployments/d1/api/v1/base", headers=self.login("bob")).status_code, 200)
+        self.assertEqual(self.client.post("/deployments/d1/api/v1/core/configure", headers=carol).status_code, 200)
+        self.assertEqual(self.client.delete("/deployments/d1/api/v1/core", headers=carol).status_code, 403)
+        self.assertEqual(self.client.delete("/deployments/d1/api/v1/core", headers=self.login("bob")).status_code, 200)
 
     def test_the_default_alias_is_checked_too(self):
         registry.set_default("d2")
-        self.assertEqual(self.client.get("/api/v1/base", headers=self.login("uma")).status_code, 404)
-        self.assertEqual(self.client.get("/api/v1/base", headers=self.login("alice")).status_code, 200)
+        self.assertEqual(self.client.get("/api/v1/core", headers=self.login("uma")).status_code, 404)
+        self.assertEqual(self.client.get("/api/v1/core", headers=self.login("alice")).status_code, 200)
 
     def test_websockets_are_checked_and_get_the_service_token(self):
         uma = self.login("uma")["Authorization"].split()[1]
@@ -340,7 +340,7 @@ class Audit(Base):
         bob = self.login("bob")
         self.client.post("/api/v1/auth/login", json={"username": "bob", "password": "wrong password!"})
         self.client.post("/deployments/d1/api/v1/instances", json={}, headers=bob)
-        self.client.get("/deployments/d1/api/v1/base", headers=bob)
+        self.client.get("/deployments/d1/api/v1/core", headers=bob)
         self.assertEqual(self.client.get("/api/v1/audit", headers=bob).status_code, 403)
         entries = self.client.get("/api/v1/audit", headers=self.login("alice")).json()
         summary = [(e["user"], e["method"], e["path"], e["status"], e.get("deployment")) for e in entries]

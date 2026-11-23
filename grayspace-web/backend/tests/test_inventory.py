@@ -1,4 +1,4 @@
-"""GET /api/v1/base/inventory and /api/v1/base/dns (services/inventory.py), and the guest.update
+"""GET /api/v1/core/inventory and /api/v1/core/dns (services/inventory.py), and the guest.update
 events the state monitor publishes, against the golden tfvars.
 
 Run from grayspace-web/backend: python -m unittest discover -s tests -t .
@@ -65,7 +65,7 @@ class Api(unittest.TestCase):
 
 class GetInventory(Api):
     def test_everything_deployed(self):
-        body = self.get("/api/v1/base/inventory")
+        body = self.get("/api/v1/core/inventory")
         self.assertEqual(body["version"], FULL["base"])
         self.assertEqual(body["customer_dhcp_start"], 20)
         self.assertEqual({r["hostname"] for r in body["routers"]}, set(FULL["routers"]))
@@ -75,12 +75,12 @@ class GetInventory(Api):
         self.assertEqual({i["name"] for i in body["isps"]}, {r["isp_name"] for r in FULL["routers"].values()})
 
     def test_scope_is_what_was_deployed(self):
-        body = self.get("/api/v1/base/inventory", tfvars=TIER1)
+        body = self.get("/api/v1/core/inventory", tfvars=TIER1)
         self.assertEqual(len(body["routers"]), len(TIER1["routers"]))
         self.assertLess(len(body["routers"]), len(FULL["routers"]))
 
     def test_router(self):
-        router = next(r for r in self.get("/api/v1/base/inventory")["routers"] if r["hostname"] == "lum-seo")
+        router = next(r for r in self.get("/api/v1/core/inventory")["routers"] if r["hostname"] == "lum-seo")
         self.assertEqual(router["isp"], "Lumen")
         self.assertEqual(router["asn"], 3356)
         self.assertEqual(router["location"], "Seoul")
@@ -91,7 +91,7 @@ class GetInventory(Api):
         self.assertIn({"name": "eth1", "bridge": "v318", "ip": "203.254.80.1", "prefix_len": 24, "ospf_area": None}, router["interfaces"])
 
     def test_link_has_both_ends(self):
-        body = self.get("/api/v1/base/inventory", link_states={LINK: {"state": "down", "diagnostics": []}})
+        body = self.get("/api/v1/core/inventory", link_states={LINK: {"state": "down", "diagnostics": []}})
         link = next(item for item in body["links"] if item["id"] == LINK)
         self.assertEqual(link["subnet"], "172.16.0.144/30")
         self.assertEqual(link["bridge"], "v213")
@@ -101,7 +101,7 @@ class GetInventory(Api):
         self.assertTrue(all(item["state"] == "unknown" for item in body["links"] if item["id"] != LINK))
 
     def test_core_services(self):
-        services = {s["hostname"]: s for s in self.get("/api/v1/base/inventory")["core_services"]}
+        services = {s["hostname"]: s for s in self.get("/api/v1/core/inventory")["core_services"]}
         self.assertEqual(services["root-a"]["role"], "root-dns")
         self.assertEqual(services["root-a"]["zones"], ["."])
         self.assertEqual(services["dns-gtld"]["zones"], ["com", "net", "org"])
@@ -116,14 +116,14 @@ class GetInventory(Api):
         statuses = {h: "running" for h in guests(FULL)}
         statuses["lum-seo"] = "stopped"
         del statuses["dns-google"]
-        body = self.get("/api/v1/base/inventory", statuses=statuses)
+        body = self.get("/api/v1/core/inventory", statuses=statuses)
         status = {g["hostname"]: g["status"] for key in ("routers", "core_services") for g in body[key]}
         self.assertEqual(status["lum-seo"], "stopped")
         self.assertEqual(status["dns-google"], "missing")
         self.assertEqual(status["root-a"], "running")
 
     def test_status_without_proxmox_is_null(self):
-        body = self.get("/api/v1/base/inventory", statuses=None)
+        body = self.get("/api/v1/core/inventory", statuses=None)
         self.assertTrue(all(g["status"] is None for key in ("routers", "clients", "core_services") for g in body[key]))
 
     def test_proxmox_listing_nothing_is_unavailable(self):
@@ -141,7 +141,7 @@ def records(zone, **match):
 
 class GetDns(Api):
     def test_base_zones(self):
-        body = self.get("/api/v1/base/dns")
+        body = self.get("/api/v1/core/dns")
         by_name = zones(body)
         tlds = {z for s in FULL["core_dns"].values() if s["role"] == "tld" for v in s["zones"] for z in v.split(",")}
         self.assertEqual(set(by_name), {"."} | tlds)
@@ -151,7 +151,7 @@ class GetDns(Api):
                          {("dns-google", "8.8.8.8"), ("dns-quad9", "9.9.9.9"), ("dns-krnic", "118.221.112.10"), ("dns-yandex", "77.88.8.8")})
 
     def test_root_zone(self):
-        root = zones(self.get("/api/v1/base/dns"))["."]
+        root = zones(self.get("/api/v1/core/dns"))["."]
         self.assertEqual(root["kind"], "root")
         self.assertEqual({s["hostname"] for s in root["servers"]}, {"root-a", "root-k", "root-m"})
         self.assertIn((".", "NS", "root-a.root-servers.net."), records(root))
@@ -161,13 +161,13 @@ class GetDns(Api):
         self.assertTrue(all(r["ttl"] == 86400 and r["origin"] == "base" for r in root["records"]))
 
     def test_tld_zone(self):
-        com = zones(self.get("/api/v1/base/dns"))["com"]
+        com = zones(self.get("/api/v1/core/dns"))["com"]
         self.assertEqual(com["kind"], "tld")
         self.assertEqual(com["servers"], [{"hostname": "dns-gtld", "ip": "216.239.34.10"}])
         self.assertEqual(records(com), [("com.", "NS", "ns1.com."), ("ns1.com.", "A", "216.239.34.10")])
 
     def test_overlay_domain(self):
-        by_name = zones(self.get("/api/v1/base/dns", domains=OVERLAY_DOMAINS))
+        by_name = zones(self.get("/api/v1/core/dns", domains=OVERLAY_DOMAINS))
         domain = by_name["example.org"]
         self.assertEqual((domain["kind"], domain["origin"]), ("domain", "overlay"))
         self.assertEqual(domain["servers"], [{"hostname": "dns-aws", "ip": "205.251.192.123"}])
@@ -183,7 +183,7 @@ class GetDns(Api):
                          [("example.org.", "NS", "ns1.example.org."), ("ns1.example.org.", "A", "205.251.192.123")])
 
     def test_instance_domain_and_records(self):
-        by_name = zones(self.get("/api/v1/base/dns", records=OVERLAY_RECORDS, instances=[instance()]))
+        by_name = zones(self.get("/api/v1/core/dns", records=OVERLAY_RECORDS, instances=[instance()]))
         domain = by_name["dailychronicle.com"]
         self.assertEqual((domain["origin"], domain["instance"]), ("instance", "ie"))
         self.assertIn(("www.dailychronicle.com.", "A", "198.41.0.2"), records(domain, origin="instance", instance="ie"))
@@ -194,7 +194,7 @@ class GetDns(Api):
 
     def test_record_in_an_unknown_zone(self):
         stray = [{"server": "dns-ovh", "zone": "Stray.Example.", "name": "host", "type": "A", "data": "1.2.3.4"}]
-        zone = zones(self.get("/api/v1/base/dns", records=stray))["stray.example"]
+        zone = zones(self.get("/api/v1/core/dns", records=stray))["stray.example"]
         self.assertEqual(zone["servers"], [{"hostname": "dns-ovh", "ip": "213.186.33.99"}])
         self.assertEqual(zone["records"][0]["name"], "host.stray.example.")
         self.assertEqual(zone["records"][0]["ttl"], 3600)

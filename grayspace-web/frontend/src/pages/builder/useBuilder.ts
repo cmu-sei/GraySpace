@@ -71,12 +71,12 @@ export const useBuilder = (canBuild: boolean, playerEnabled = false): Builder =>
         setLibrary(mine);
         setSpecs(Object.fromEntries(details.filter((d) => d?.spec).map((d) => [d!.slug, d!.spec as unknown as EnclaveSpec])));
         const deployed = found.find((v) => v.deployed);
-        setBaseState(draft.base ?? (deployed ? { version: deployed.name, scope: 'full', configure: true } : found[0] ? { version: found[0].name, scope: 'full', configure: true } : null));
+        setBaseState(draft.core ?? (deployed ? { version: deployed.name, scope: 'full', configure: true } : found[0] ? { version: found[0].name, scope: 'full', configure: true } : null));
         setEnclaves(draft.enclaves);
         setPlayerState(draft.player ?? (playerEnabled ? newPlayer() : null));
         setAdopted(Boolean(draft.adopted));
         setSavedAt(draft.updated ?? null);
-        setDraftDirty(!draft.base && !deployed && Boolean(found[0]));
+        setDraftDirty(!draft.core && !deployed && Boolean(found[0]));
       } catch (err) {
         if (!stopped) setError(err instanceof Error ? err.message : String(err));
       } finally {
@@ -195,7 +195,7 @@ export const useBuilder = (canBuild: boolean, playerEnabled = false): Builder =>
         next = next.map((e) => (e.slug === slug ? { ...e, version: stored.version } : e));
       }
       if (draftDirty || dirtySpecs.size) {
-        const saved = await apiService.putDraft({ base, enclaves: next, ...(playerEnabled ? { player } : {}) });
+        const saved = await apiService.putDraft({ core: base, enclaves: next, ...(playerEnabled ? { player } : {}) });
         setEnclaves(saved.enclaves);
         setSavedAt(saved.updated ?? null);
         setAdopted(false);

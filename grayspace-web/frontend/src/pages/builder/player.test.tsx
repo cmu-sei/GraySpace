@@ -8,7 +8,7 @@ import { deployment, fakeServer, SilentWebSocket } from '../../testing';
 import { BuildWizard } from './BuildWizard';
 
 const GUESTS = {
-  base: [
+  core: [
     { hostname: 'lum-chi', group: 'routers', isp: 'Lumen' }, { hostname: 'lum-nyc', group: 'routers', isp: 'Lumen' },
     { hostname: 'com-nyc', group: 'routers', isp: 'Comcast' }, { hostname: 'root-a', group: 'core_services', role: 'root-dns' },
     { hostname: 'prometheus', group: 'management' },
@@ -16,7 +16,7 @@ const GUESTS = {
   enclaves: [{ prefix: 'mb', slug: 'meridian-bank', sites: [{ name: 'hq', edge: 'mb-hq-edge', hint: true }],
     hosts: [{ name: 'web01', count: 1, image: 'ubuntu', hint: false }, { name: 'ws', count: 40, image: 'ubuntu', hint: true }] }],
 };
-const DRAFT = { base: { version: 'grayspace/2026.11', scope: 'full', configure: true }, enclaves: [{ slug: 'meridian-bank', prefix: 'mb', version: null }] };
+const DRAFT = { core: { version: 'grayspace/2026.11', scope: 'full', configure: true }, enclaves: [{ slug: 'meridian-bank', prefix: 'mb', version: null }] };
 
 beforeEach(() => {
   (global as unknown as { WebSocket: unknown }).WebSocket = SilentWebSocket;
@@ -27,7 +27,7 @@ afterEach(() => apiService.setDeployment(null));
 const serve = (draft: unknown = DRAFT) => fakeServer((url, init) => {
   if (url.endsWith('/api/v1/draft') && init?.method === 'PUT') return { body: { ...JSON.parse(String(init.body)), updated: new Date().toISOString() } };
   if (url.endsWith('/api/v1/draft')) return { body: draft };
-  if (url.endsWith('/api/v1/base/versions')) return { body: [{ name: 'grayspace/2026.11', csv_sha256: 'x', deployed: true, problems: [], summary: null }] };
+  if (url.endsWith('/api/v1/core/versions')) return { body: [{ name: 'grayspace/2026.11', csv_sha256: 'x', deployed: true, problems: [], summary: null }] };
   if (url.endsWith('/api/v1/enclaves')) return { body: [] };
   if (url.includes('/api/v1/capabilities')) return { body: null };
   if (url.endsWith('/api/v1/player/templates')) return { body: [{ id: 't-vms', name: 'VMs', embeddable: true }, { id: 't-map', name: 'Map' }] };

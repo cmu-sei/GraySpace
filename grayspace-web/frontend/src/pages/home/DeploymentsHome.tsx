@@ -43,10 +43,10 @@ const Card: React.FC<{ d: Deployment; username?: string; admin: boolean }> = ({ 
         <span className={`gs-pill ${tone}`}>{state === 'deploying' ? '⟳ ' : ''}{label}</span>
       </div>
       <div className="gs-muted" style={{ margin: '6px 0' }}>
-        {d.base?.version?.name || 'no core yet'}{d.base?.scope ? ` · ${d.base.scope}` : ''}{d.proxmox.node ? ` · ${d.proxmox.node}` : ''}
+        {d.core?.version?.name || 'no core yet'}{d.core?.scope ? ` · ${d.core.scope}` : ''}{d.proxmox.node ? ` · ${d.proxmox.node}` : ''}
       </div>
       <div className="gs-row" style={{ flexWrap: 'wrap', gap: 5 }}>
-        {d.base?.routers ? <span className="gs-tag">{d.base.routers} routers</span> : null}
+        {d.core?.routers ? <span className="gs-tag">{d.core.routers} routers</span> : null}
         <span className="gs-tag">{instances} enclave instance{instances === 1 ? '' : 's'}</span>
         {d.summary?.instances_failed ? <span className="gs-pill bad">{d.summary.instances_failed} failed</span> : null}
         {d.owner && <span className="gs-tag">owner {d.owner}</span>}

@@ -48,7 +48,7 @@ export const PresetModal: React.FC<Props> = ({ onClose, onChanged, canOperate, c
     try {
       const c = await apiService.getChanges();
       setChanges(c);
-      setList(c.base ? await apiService.getBasePresets() : []);
+      setList(c.core ? await apiService.getBasePresets() : []);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
@@ -83,7 +83,7 @@ export const PresetModal: React.FC<Props> = ({ onClose, onChanged, canOperate, c
     run(`apply:${preset ?? ''}`, () => apiService.applyBasePreset(preset));
   };
   const save = () => {
-    if (list.some((p) => p.name === name) && !window.confirm(`Replace the preset ${name} for every deployment on ${changes?.base}?`)) return;
+    if (list.some((p) => p.name === name) && !window.confirm(`Replace the preset ${name} for every deployment on ${changes?.core}?`)) return;
     run('save', async () => {
       await apiService.saveBasePreset(name, description);
       setName('');
@@ -91,7 +91,7 @@ export const PresetModal: React.FC<Props> = ({ onClose, onChanged, canOperate, c
     });
   };
   const remove = (preset: string) => {
-    if (!window.confirm(`Delete the preset ${preset} for every deployment on ${changes?.base}?`)) return;
+    if (!window.confirm(`Delete the preset ${preset} for every deployment on ${changes?.core}?`)) return;
     run(`delete:${preset}`, () => apiService.deleteBasePreset(preset));
   };
   const onUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,11 +107,11 @@ export const PresetModal: React.FC<Props> = ({ onClose, onChanged, canOperate, c
   return (
     <div className="gs-modal-bg" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div className="gs-modal" style={{ width: 720 }} role="dialog" aria-label="Presets">
-        <h3 className="gs-row">Presets{changes?.base && <span className="gs-muted" style={{ fontWeight: 400 }}>· {changes.base}</span>}<span className="gs-spacer" />
+        <h3 className="gs-row">Presets{changes?.core && <span className="gs-muted" style={{ fontWeight: 400 }}>· {changes.core}</span>}<span className="gs-spacer" />
           <button className="gs-btn ghost sm" onClick={onClose} aria-label="Close">✕</button></h3>
         <div className="gs-muted" style={{ marginBottom: 10 }}>
           A preset is a saved set of changes to the core: link conditions, interface zones, DNS domains and records.
-          It belongs to the core version, so every deployment on {changes?.base ?? 'it'} can apply it. Enclaves have their own, on their page.
+          It belongs to the core version, so every deployment on {changes?.core ?? 'it'} can apply it. Enclaves have their own, on their page.
         </div>
         {error && <div className="gs-banner bad">{error}</div>}
         {result && (
@@ -146,7 +146,7 @@ export const PresetModal: React.FC<Props> = ({ onClose, onChanged, canOperate, c
           )}
         </div>
 
-        {canBuild && changes?.base && (
+        {canBuild && changes?.core && (
           <div className="gs-box">
             <h3>Save as a preset</h3>
             <div className="gs-row">
@@ -165,13 +165,13 @@ export const PresetModal: React.FC<Props> = ({ onClose, onChanged, canOperate, c
         )}
 
         <div className="gs-box">
-          <h3 className="gs-row">{changes?.base ? `Presets for ${changes.base}` : 'Presets'}<span className="gs-spacer" />
-            {canBuild && changes?.base && <>
+          <h3 className="gs-row">{changes?.core ? `Presets for ${changes.core}` : 'Presets'}<span className="gs-spacer" />
+            {canBuild && changes?.core && <>
               <button className="gs-btn ghost sm" disabled={Boolean(busy)} onClick={() => upload.current?.click()}>Upload…</button>
               <input ref={upload} type="file" accept=".json,application/json" style={{ display: 'none' }} onChange={onUpload} aria-label="Upload a preset" />
             </>}
           </h3>
-          {!changes?.base ? <div className="gs-muted">No core version is deployed: presets belong to one.</div> : (
+          {!changes?.core ? <div className="gs-muted">No core version is deployed: presets belong to one.</div> : (
             <table className="gs-table">
               <tbody>
                 <tr>
@@ -202,7 +202,7 @@ export const PresetModal: React.FC<Props> = ({ onClose, onChanged, canOperate, c
               </tbody>
             </table>
           )}
-          {changes?.base && list.length === 0 && <div className="gs-muted" style={{ marginTop: 6 }}>No presets saved for {changes.base} yet.</div>}
+          {changes?.core && list.length === 0 && <div className="gs-muted" style={{ marginTop: 6 }}>No presets saved for {changes.core} yet.</div>}
         </div>
       </div>
     </div>

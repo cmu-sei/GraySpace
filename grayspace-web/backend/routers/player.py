@@ -11,7 +11,7 @@ is applied. The view itself is the draft's player section (PUT /draft), deployed
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 
 from services import player
 from services.auth import require_token
@@ -47,7 +47,12 @@ class Role(BaseModel):
 
 
 class Guests(BaseModel):
-    base: List[Dict[str, Any]] = Field(..., description="{hostname, group: routers|core_services|management, isp, role, type}")
+    base: List[Dict[str, Any]] = Field(..., description="Deprecated (contract 1.26): the same as `core`", json_schema_extra={"deprecated": True})
+
+    @computed_field(description="The core's guests: {hostname, group: routers|core_services|management, isp, role, type}")
+    @property
+    def core(self) -> List[Dict[str, Any]]:
+        return self.base
     enclaves: List[Dict[str, Any]] = Field(..., description="Per draft enclave: {prefix, slug, sites: [{name, edge, hint}], hosts: "
                                            "[{name, count, image, hint}]}; hint: the spec marks it crucible: true")
 

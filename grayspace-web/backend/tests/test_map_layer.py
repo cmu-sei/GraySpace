@@ -164,13 +164,13 @@ class Endpoint(unittest.TestCase):
         app.include_router(map_router.router)
         client = TestClient(app, headers=AUTH)
         with patch.object(map_router.store, "live_instances", side_effect=AssertionError("no enclaves in a preview")):
-            body = client.get("/api/v1/base/preview?version=grayspace/2026.11&scope=tier1").json()
-            full = client.get("/api/v1/base/preview?version=grayspace/2026.11").json()
+            body = client.get("/api/v1/core/preview?version=grayspace/2026.11&scope=tier1").json()
+            full = client.get("/api/v1/core/preview?version=grayspace/2026.11").json()
         routers = [f for f in body["features"] if f["properties"]["kind"] == "router"]
         self.assertTrue(routers)
         self.assertLess(len(routers), len([f for f in full["features"] if f["properties"]["kind"] == "router"]))
         self.assertEqual({f["properties"]["status"] for f in routers}, {"unknown"})
-        self.assertEqual(client.get("/api/v1/base/preview?version=nope/1").status_code, 404)
+        self.assertEqual(client.get("/api/v1/core/preview?version=nope/1").status_code, 404)
 
 
 if __name__ == "__main__":

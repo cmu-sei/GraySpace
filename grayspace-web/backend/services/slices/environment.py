@@ -83,7 +83,7 @@ def jobs_available() -> Tuple[bool, Optional[str]]:
     if not (slice_module() / "main.tf").is_file() or not (codebase() / "ansible" / "slice.yml").is_file():
         return False, f"No GraySpace checkout at {codebase()} (CODEBASE_PATH)"
     if not (codebase() / ".ssh" / "terraform_key.pub").is_file():
-        return False, "The core's SSH key (.ssh/terraform_key) is missing; deploy the core first (POST /api/v1/base/deploy)"
+        return False, "The core's SSH key (.ssh/terraform_key) is missing; deploy the core first (POST /api/v1/core/deploy)"
     return True, None
 
 

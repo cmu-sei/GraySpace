@@ -181,7 +181,7 @@ export interface InstanceView {
   /** Deprecated (contract 1.5): the same as enclave */
   slice: SliceRef;
   enclave?: SliceRef;
-  base: { name: string | null; csv_sha256: string; scope: string } | null;
+  core: { name: string | null; csv_sha256: string; scope: string } | null;
   state: InstanceState;
   sites: ManifestSite[];
   hosts: ManifestHost[];

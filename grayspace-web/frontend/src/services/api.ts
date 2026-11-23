@@ -374,29 +374,29 @@ class APIService {
 
   /** The base version's presets: the deployed one's, or base's */
   async getBasePresets(base?: string): Promise<PresetSummary[]> {
-    return this.fetchJSON<PresetSummary[]>(`/api/v1/base/presets${base ? `?base=${encodeURIComponent(base)}` : ''}`);
+    return this.fetchJSON<PresetSummary[]>(`/api/v1/core/presets${base ? `?base=${encodeURIComponent(base)}` : ''}`);
   }
 
   async getBasePreset(name: string): Promise<Preset> {
-    return this.fetchJSON<Preset>(`/api/v1/base/presets/${encodeURIComponent(name)}`);
+    return this.fetchJSON<Preset>(`/api/v1/core/presets/${encodeURIComponent(name)}`);
   }
 
   /** The tracked changes as a preset of the deployed base version; it becomes the active preset */
   async saveBasePreset(name: string, description: string = ''): Promise<Preset> {
-    return this.fetchJSON<Preset>('/api/v1/base/presets', { method: 'POST', body: JSON.stringify({ name, description }) });
+    return this.fetchJSON<Preset>('/api/v1/core/presets', { method: 'POST', body: JSON.stringify({ name, description }) });
   }
 
   async putBasePreset(preset: Preset): Promise<Preset> {
-    return this.fetchJSON<Preset>(`/api/v1/base/presets/${encodeURIComponent(preset.name)}`, { method: 'PUT', body: JSON.stringify(preset) });
+    return this.fetchJSON<Preset>(`/api/v1/core/presets/${encodeURIComponent(preset.name)}`, { method: 'PUT', body: JSON.stringify(preset) });
   }
 
   async deleteBasePreset(name: string): Promise<void> {
-    await this.fetchJSON(`/api/v1/base/presets/${encodeURIComponent(name)}`, { method: 'DELETE' });
+    await this.fetchJSON(`/api/v1/core/presets/${encodeURIComponent(name)}`, { method: 'DELETE' });
   }
 
   /** Reset changes, then the preset; null: none, the base as deployed */
   async applyBasePreset(name: string | null): Promise<ApplyPresetResult> {
-    return this.fetchJSON<ApplyPresetResult>(`/api/v1/base/presets/${encodeURIComponent(name ?? 'none')}/apply`, { method: 'POST' });
+    return this.fetchJSON<ApplyPresetResult>(`/api/v1/core/presets/${encodeURIComponent(name ?? 'none')}/apply`, { method: 'POST' });
   }
 
 
@@ -408,7 +408,7 @@ class APIService {
 
   /** A shipped base version's map as it would deploy, without state (GET /base/preview) */
   async getBasePreview(version: string, scope: string): Promise<FeatureCollection> {
-    return this.fetchJSON<FeatureCollection>(`/api/v1/base/preview?version=${encodeURIComponent(version)}&scope=${scope}`);
+    return this.fetchJSON<FeatureCollection>(`/api/v1/core/preview?version=${encodeURIComponent(version)}&scope=${scope}`);
   }
 
   async getMap(instance?: string): Promise<FeatureCollection> {
@@ -436,7 +436,7 @@ class APIService {
   async validateSlice(spec: SliceSpec | EnclaveSpec, base?: { version: string; scope: string } | null, instance?: string): Promise<ValidateResult> {
     const params = new URLSearchParams();
     if (base) {
-      params.set('base', base.version);
+      params.set('core', base.version);
       params.set('scope', base.scope);
     }
     if (instance) params.set('instance', instance);
@@ -450,11 +450,11 @@ class APIService {
 
   // The builder: base versions, preflight, capabilities, the draft and the rollout
   async getBaseVersions(): Promise<BaseVersion[]> {
-    return this.fetchJSON<BaseVersion[]>('/api/v1/base/versions');
+    return this.fetchJSON<BaseVersion[]>('/api/v1/core/versions');
   }
 
   async getPreflight(version: string, scope: string): Promise<Preflight> {
-    return this.fetchJSON<Preflight>(`/api/v1/base/preflight?version=${encodeURIComponent(version)}&scope=${scope}`);
+    return this.fetchJSON<Preflight>(`/api/v1/core/preflight?version=${encodeURIComponent(version)}&scope=${scope}`);
   }
 
   async getCapabilities(version?: string, scope?: string): Promise<Capabilities> {
@@ -467,8 +467,8 @@ class APIService {
   }
 
   /** player: left out keeps no view; null removes it */
-  async putDraft(draft: Pick<Draft, 'base' | 'enclaves' | 'player'>): Promise<Draft> {
-    const body: Partial<Draft> = { base: draft.base, enclaves: draft.enclaves };
+  async putDraft(draft: Pick<Draft, 'core' | 'enclaves' | 'player'>): Promise<Draft> {
+    const body: Partial<Draft> = { core: draft.core, enclaves: draft.enclaves };
     if (draft.player !== undefined) body.player = draft.player;
     return this.fetchJSON<Draft>('/api/v1/draft', { method: 'PUT', body: JSON.stringify(body) });
   }
@@ -542,16 +542,16 @@ class APIService {
 
   // The base
   async getBase(): Promise<DeployedBase> {
-    return this.fetchJSON<DeployedBase>('/api/v1/base');
+    return this.fetchJSON<DeployedBase>('/api/v1/core');
   }
 
   async configureBase(): Promise<JobAccepted> {
-    return this.fetchJSON<JobAccepted>('/api/v1/base/configure', { method: 'POST', body: '{}' });
+    return this.fetchJSON<JobAccepted>('/api/v1/core/configure', { method: 'POST', body: '{}' });
   }
 
   /** Destroy the base; with destroyInstances, every live instance's destroy job is queued first. */
   async destroyBase(destroyInstances: boolean): Promise<JobRecord[]> {
-    return this.fetchJSON<JobRecord[]>(`/api/v1/base?destroy_instances=${destroyInstances}`, { method: 'DELETE' });
+    return this.fetchJSON<JobRecord[]>(`/api/v1/core?destroy_instances=${destroyInstances}`, { method: 'DELETE' });
   }
 
   async getJob(id: string): Promise<JobRecord> {

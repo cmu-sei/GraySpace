@@ -6,7 +6,7 @@
     "BaseSummary": {
       "properties": {
         "status": {
-          "description": "The deployed core's status (GET /deployments/{id}/api/v1/base), or unknown when the worker doesn't answer",
+          "description": "The deployed core's status (GET /deployments/{id}/api/v1/core), or unknown when the worker doesn't answer",
           "title": "Status",
           "type": "string"
         },
@@ -129,7 +129,9 @@
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "deprecated": true,
+          "description": "Deprecated (contract 1.26): the same as `core`"
         },
         "summary": {
           "anyOf": [
@@ -288,7 +290,8 @@
             }
           ],
           "default": null,
-          "description": "The newest core job (deploy, configure, destroy)"
+          "deprecated": true,
+          "description": "Deprecated (contract 1.26): the same as `last_core_job`"
         },
         "updated": {
           "anyOf": [

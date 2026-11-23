@@ -1,6 +1,6 @@
 """Whether this site can deploy a base.
 
-GET /api/v1/base/preflight runs these checks, and so does a deploy job's first stage. Each check
+GET /api/v1/core/preflight runs these checks, and so does a deploy job's first stage. Each check
 is ok, warning, error or unchecked; a deploy is refused while any is an error. They cover what has
 made first deploys fail: missing settings, the Proxmox API, storages that don't take snippets or
 templates, missing bridges, SDN, SSH to the host, and capacity.
@@ -98,7 +98,7 @@ def _simulated(version: Optional[str], scope: Optional[str]) -> Preflight:
     """A simulated deployment (services/dev_jobs.py) has no site to check: only the version and live instances."""
     checks = [_check("simulated", "warning", "This deployment is simulated (DEV_SIMULATE_DEPLOYMENT): Proxmox, storage and SSH aren't checked")]
     if not version:
-        checks.append(_check("version", "error", "No core is deployed; name a version (GET /api/v1/base/versions lists them)"))
+        checks.append(_check("version", "error", "No core is deployed; name a version (GET /api/v1/core/versions lists them)"))
     elif base_versions.get_version(version) is None:
         checks.append(_check("version", "error", base_versions.not_shipped(version)))
     else:
@@ -133,7 +133,7 @@ async def run(version: Optional[str] = None, scope: Optional[str] = None) -> Pre
 
     tfvars = None
     if not version:
-        checks.append(_check("version", "error", "No core is deployed; name a version (GET /api/v1/base/versions lists them)"))
+        checks.append(_check("version", "error", "No core is deployed; name a version (GET /api/v1/core/versions lists them)"))
     elif base_versions.get_version(version) is None:
         checks.append(_check("version", "error", base_versions.not_shipped(version)))
     else:

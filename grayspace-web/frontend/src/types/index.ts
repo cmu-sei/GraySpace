@@ -360,7 +360,7 @@ export interface TrackedChange {
 /** GET /api/v1/changes: the active base preset and the changes since it */
 export interface TrackedChanges {
   preset: string | null;
-  base: string | null;
+  core: string | null;
   count: number;
   changes: TrackedChange[];
 }

@@ -37,7 +37,7 @@ const Banner: React.FC<{ deployment: Deployment; canBuild: boolean }> = ({ deplo
     <>
       {state === 'none' && <div className="gs-banner warn">Nothing is deployed on {id} yet. Choose a core and enclaves, then deploy from Review.</div>}
       {state === 'deploying' && job && <div className="gs-banner info">⟳ {job.kind}{job.stage ? `: ${job.stage}` : ''}{job.attempt ? ` (${job.attempt})` : ''}. <Link to={`/d/${id}/jobs/${job.id}`}>Follow it</Link></div>}
-      {state === 'failed' && <div className="gs-banner bad">The last core job failed. <Link to={`/d/${id}/jobs/${deployment.summary?.last_base_job?.id}`}>See why</Link>, or retry it from Jobs.</div>}
+      {state === 'failed' && <div className="gs-banner bad">The last core job failed. <Link to={`/d/${id}/jobs/${deployment.summary?.last_core_job?.id}`}>See why</Link>, or retry it from Jobs.</div>}
       {isLive(deployment) && <div className="gs-banner info">{id} is live. Core changes run a new deploy; adding or removing enclaves creates or destroys their instances. Review shows what would change first.</div>}
       {!canBuild && <div className="gs-banner warn">You can see the configuration but not change it: building needs build access.</div>}
     </>

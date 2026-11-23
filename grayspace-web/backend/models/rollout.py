@@ -1,7 +1,7 @@
 """The draft (what a deployment should have) and the rollout that makes it so (services/rollout.py)."""
 from typing import List, Literal, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field, model_validator
 
 from models.base import BaseVersionRef
 from models.capabilities import Capacity
@@ -69,9 +69,18 @@ class DraftPlayer(BaseModel):
 
 
 class DraftUpdate(BaseModel):
-    base: Optional[DraftBase] = Field(None, description="Null: keep the deployed core, or deploy none")
+    core: Optional[DraftBase] = Field(None, description="Null: keep the deployed core, or deploy none")
+    base: Optional[DraftBase] = Field(None, description="Deprecated (contract 1.26): the same as `core`; give one, or both the same",
+                                      json_schema_extra={"deprecated": True})
     enclaves: List[DraftEnclave] = Field(default_factory=list, description="The instances the deployment should have")
     player: Optional[DraftPlayer] = Field(None, description="The Player view; null for none (removed if there is one)")
+
+    @model_validator(mode="after")
+    def _core_or_base(self):
+        if self.core and self.base and self.core != self.base:
+            raise ValueError("core and base name different cores; give core only")
+        self.core = self.base = self.core or self.base
+        return self
 
 
 class Draft(DraftUpdate):
@@ -109,7 +118,13 @@ class PlannedPlayer(BaseModel):
 
 class DeployPlan(BaseModel):
     """What POST /deploy would do: the draft against what is deployed."""
-    base: PlannedBase
+    base: PlannedBase = Field(..., description="Deprecated (contract 1.26): the same as `core`", json_schema_extra={"deprecated": True})
+
+    @computed_field(description="What happens to the core")
+    @property
+    def core(self) -> PlannedBase:
+        return self.base
+
     instances: List[PlannedInstance]
     unmanaged: List[str] = Field(default_factory=list, description="Live instances made outside the draft (by GHOSTS, the API): left alone")
     problems: List[str] = Field(default_factory=list, description="Why the draft can't be deployed as it is")

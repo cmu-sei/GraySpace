@@ -27,6 +27,7 @@ class Api(test_slice_api.Api):
     def setUp(self):
         super().setUp()
         self.client.app.include_router(presets_router.router)
+        self.client.app.include_router(presets_router.legacy_router)
         self.client.app.include_router(changes.router)
         self.client.app.include_router(changes.legacy_router)
         for p in (patch.object(topology_service, "tfvars_data", TFVARS), patch.object(mutation_tracker, "preset", None),
@@ -43,7 +44,7 @@ class BasePresets(Api):
     def test_save_list_get_delete(self):
         link = self.link()
         self.shape(link)
-        r = self.client.post("/api/v1/base/presets", json={"name": "slow-links", "description": "Transatlantic at 80 ms"})
+        r = self.client.post("/api/v1/core/presets", json={"name": "slow-links", "description": "Transatlantic at 80 ms"})
         self.assertEqual(r.status_code, 200, r.text)
         self.assertEqual(r.json()["owner"], {"kind": "base", "ref": VERSION})
         self.assertEqual(r.json()["actions"], [{"action": "link.condition", "target": link, "params": {"latency_ms": 80}}])
@@ -52,34 +53,37 @@ class BasePresets(Api):
         self.assertEqual(mutation_tracker.preset, "slow-links")
         body = self.client.get("/api/v1/changes").json()
         self.assertEqual((body["preset"], body["base"], body["baseline"], body["changes"]), ("slow-links", VERSION, "slow-links", []))
-        listed = self.client.get("/api/v1/base/presets").json()
+        listed = self.client.get("/api/v1/core/presets").json()
         self.assertEqual([(p["name"], p["actions"], p["kinds"], p["problems"]) for p in listed], [("slow-links", 1, {"link.condition": 1}, [])])
+        self.assertEqual(self.client.get(f"/api/v1/core/presets?core={VERSION}").json(), listed)
+        self.assertEqual(self.client.get("/api/v1/core/presets?core=other/1").json(), [])
+        # The names before 1.26
         self.assertEqual(self.client.get(f"/api/v1/base/presets?base={VERSION}").json(), listed)
         self.assertEqual(self.client.get("/api/v1/base/presets?base=other/1").json(), [])
-        self.assertEqual(self.client.get("/api/v1/base/presets/slow-links").json()["description"], "Transatlantic at 80 ms")
-        self.assertEqual(self.client.delete("/api/v1/base/presets/slow-links").status_code, 204)
-        self.assertEqual(self.client.get("/api/v1/base/presets/slow-links").status_code, 404)
+        self.assertEqual(self.client.get("/api/v1/core/presets/slow-links").json()["description"], "Transatlantic at 80 ms")
+        self.assertEqual(self.client.delete("/api/v1/core/presets/slow-links").status_code, 204)
+        self.assertEqual(self.client.get("/api/v1/core/presets/slow-links").status_code, 404)
         # Its changes stay, now on the base itself
         self.assertIsNone(mutation_tracker.preset)
         self.assertIn(link, mutation_tracker.traffic_configs)
 
     def test_names_and_versions_are_checked(self):
-        self.assertEqual(self.client.post("/api/v1/base/presets", json={"name": "Slow Links"}).status_code, 422)
-        self.assertEqual(self.client.get("/api/v1/base/presets?base=../../etc").status_code, 422)
+        self.assertEqual(self.client.post("/api/v1/core/presets", json={"name": "Slow Links"}).status_code, 422)
+        self.assertEqual(self.client.get("/api/v1/core/presets?base=../../etc").status_code, 422)
         with patch.object(topology_service, "tfvars_data", {}):
-            self.assertEqual(self.client.post("/api/v1/base/presets", json={"name": "x"}).status_code, 409)
+            self.assertEqual(self.client.post("/api/v1/core/presets", json={"name": "x"}).status_code, 409)
 
     def test_problems_name_what_the_deployment_lacks(self):
         preset = Preset(name="elsewhere", owner=PresetOwner(kind="base", ref=VERSION), created="t",
                         actions=[PresetAction(action="link.condition", target="aaa:bbb", params={"latency_ms": 1}),
                                  PresetAction(action="link.condition", target="lum-chi:ntt-tok", params={"latency_ms": 1}),
                                  PresetAction(action="link.condition", target=self.link(), params={"latency_ms": 1})])
-        self.assertEqual(self.client.put("/api/v1/base/presets/elsewhere", json=preset.model_dump()).status_code, 200)
-        listed = self.client.get("/api/v1/base/presets").json()
+        self.assertEqual(self.client.put("/api/v1/core/presets/elsewhere", json=preset.model_dump()).status_code, 200)
+        listed = self.client.get("/api/v1/core/presets").json()
         self.assertEqual(listed[0]["problems"], ["No link aaa:bbb", "No link lum-chi:ntt-tok"])
         for action in ("host.stop", "client.move"):  # an instance action; base clients were retired (contract 1.18)
             bad = {**preset.model_dump(), "actions": [{"action": action, "target": "x"}]}
-            self.assertEqual(self.client.put("/api/v1/base/presets/elsewhere", json=bad).status_code, 422)
+            self.assertEqual(self.client.put("/api/v1/core/presets/elsewhere", json=bad).status_code, 422)
 
     def test_apply_resets_then_replays(self):
         link = self.link()
@@ -89,7 +93,7 @@ class BasePresets(Api):
         revert = AsyncMock(return_value=["Traffic x:y: unreachable"])
         tc = AsyncMock(return_value=(True, "applied"))
         with patch.object(base_changes, "revert_all", revert), patch("services.traffic_service.traffic_service.apply_link_traffic_config", tc):
-            r = self.client.post("/api/v1/base/presets/slow-links/apply")
+            r = self.client.post("/api/v1/core/presets/slow-links/apply")
         self.assertEqual(r.status_code, 200, r.text)
         self.assertEqual((r.json()["applied"], r.json()["warnings"]), ({"link.condition": 1}, ["Reset: Traffic x:y: unreachable"]))
         revert.assert_awaited_once()
@@ -103,7 +107,7 @@ class BasePresets(Api):
              patch("services.traffic_service.traffic_service.apply_link_traffic_config", tc):
             self.assertEqual(self.client.post("/api/v1/changes/discard").json()["message"], "Applied slow-links")
             self.assertEqual(self.client.post("/api/v1/scenarios/discard-changes").json()["message"], "Applied slow-links")
-            r = self.client.post("/api/v1/base/presets/none/apply")
+            r = self.client.post("/api/v1/core/presets/none/apply")
         self.assertEqual(r.json()["message"], "Back to the core as deployed")
         self.assertIsNone(mutation_tracker.preset)
         self.assertEqual(self.client.get("/api/v1/scenarios/mutations/count").json()["baseline"], "GraySpace")
@@ -145,7 +149,7 @@ class NoEnclavePresets(Api):
     def test_an_enclave_preset_file_is_refused(self):
         bad = Preset(name="phish", owner=PresetOwner(kind="base", ref=VERSION), created="t").model_dump()
         bad["owner"] = {"kind": "enclave", "ref": "meridian-bank"}
-        self.assertEqual(self.client.put("/api/v1/base/presets/phish", json=bad).status_code, 422)
+        self.assertEqual(self.client.put("/api/v1/core/presets/phish", json=bad).status_code, 422)
 
     def test_a_site_by_name(self):
         rec = self.ready()

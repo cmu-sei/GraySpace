@@ -226,7 +226,7 @@ class Routes(Simulated):
         self.assertEqual(r.status_code, 409)  # the rollout is queued
         listed = self.client.get("/api/v1/jobs?kind=rollout&state=queued", headers=AUTH).json()
         self.assertEqual([j["id"] for j in listed], [job["id"]])
-        self.assertEqual(self.client.post("/api/v1/base/configure", headers=AUTH).status_code, 409)
+        self.assertEqual(self.client.post("/api/v1/core/configure", headers=AUTH).status_code, 409)
 
     def test_a_rollout_for_an_earlier_draft_isnt_retried(self):
         store.put_slice(BANK)

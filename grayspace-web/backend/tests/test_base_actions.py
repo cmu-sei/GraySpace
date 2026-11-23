@@ -34,7 +34,7 @@ class Actions(test_slice_api.Api):
             self.addCleanup(p.stop)
 
     def post(self, action, target=None, **params):
-        return self.client.post("/api/v1/base/actions", json={"action": action, "target": target, "params": params})
+        return self.client.post("/api/v1/core/actions", json={"action": action, "target": target, "params": params})
 
     def test_changing_a_zone_twice_keeps_the_first_original(self):
         key = f"{ROUTER}:eth1"
